@@ -1,35 +1,55 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    /* Palette Premium Dark Peptides */
-    --color-background: 10 10 15;
-    --color-primary-glow: 56 189 248;
-    --color-secondary-glow: 139 92 246;
-    --color-text-muted: 148 163 184;
-  }
+/* Definición del Tema (Tailwind v4) */
+@theme {
+  --font-display: var(--font-poppins), sans-serif;
+  --font-sans: var(--font-inter), sans-serif;
+  
+  --color-brand-dark: #030014;
+  --color-brand-primary: #00C9FF; /* Cyan eléctrico */
+  --color-brand-secondary: #92FE9D; /* Verde Bio */
+}
 
-  html,
+@layer base {
   body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    scroll-behavior: smooth;
-    background-color: rgb(var(--color-background));
-    color: white;
-    overflow-x: hidden;
+    font-family: var(--font-sans);
+    background-color: var(--color-brand-dark);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 }
 
 @layer utilities {
-  .text-gradient-premium {
-    background: linear-gradient(135deg, white 0%, rgb(var(--color-text-muted)) 100%);
+  /* Fondo de vidrio premium */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Texto con gradiente de lujo */
+  .text-gradient-hero {
+    background: linear-gradient(to right, #fff 20%, #b4b4b4 50%, #fff 80%);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
+    color: transparent;
+    background-size: 200% auto;
+    animation: textShine 5s linear infinite;
   }
-  
-  .glow-effect {
-    text-shadow: 0 0 20px rgb(var(--color-primary-glow) / 0.5);
+}
+
+@keyframes textShine {
+  to {
+    background-position: 200% center;
   }
+}
+
+/* Animación de Aurora sutil */
+@keyframes aurora {
+  0% { background-position: 50% 50%, 50% 50%; }
+  100% { background-position: 350% 50%, 350% 50%; }
 }

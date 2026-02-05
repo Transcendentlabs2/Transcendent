@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google"; // Usamos Inter como fuente estándar limpia
+import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+// Configuración de fuentes Premium
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Transcendent | Coming Soon",
-  description: "Exclusive e-commerce coming soon.",
+  title: "Transcendent | Future of Peptides",
+  description: "Advanced bio-active peptide science.",
 };
 
 export default function RootLayout({
@@ -15,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={`${inter.className} antialiased min-h-screen flex flex-col`}>
+    <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
+      <body className="antialiased bg-[#030014] text-white selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-hidden">
         {children}
       </body>
     </html>
