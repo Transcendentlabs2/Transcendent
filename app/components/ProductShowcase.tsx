@@ -1,53 +1,131 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ArrowUpRight, Filter } from "lucide-react";
+import { Plus, ArrowRight, ShoppingCart } from "lucide-react";
 
-// Datos de Ejemplo (Simulando una API)
+// Datos Actualizados
 const PRODUCTS = [
   {
     id: 1,
-    name: "BPC-157",
-    category: "Healing",
-    formula: "C62H98N16O22",
-    mass: "1419.5 Da",
-    purity: "99.8%",
-    price: 55.00,
+    name: "TESAMORELIN",
+    sub: "Peptide Research Division",
+    dose: "10 mg",
+    type: "Lyophilized Peptide",
+    category: "Growth",
+    price: 85.00,
+    lot: "A1092",
     tag: "BEST SELLER"
   },
   {
     id: 2,
-    name: "TB-500",
+    name: "BPC-157",
+    sub: "Repair Protocol",
+    dose: "5 mg",
+    type: "Lyophilized Peptide",
     category: "Healing",
-    formula: "C212H350N56O78S",
-    mass: "4963.5 Da",
-    purity: "99.9%",
-    price: 65.00,
+    price: 55.00,
+    lot: "B2024",
     tag: "HIGH DEMAND"
   },
   {
     id: 3,
-    name: "SEMAGLUTIDE",
-    category: "Metabolic",
-    formula: "C187H291N45O59",
-    mass: "4113.6 Da",
-    purity: "99.5%",
-    price: 120.00,
+    name: "TB-500",
+    sub: "Recovery Agent",
+    dose: "10 mg",
+    type: "Lyophilized Peptide",
+    category: "Healing",
+    price: 65.00,
+    lot: "T3001",
     tag: null
   },
   {
     id: 4,
-    name: "IPAMORELIN",
-    category: "Growth",
-    formula: "C38H49N9O5",
-    mass: "711.85 Da",
-    purity: "99.9%",
-    price: 45.00,
-    tag: "STACKABLE"
+    name: "SEMAGLUTIDE",
+    sub: "Metabolic Research",
+    dose: "5 mg",
+    type: "Lyophilized Peptide",
+    category: "Metabolic",
+    price: 120.00,
+    lot: "S5050",
+    tag: "FAT LOSS"
   },
 ];
 
 const CATEGORIES = ["All", "Healing", "Metabolic", "Growth"];
+
+// --- SUBCOMPONENTE: EL FRASCO GENERADO POR CÓDIGO ---
+// Dibuja un vial estilo 3D idéntico a tu foto usando CSS
+const Vial3D = ({ product }: { product: any }) => (
+  <div className="relative w-32 h-64 mx-auto flex flex-col items-center justify-center filter drop-shadow-2xl">
+    
+    {/* 1. TAPA (CAP) */}
+    <div className="relative z-20 w-24 h-8 bg-blue-900 rounded-t-sm rounded-b-lg shadow-md border-b border-blue-950">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-700/50 to-transparent rounded-sm" />
+    </div>
+    
+    {/* 2. CUELLO Y SELLO METALICO */}
+    <div className="z-10 w-22 h-6 bg-slate-300 border-y border-slate-400 bg-gradient-to-r from-slate-400 via-white to-slate-400 rounded-sm" />
+    <div className="z-10 w-20 h-4 bg-slate-100/50 backdrop-blur-sm border-x border-slate-300" />
+
+    {/* 3. CUERPO DE VIDRIO (GLASS BODY) */}
+    <div className="relative z-10 w-28 h-48 bg-slate-200/20 backdrop-blur-md rounded-3xl border border-white/40 shadow-inner overflow-hidden">
+        
+        {/* Reflejos del vidrio */}
+        <div className="absolute top-0 left-2 w-2 h-full bg-white/40 blur-sm" />
+        <div className="absolute top-0 right-2 w-1 h-full bg-white/20 blur-sm" />
+        
+        {/* Contenido (Polvo blanco abajo) - Simula el "Lyophilized" */}
+        <div className="absolute bottom-0 w-full h-1/3 bg-gradient-to-t from-white via-slate-100 to-transparent opacity-90 backdrop-blur-xl" />
+
+        {/* 4. LA ETIQUETA (LABEL) */}
+        <div className="absolute top-4 left-[2px] right-[2px] bottom-4 bg-white shadow-sm flex flex-col items-center pt-4 px-2 text-center">
+            
+            {/* Logo Abstracto */}
+            <div className="w-6 h-6 mb-1">
+                 <svg viewBox="0 0 24 24" className="text-blue-900 fill-current">
+                     <path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z" />
+                 </svg>
+            </div>
+            
+            <h4 className="text-[6px] uppercase tracking-widest text-slate-500 font-bold mb-0.5">Transcendent Labs</h4>
+            <span className="text-[5px] text-slate-400 mb-2">{product.sub}</span>
+
+            {/* Nombre Producto */}
+            <h3 className="text-sm font-extrabold text-slate-900 leading-none mb-0.5 font-display tracking-tight">
+                {product.name}
+            </h3>
+            
+            <div className="flex items-center gap-1 justify-center mb-2">
+                <span className="text-[8px] font-bold text-slate-700">{product.dose}</span>
+                <span className="text-[6px] text-slate-400">•</span>
+                <span className="text-[6px] text-slate-500">{product.type}</span>
+            </div>
+
+            {/* Banner Gris de Advertencia */}
+            <div className="w-full bg-slate-200 py-1 mb-2">
+                <p className="text-[5px] font-bold text-slate-600 uppercase">For Research Use Only</p>
+                <p className="text-[4px] text-slate-500 uppercase">Not for human consumption</p>
+            </div>
+
+            {/* Footer de la etiqueta (Barcode y Lote) */}
+            <div className="mt-auto w-full flex justify-between items-end px-1 pb-1">
+                 {/* Barcode simulado con CSS */}
+                 <div className="flex items-end gap-[1px] h-4 opacity-80">
+                     {[...Array(15)].map((_,i) => (
+                         <div key={i} className={`w-[1px] bg-black ${i % 2 === 0 ? 'h-full' : 'h-3/4'}`} />
+                     ))}
+                 </div>
+                 <div className="text-[4px] text-right text-slate-500 leading-tight">
+                     <p>LOT: {product.lot}</p>
+                     <p>EXP: 12/2027</p>
+                     <p>Storage: 2-8°C</p>
+                 </div>
+            </div>
+        </div>
+    </div>
+  </div>
+);
+
 
 export default function ProductShowcase() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -91,96 +169,60 @@ export default function ProductShowcase() {
       {/* Grid de Productos */}
       <motion.div 
         layout
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
       >
         <AnimatePresence>
           {filteredProducts.map((product) => (
             <motion.div
               layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
               key={product.id}
-              className="group relative bg-[var(--bg-page)]/40 backdrop-blur-md border border-[var(--glass-border)] rounded-2xl overflow-hidden hover:border-[var(--color-brand-primary)]/50 transition-colors duration-300 flex flex-col"
+              className="group relative bg-[#E8E8E8] dark:bg-[#121212] rounded-[2rem] p-4 flex flex-col items-center text-center transition-all hover:shadow-[0_0_30px_rgba(0,201,255,0.15)]"
             >
-              {/* Card Header (Tag & Icon) */}
-              <div className="p-6 flex justify-between items-start z-10">
-                 {product.tag ? (
-                   <span className="bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)] text-[10px] font-bold px-2 py-1 rounded border border-[var(--color-brand-primary)]/20 uppercase tracking-wide">
+              {/* Tag Flotante */}
+              {product.tag && (
+                 <span className="absolute top-4 right-4 z-30 bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
                      {product.tag}
-                   </span>
-                 ) : <span />}
-                 
-                 <button className="text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
-                    <ArrowUpRight className="w-5 h-5" />
-                 </button>
+                 </span>
+              )}
+
+              {/* FONDO ILUMINADO DETRAS DEL FRASCO (Glow) */}
+              <div className="absolute top-10 w-32 h-32 bg-[var(--color-brand-primary)] rounded-full blur-[60px] opacity-20 group-hover:opacity-40 transition-opacity" />
+
+              {/* RENDERIZADO DEL FRASCO (Puro CSS) */}
+              <div className="relative z-10 transform group-hover:scale-105 group-hover:-translate-y-2 transition-transform duration-500 ease-out">
+                 <Vial3D product={product} />
               </div>
 
-              {/* Molecule Visual (Animated SVG) */}
-              <div className="relative h-40 w-full flex items-center justify-center my-2 group-hover:scale-110 transition-transform duration-500">
-                 {/* Fondo glow */}
-                 <div className="absolute inset-0 bg-[var(--color-brand-primary)] opacity-0 group-hover:opacity-10 blur-[60px] transition-opacity duration-500 rounded-full" />
+              {/* INFO DEL PRODUCTO (Fuera del frasco) */}
+              <div className="mt-6 w-full px-2 relative z-10">
+                 <h3 className="text-2xl font-bold font-display text-gray-900 dark:text-white mb-1">
+                    {product.name}
+                 </h3>
+                 <p className="text-xs text-gray-500 font-mono mb-4">{product.dose} • {product.category}</p>
                  
-                 <svg viewBox="0 0 100 100" className="w-32 h-32 stroke-[var(--text-main)] fill-none stroke-[0.5px]">
-                    <motion.path
-                      d="M50 20 L80 35 L80 65 L50 80 L20 65 L20 35 Z"
-                      initial={{ pathLength: 0, rotate: 0 }}
-                      animate={{ pathLength: 1, rotate: 360 }}
-                      transition={{ 
-                        pathLength: { duration: 2, ease: "easeInOut" },
-                        rotate: { duration: 20, repeat: Infinity, ease: "linear" }
-                      }}
-                      className="opacity-80"
-                    />
-                    <motion.circle 
-                       cx="50" cy="50" r="15" 
-                       className="stroke-[var(--color-brand-secondary)] opacity-50"
-                       animate={{ scale: [1, 1.2, 1] }}
-                       transition={{ duration: 4, repeat: Infinity }}
-                    />
-                    <path d="M50 20 L50 35 M80 35 L65 42 M80 65 L65 58 M50 80 L50 65 M20 65 L35 58 M20 35 L35 42" className="opacity-30" />
-                 </svg>
-              </div>
-
-              {/* Product Info */}
-              <div className="p-6 pt-0 mt-auto z-10 bg-gradient-to-t from-[var(--bg-page)] via-[var(--bg-page)]/80 to-transparent">
-                 <h3 className="text-2xl font-bold font-display text-[var(--text-main)] mb-1">{product.name}</h3>
-                 <p className="font-mono text-xs text-[var(--text-muted)] mb-4">{product.formula}</p>
-                 
-                 {/* Tech Specs Grid */}
-                 <div className="grid grid-cols-2 gap-2 mb-6 border-t border-[var(--glass-border)] pt-4">
-                    <div>
-                       <span className="block text-[10px] uppercase text-[var(--text-muted)] tracking-wider">Purity</span>
-                       <span className="font-mono text-sm text-[var(--color-brand-secondary)]">{product.purity}</span>
-                    </div>
-                    <div>
-                       <span className="block text-[10px] uppercase text-[var(--text-muted)] tracking-wider">Mass</span>
-                       <span className="font-mono text-sm text-[var(--text-main)]">{product.mass}</span>
-                    </div>
-                 </div>
-
-                 {/* Price & Action */}
-                 <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-[var(--text-main)]">${product.price.toFixed(2)}</span>
-                    <button className="flex items-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] px-4 py-2 rounded text-xs font-bold uppercase tracking-widest hover:bg-[var(--color-brand-primary)] hover:text-white transition-all transform hover:-translate-y-1">
-                       <Plus className="w-3 h-3" /> Add
+                 <div className="flex items-center justify-between mt-2 border-t border-gray-300 dark:border-gray-800 pt-4">
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">
+                        ${product.price.toFixed(2)}
+                    </span>
+                    
+                    <button className="flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-black px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:scale-105 transition-transform">
+                       Add <ShoppingCart className="w-3 h-3" />
                     </button>
                  </div>
               </div>
 
-              {/* Decorative Background Grid */}
-              <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" 
-                   style={{backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)", backgroundSize: "10px 10px"}}>
-              </div>
             </motion.div>
           ))}
         </AnimatePresence>
       </motion.div>
 
       <div className="mt-16 text-center">
-         <button className="border-b border-[var(--text-muted)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--text-main)] pb-1 text-sm font-mono uppercase tracking-widest transition-all">
-            View Full Research Catalog
+         <button className="flex items-center gap-2 mx-auto text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors text-sm font-mono uppercase tracking-widest group">
+            View Full Research Catalog <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
          </button>
       </div>
 
