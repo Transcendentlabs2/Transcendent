@@ -7,6 +7,8 @@ import Navbar from "./components/Navbar";     // <--- IMPORTAR
 import TrustTicker from "./components/TrustTicker"; // <--- IMPORTAR
 import LabGrid from "./components/LabGrid";   // <--- IMPORTAR
 import ProductShowcase from "./components/ProductShowcase";
+import FAQSection from "./components/FAQSection";
+import Footer from "./components/Footer";
 
 export default function Home() {
   
@@ -64,14 +66,12 @@ export default function Home() {
          </motion.p>
       </motion.div>
 
-      {/* --- NUEVAS SECCIONES --- */}
-      
-      {/* 1. Validación (Trust Ticker) */}
+  
       <TrustTicker />
-
-      {/* 2. Características (Lab Grid) */}
       <LabGrid />
       <ProductShowcase/>
+      <FAQSection/>
+      <Footer/>
 
       {/* Footer Stats (lo dejamos al final del todo) */}
       <div className="py-12 w-full px-6 flex justify-center text-[10px] text-[var(--text-muted)] font-mono uppercase border-t border-[var(--glass-border)]">
