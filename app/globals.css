@@ -1,23 +1,47 @@
 @import "tailwindcss";
 
-/* Configuración del Tema en Tailwind v4 */
 @theme {
   --font-display: var(--font-poppins), sans-serif;
   --font-sans: var(--font-inter), sans-serif;
-  
+  --font-mono: monospace; /* Usaremos la del sistema por ahora para datos */
+
   --color-brand-dark: #030014;
-  --color-brand-primary: #00C9FF; 
-  --color-brand-secondary: #92FE9D; 
+  --color-brand-light: #F8FAFC;
+  --color-brand-primary: #00C9FF;
+  --color-brand-secondary: #92FE9D;
+  
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Capa base con variables semánticas para el tema */
 @layer base {
+  :root {
+    --bg-page: #F8FAFC;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --accent-glow: rgba(0, 201, 255, 0.15);
+  }
+
+  [data-theme="dark"] {
+    --bg-page: #030014;
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --accent-glow: rgba(0, 201, 255, 0.3);
+  }
+
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-brand-dark);
-    margin: 0;
-    padding: 0;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
@@ -25,15 +49,15 @@
 
 @layer utilities {
   .glass-panel {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
   }
 
   .text-gradient-hero {
-    background: linear-gradient(to right, #fff 20%, #b4b4b4 50%, #fff 80%);
+    background: linear-gradient(to right, #00C9FF 0%, #92FE9D 50%, #00C9FF 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -44,4 +68,9 @@
 
 @keyframes textShine {
   to { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
