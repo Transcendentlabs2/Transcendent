@@ -1,10 +1,9 @@
 'use client';
 
 import { Atom } from "lucide-react";
-// Importamos todos los componentes
 import PremiumBackground from "./components/PremiumBackground";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero"; // <--- AHORA SÍ ESTÁ IMPORTADO
+import Hero from "./components/Hero"; 
 import TrustTicker from "./components/TrustTicker";
 import LabGrid from "./components/LabGrid";
 import ProductShowcase from "./components/ProductShowcase";
@@ -13,7 +12,10 @@ import Footer from "./components/Footer";
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-dvh flex-col overflow-x-hidden">
+    // Agregamos !scroll-smooth al html via clase global o inline style si fuera necesario, 
+    // pero idealmente deberías tener 'html { scroll-behavior: smooth; }' en tu globals.css.
+    // Next.js maneja esto bien con ids estandar.
+    <main className="relative flex min-h-dvh flex-col overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
       
       {/* Elementos Globales */}
       <Navbar /> 
@@ -24,20 +26,31 @@ export default function Home() {
 
       {/* --- SECCIONES DE LA PÁGINA --- */}
       
-      {/* 1. Hero Section */}
-      <Hero />
+      {/* 1. Hero Section (No necesita ID de scroll, es el top) */}
+      <section id="hero">
+        <Hero />
+      </section>
 
-      {/* 2. Trust Indicators */}
-      <TrustTicker />
+      {/* 2. Trust Indicators (Testing) */}
+      {/* scroll-mt-24 asegura que el navbar no tape el contenido al hacer scroll */}
+      <section id="testing" className="scroll-mt-24">
+        <TrustTicker />
+      </section>
       
-      {/* 3. Features / Lab Grid */}
-      <LabGrid />
+      {/* 3. Features / Lab Grid (Science) */}
+      <section id="science" className="scroll-mt-24">
+        <LabGrid />
+      </section>
       
       {/* 4. Product Catalog */}
-      <ProductShowcase />
+      <section id="catalog" className="scroll-mt-24">
+        <ProductShowcase />
+      </section>
       
       {/* 5. FAQ / Knowledge Base */}
-      <FAQSection />
+      <section id="faq" className="scroll-mt-24">
+        <FAQSection />
+      </section>
       
       {/* 6. Footer */}
       <Footer />

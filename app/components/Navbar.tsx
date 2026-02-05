@@ -14,11 +14,25 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Función para manejar el scroll suave manual (opcional, pero recomendado para UX perfecta)
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const targetId = href.replace("#", "");
+    const element = document.getElementById(targetId);
+    
+    if (element) {
+      // Cerramos menú móvil si está abierto
+      setMobileOpen(false);
+      // Scroll suave
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const navLinks = [
-    { name: "Catalog", href: "#" },
-    { name: "Peptide Science", href: "#" },
-    { name: "Testing", href: "#" },
-    { name: "FAQ", href: "#" },
+    { name: "Catalog", href: "#catalog" },
+    { name: "Peptide Science", href: "#science" }, // Apunta al LabGrid
+    { name: "Testing", href: "#testing" },         // Apunta al TrustTicker
+    { name: "FAQ", href: "#faq" },
   ];
 
   return (
@@ -31,8 +45,12 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         
-        {/* Logo Area */}
-        <div className="flex items-center gap-3 group cursor-pointer">
+        {/* Logo Area (Click para ir arriba) */}
+        <a 
+          href="#"
+          onClick={(e) => handleScrollTo(e, "#hero")}
+          className="flex items-center gap-3 group cursor-pointer"
+        >
           <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--color-brand-primary)]/10 border border-[var(--color-brand-primary)]/20 group-hover:border-[var(--color-brand-primary)] transition-colors">
             <Beaker className="w-5 h-5 text-[var(--color-brand-primary)] transform group-hover:rotate-12 transition-transform" />
           </div>
@@ -44,7 +62,7 @@ export default function Navbar() {
               Labs & Research
             </span>
           </div>
-        </div>
+        </a>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
@@ -52,7 +70,8 @@ export default function Navbar() {
             <a
               key={link.name}
               href={link.href}
-              className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors relative group"
+              onClick={(e) => handleScrollTo(e, link.href)}
+              className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors relative group cursor-pointer"
             >
               {link.name}
               <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-[var(--color-brand-primary)] transition-all duration-300 group-hover:w-full" />
@@ -62,10 +81,10 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="hidden md:flex items-center gap-4">
-          <button className="p-2 text-[var(--text-main)] hover:bg-[var(--glass-border)] rounded-full transition-colors">
+          <button className="p-2 text-[var(--text-main)] hover:bg-[var(--glass-border)] rounded-full transition-colors cursor-pointer">
             <Search className="w-5 h-5" />
           </button>
-          <button className="relative p-2 text-[var(--text-main)] hover:bg-[var(--glass-border)] rounded-full transition-colors group">
+          <button className="relative p-2 text-[var(--text-main)] hover:bg-[var(--glass-border)] rounded-full transition-colors group cursor-pointer">
             <ShoppingCart className="w-5 h-5 group-hover:text-[var(--color-brand-primary)] transition-colors" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-brand-secondary)] rounded-full animate-pulse"></span>
           </button>
@@ -94,8 +113,8 @@ export default function Navbar() {
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-display font-medium text-[var(--text-main)] hover:text-[var(--color-brand-primary)]"
-                  onClick={() => setMobileOpen(false)}
+                  className="text-lg font-display font-medium text-[var(--text-main)] hover:text-[var(--color-brand-primary)] cursor-pointer"
+                  onClick={(e) => handleScrollTo(e, link.href)}
                 >
                   {link.name}
                 </a>
