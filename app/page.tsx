@@ -6,6 +6,7 @@ import PremiumBackground from "./components/PremiumBackground";
 import Navbar from "./components/Navbar";     // <--- IMPORTAR
 import TrustTicker from "./components/TrustTicker"; // <--- IMPORTAR
 import LabGrid from "./components/LabGrid";   // <--- IMPORTAR
+import ProductShowcase from "./components/ProductShowcase";
 
 export default function Home() {
   
@@ -70,6 +71,7 @@ export default function Home() {
 
       {/* 2. Características (Lab Grid) */}
       <LabGrid />
+      <ProductShowcase/>
 
       {/* Footer Stats (lo dejamos al final del todo) */}
       <div className="py-12 w-full px-6 flex justify-center text-[10px] text-[var(--text-muted)] font-mono uppercase border-t border-[var(--glass-border)]">
