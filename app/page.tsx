@@ -57,7 +57,7 @@ export default function Home() {
 
         <motion.div variants={itemVariants} className="space-y-4">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-widest uppercase">
-            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 pb-2 glow-effect">
+            <span className="block text-transparent bg-clip-text bg-linear-to-b from-white to-white/60 pb-2 glow-effect">
               Transcendent
             </span>
           </h1>
@@ -69,7 +69,7 @@ export default function Home() {
 
         <motion.div variants={itemVariants} className="w-full max-w-md mt-8">
           <form className="relative group" onSubmit={(e) => e.preventDefault()}>
-             <div className="absolute -inset-0.5 bg-gradient-to-r from-[rgb(var(--color-primary-glow))] to-[rgb(var(--color-secondary-glow))] rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+             <div className="absolute -inset-0.5 bg-linear-to-r from-[rgb(var(--color-primary-glow))] to-[rgb(var(--color-secondary-glow))] rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
             <div className="relative flex items-center bg-[rgb(var(--color-background))]/80 border border-white/10 backdrop-blur-xl p-1.5 rounded-lg">
                 <Beaker className="w-5 h-5 text-[rgb(var(--color-text-muted))] ml-3 mr-2" />
                 <input
@@ -80,7 +80,7 @@ export default function Home() {
                 />
                 <button
                 type="submit"
-                className="group/btn flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-bold tracking-wider uppercase rounded-[4px] hover:bg-[rgb(var(--color-primary-glow))] hover:text-white transition-all duration-300"
+                className="group/btn flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-bold tracking-wider uppercase rounded-sm hover:bg-[rgb(var(--color-primary-glow))] hover:text-white transition-all duration-300"
                 >
                 Notify Me
                 <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
