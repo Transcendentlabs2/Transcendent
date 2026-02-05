@@ -1,19 +1,21 @@
 @import "tailwindcss";
 
-/* Definición del Tema (Tailwind v4) */
+/* Configuración del Tema en Tailwind v4 */
 @theme {
   --font-display: var(--font-poppins), sans-serif;
   --font-sans: var(--font-inter), sans-serif;
   
   --color-brand-dark: #030014;
-  --color-brand-primary: #00C9FF; /* Cyan eléctrico */
-  --color-brand-secondary: #92FE9D; /* Verde Bio */
+  --color-brand-primary: #00C9FF; 
+  --color-brand-secondary: #92FE9D; 
 }
 
 @layer base {
   body {
     font-family: var(--font-sans);
     background-color: var(--color-brand-dark);
+    margin: 0;
+    padding: 0;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -22,7 +24,6 @@
 }
 
 @layer utilities {
-  /* Fondo de vidrio premium */
   .glass-panel {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
@@ -31,7 +32,6 @@
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
 
-  /* Texto con gradiente de lujo */
   .text-gradient-hero {
     background: linear-gradient(to right, #fff 20%, #b4b4b4 50%, #fff 80%);
     -webkit-background-clip: text;
@@ -43,13 +43,5 @@
 }
 
 @keyframes textShine {
-  to {
-    background-position: 200% center;
-  }
-}
-
-/* Animación de Aurora sutil */
-@keyframes aurora {
-  0% { background-position: 50% 50%, 50% 50%; }
-  100% { background-position: 350% 50%, 350% 50%; }
+  to { background-position: 200% center; }
 }

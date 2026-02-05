@@ -6,7 +6,6 @@ import PremiumBackground from "./components/PremiumBackground";
 
 export default function Home() {
   
-  // Variantes tipadas correctamente
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -21,15 +20,19 @@ export default function Home() {
       y: 0,
       opacity: 1,
       filter: "blur(0px)",
-      transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }, // Easing cinemático
+      transition: { 
+        duration: 1.2, 
+        // IMPORTANTE: 'as const' soluciona el error rojo de TypeScript
+        ease: [0.22, 1, 0.36, 1] as const 
+      }, 
     },
   };
 
   return (
-    <main className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-4 md:px-8">
+    // CORREGIDO: Usamos 'min-h-dvh' en lugar de la clase arbitraria
+    <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 md:px-8">
       <PremiumBackground />
 
-      {/* Grid decorativo sutil */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
 
       <motion.div
@@ -51,12 +54,12 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Hero Title - Typography Massive & Spaced Out */}
+        {/* Hero Title */}
         <motion.h1 variants={fadeUp} className="relative z-20">
           <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-white mix-blend-overlay font-display select-none opacity-50">
             PEPTIDE
           </span>
-          <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-gradient-hero font-display mt-[-2vw] md:mt-[-2rem]">
+          <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-gradient-hero font-display mt-[-2vw] md:-mt-8">
             SCIENCE
           </span>
         </motion.h1>
@@ -70,7 +73,7 @@ export default function Home() {
           <span className="text-gray-200"> Beyond evolution.</span>
         </motion.p>
 
-        {/* Availability Info (Form Removed) */}
+        {/* Availability Info */}
         <motion.div variants={fadeUp} className="w-full max-w-md mt-10 md:mt-14">
           <p className="text-[10px] text-gray-600 uppercase tracking-widest">
             Limited Availability • Q3 2026
@@ -79,7 +82,7 @@ export default function Home() {
 
       </motion.div>
 
-      {/* Footer Stats / Decor */}
+      {/* Footer Stats */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
