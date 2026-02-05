@@ -76,19 +76,18 @@ export default function Hero() {
 
           <motion.h1 variants={fadeUp} className="relative z-20 select-none text-center">
             {/* 1. TEXTO FONDO "PEPTIDE"
-                - Light Mode: text-gray-900/10 (Gris oscuro visible)
-                - Dark Mode: dark:text-white/20 (Blanco visible)
+               - Light Mode: text-slate-200 (Gris Piedra Sólido - Muy visible pero sutil)
+               - Dark Mode: dark:text-white/20 (Blanco translúcido)
             */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-gray-900/10 dark:text-white/20 font-display scale-105 origin-bottom transition-colors duration-500">
+            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-slate-200 dark:text-white/10 font-display scale-105 origin-bottom transition-colors duration-500">
               PEPTIDE
             </span>
             
             {/* 2. TEXTO PRINCIPAL "SCIENCE"
-                - Usamos clases distintas para Light y Dark para garantizar contraste.
-                - Light: Blue-600 a Teal-500 (Oscuros y legibles)
-                - Dark: Cyan a Neon Green (Brillantes)
+               - Light Mode: Deep Ocean Gradient (Azul Marino a Verde Azulado Oscuro). Mucho contraste.
+               - Dark Mode: Neon Gradient (Cyan a Verde Lima).
             */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest font-display mt-[-2vw] md:-mt-8 drop-shadow-sm filter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-teal-500 to-blue-600 dark:from-[#00C9FF] dark:via-[#92FE9D] dark:to-[#00C9FF] bg-[length:200%_auto] animate-[textShine_5s_linear_infinite]">
+            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest font-display mt-[-2vw] md:-mt-8 drop-shadow-sm filter bg-clip-text text-transparent bg-gradient-to-r from-blue-900 via-teal-800 to-blue-900 dark:from-[#00C9FF] dark:via-[#92FE9D] dark:to-[#00C9FF] bg-[length:200%_auto] animate-[textShine_5s_linear_infinite]">
               SCIENCE
             </span>
           </motion.h1>
