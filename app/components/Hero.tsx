@@ -25,7 +25,7 @@ export default function Hero() {
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[var(--color-brand-primary)] rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-pulse-slow" />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[var(--color-brand-secondary)] rounded-full mix-blend-screen filter blur-[100px] opacity-15 animate-float" />
         
-        {/* Red Molecular - Opacidad ajustada */}
+        {/* Red Molecular */}
         <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] opacity-10 dark:opacity-20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
            <defs>
              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -75,23 +75,27 @@ export default function Hero() {
           </motion.div>
 
           <motion.h1 variants={fadeUp} className="relative z-20 select-none text-center">
-            {/* CORRECCIÓN DE LEGIBILIDAD "PEPTIDE":
-               - Light Mode: text-slate-300 (Gris sólido visible en fondo blanco)
-               - Dark Mode: dark:text-white/20 (Blanco al 20% opacidad, más fuerte que el 5% anterior)
+            {/* 1. TEXTO FONDO "PEPTIDE"
+                - Light Mode: text-gray-900/10 (Gris oscuro visible)
+                - Dark Mode: dark:text-white/20 (Blanco visible)
             */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-slate-300 dark:text-white/20 font-display scale-105 origin-bottom transition-colors duration-500">
+            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-gray-900/10 dark:text-white/20 font-display scale-105 origin-bottom transition-colors duration-500">
               PEPTIDE
             </span>
             
-            {/* Texto Principal "SCIENCE" con sombra mejorada */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-gradient-hero font-display mt-[-2vw] md:-mt-8 drop-shadow-sm filter">
+            {/* 2. TEXTO PRINCIPAL "SCIENCE"
+                - Usamos clases distintas para Light y Dark para garantizar contraste.
+                - Light: Blue-600 a Teal-500 (Oscuros y legibles)
+                - Dark: Cyan a Neon Green (Brillantes)
+            */}
+            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest font-display mt-[-2vw] md:-mt-8 drop-shadow-sm filter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-teal-500 to-blue-600 dark:from-[#00C9FF] dark:via-[#92FE9D] dark:to-[#00C9FF] bg-[length:200%_auto] animate-[textShine_5s_linear_infinite]">
               SCIENCE
             </span>
           </motion.h1>
 
           <motion.p variants={fadeUp} className="mt-8 md:mt-12 text-base md:text-lg text-slate-600 dark:text-slate-300 font-medium max-w-xl leading-relaxed tracking-wide text-center px-4">
             Transcendent is engineering the next generation of bio-active compounds. 
-            <strong className="text-[var(--text-main)] font-bold"> Beyond evolution.</strong>
+            <strong className="text-gray-900 dark:text-white font-bold"> Beyond evolution.</strong>
           </motion.p>
           
           <motion.div variants={fadeUp} className="mt-12">
