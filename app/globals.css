@@ -1,10 +1,35 @@
 @import "tailwindcss";
 
-/* Opcional: Tus resets personalizados */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  scroll-behavior: smooth;
+@layer base {
+  :root {
+    /* Palette Premium Dark Peptides */
+    --color-background: 10 10 15;
+    --color-primary-glow: 56 189 248;
+    --color-secondary-glow: 139 92 246;
+    --color-text-muted: 148 163 184;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+    background-color: rgb(var(--color-background));
+    color: white;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .text-gradient-premium {
+    background: linear-gradient(135deg, white 0%, rgb(var(--color-text-muted)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .glow-effect {
+    text-shadow: 0 0 20px rgb(var(--color-primary-glow) / 0.5);
+  }
 }
