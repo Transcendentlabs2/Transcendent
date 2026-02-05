@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Lock, Atom } from "lucide-react";
+import { Atom } from "lucide-react";
 import PremiumBackground from "./components/PremiumBackground";
 
 export default function Home() {
@@ -26,7 +26,7 @@ export default function Home() {
   };
 
   return (
-    <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 md:px-8">
+    <main className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-4 md:px-8">
       <PremiumBackground />
 
       {/* Grid decorativo sutil */}
@@ -51,12 +51,12 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Hero Title - Typography Massive */}
+        {/* Hero Title - Typography Massive & Spaced Out */}
         <motion.h1 variants={fadeUp} className="relative z-20">
-          <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-tighter text-white mix-blend-overlay font-display select-none opacity-50">
+          <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-white mix-blend-overlay font-display select-none opacity-50">
             PEPTIDE
           </span>
-          <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-tighter text-gradient-hero font-display mt-[-2vw] md:-mt-8">
+          <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-gradient-hero font-display mt-[-2vw] md:mt-[-2rem]">
             SCIENCE
           </span>
         </motion.h1>
@@ -70,22 +70,9 @@ export default function Home() {
           <span className="text-gray-200"> Beyond evolution.</span>
         </motion.p>
 
-        {/* Premium Input Form */}
+        {/* Availability Info (Form Removed) */}
         <motion.div variants={fadeUp} className="w-full max-w-md mt-10 md:mt-14">
-          <div className="glass-panel p-2 rounded-xl flex items-center gap-2 transition-all duration-300 focus-within:ring-1 focus-within:ring-cyan-500/50">
-            <div className="pl-3 text-gray-500">
-               <Lock className="w-4 h-4" />
-            </div>
-            <input 
-              type="email" 
-              placeholder="Private Access Key (Email)" 
-              className="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder:text-gray-600 font-medium h-10 w-full"
-            />
-            <button className="h-10 px-6 rounded-lg bg-white text-black text-xs md:text-sm font-bold tracking-widest uppercase hover:bg-cyan-50 transition-colors flex items-center gap-2">
-              Join <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-            </button>
-          </div>
-          <p className="mt-4 text-[10px] text-gray-600 uppercase tracking-widest">
+          <p className="text-[10px] text-gray-600 uppercase tracking-widest">
             Limited Availability • Q3 2026
           </p>
         </motion.div>
