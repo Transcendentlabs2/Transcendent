@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calculator, Pipette, Syringe, Info, PlayCircle, ExternalLink } from "lucide-react"; // <--- Agregamos Iconos
+import { Calculator, Pipette, Syringe, Info, PlayCircle, ExternalLink } from "lucide-react";
 
 export default function PeptideCalculator() {
   const [vialQty, setVialQty] = useState<number>(5); 
@@ -22,10 +22,13 @@ export default function PeptideCalculator() {
     setResultTick(ticks);
   }, [vialQty, waterVol, dose]);
 
+  // Altura máxima del líquido dentro de la jeringa SVG
+  const MAX_LIQUID_HEIGHT = 300;
+
   return (
     <section className="relative py-24 px-4 md:px-8 max-w-5xl mx-auto z-10" id="calculator">
       
-      {/* Header Sección con Botón de Video */}
+      {/* Header Sección */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-[var(--glass-border)] pb-6">
         <div className="flex items-center gap-4">
             <div className="p-3 bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-lg">
@@ -41,7 +44,7 @@ export default function PeptideCalculator() {
             </div>
         </div>
 
-        {/* --- NUEVO: BOTÓN AL VIDEO DE YOUTUBE --- */}
+        {/* BOTÓN AL VIDEO DE YOUTUBE */}
         <a 
             href="https://www.youtube.com/watch?v=KARFHZprtbQ" 
             target="_blank" 
@@ -70,79 +73,47 @@ export default function PeptideCalculator() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-brand-primary)] opacity-5 blur-[50px] rounded-full pointer-events-none" />
 
           <form className="space-y-8 relative z-10" onSubmit={(e) => e.preventDefault()}>
-            
-            {/* Input 1 */}
+            {/* Inputs (sin cambios) */}
             <div className="space-y-2">
               <label className="flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
                 <span className="flex items-center gap-2"><Pipette className="w-4 h-4 text-[var(--color-brand-primary)]" /> Peptide Vial Quantity</span>
                 <span className="text-[var(--color-brand-secondary)] font-mono text-xs">{vialQty} mg</span>
               </label>
               <div className="relative flex items-center">
-                 <input 
-                    type="number" 
-                    value={vialQty} 
-                    onChange={(e) => setVialQty(Number(e.target.value))}
-                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-primary)] focus:outline-none font-mono text-lg transition-colors"
-                 />
+                 <input type="number" value={vialQty} onChange={(e) => setVialQty(Number(e.target.value))} className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-primary)] focus:outline-none font-mono text-lg transition-colors" />
                  <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">mg</span>
               </div>
-              <input 
-                type="range" min="1" max="20" step="1" 
-                value={vialQty} onChange={(e) => setVialQty(Number(e.target.value))}
-                className="w-full accent-[var(--color-brand-primary)] h-1 bg-[var(--glass-border)] rounded-lg appearance-none cursor-pointer"
-              />
+              <input type="range" min="1" max="20" step="1" value={vialQty} onChange={(e) => setVialQty(Number(e.target.value))} className="w-full accent-[var(--color-brand-primary)] h-1 bg-[var(--glass-border)] rounded-lg appearance-none cursor-pointer" />
             </div>
-
-            {/* Input 2 */}
             <div className="space-y-2">
               <label className="flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
                 <span className="flex items-center gap-2"><span className="w-4 h-4 rounded-full border border-[var(--color-brand-secondary)] flex items-center justify-center text-[8px] font-mono">H2O</span> Bacteriostatic Water</span>
                 <span className="text-[var(--color-brand-secondary)] font-mono text-xs">{waterVol} ml</span>
               </label>
               <div className="relative flex items-center">
-                 <input 
-                    type="number" 
-                    value={waterVol} 
-                    onChange={(e) => setWaterVol(Number(e.target.value))}
-                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-secondary)] focus:outline-none font-mono text-lg transition-colors"
-                 />
+                 <input type="number" value={waterVol} onChange={(e) => setWaterVol(Number(e.target.value))} className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-secondary)] focus:outline-none font-mono text-lg transition-colors" />
                  <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">ml</span>
               </div>
-              <input 
-                type="range" min="1" max="10" step="0.5" 
-                value={waterVol} onChange={(e) => setWaterVol(Number(e.target.value))}
-                className="w-full accent-[var(--color-brand-secondary)] h-1 bg-[var(--glass-border)] rounded-lg appearance-none cursor-pointer"
-              />
+              <input type="range" min="1" max="10" step="0.5" value={waterVol} onChange={(e) => setWaterVol(Number(e.target.value))} className="w-full accent-[var(--color-brand-secondary)] h-1 bg-[var(--glass-border)] rounded-lg appearance-none cursor-pointer" />
             </div>
-
-            {/* Input 3 */}
             <div className="space-y-2">
               <label className="flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
                 <span className="flex items-center gap-2"><Syringe className="w-4 h-4 text-rose-500" /> Desired Dosage</span>
                 <span className="text-rose-500 font-mono text-xs">{dose} mcg</span>
               </label>
               <div className="relative flex items-center">
-                 <input 
-                    type="number" 
-                    value={dose} 
-                    onChange={(e) => setDose(Number(e.target.value))}
-                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-rose-500 focus:outline-none font-mono text-lg transition-colors"
-                 />
+                 <input type="number" value={dose} onChange={(e) => setDose(Number(e.target.value))} className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-rose-500 focus:outline-none font-mono text-lg transition-colors" />
                  <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">mcg</span>
               </div>
-              <input 
-                type="range" min="50" max="2000" step="50" 
-                value={dose} onChange={(e) => setDose(Number(e.target.value))}
-                className="w-full accent-rose-500 h-1 bg-[var(--glass-border)] rounded-lg appearance-none cursor-pointer"
-              />
+              <input type="range" min="50" max="2000" step="50" value={dose} onChange={(e) => setDose(Number(e.target.value))} className="w-full accent-rose-500 h-1 bg-[var(--glass-border)] rounded-lg appearance-none cursor-pointer" />
             </div>
-            
           </form>
         </div>
 
         {/* COLUMNA DERECHA: JERINGA Y RESULTADOS */}
         <div className="flex flex-col items-center justify-center relative">
            
+           {/* Resultados numéricos */}
            <div className="w-full mb-8 glass-panel border border-[var(--color-brand-primary)]/30 rounded-xl p-6 relative overflow-hidden group">
               <div className="absolute inset-0 bg-[var(--color-brand-primary)]/5 group-hover:bg-[var(--color-brand-primary)]/10 transition-colors" />
               <div className="relative z-10 flex justify-between items-end">
@@ -163,23 +134,41 @@ export default function PeptideCalculator() {
               </div>
            </div>
 
-           {/* VISUAL SYRINGE */}
+           {/* VISUAL SYRINGE (SVG CON CORRECCIÓN DE DESBORDAMIENTO) */}
            <div className="relative w-full max-w-[200px] h-[400px]">
               <svg viewBox="0 0 100 400" className="w-full h-full drop-shadow-2xl">
+                 
+                 {/* 1. DEFINICIÓN DE LA MÁSCARA DE RECORTE (CLIP PATH) */}
+                 {/* Esta forma define el área "segura" donde se puede dibujar el líquido */}
+                 <defs>
+                   <clipPath id="syringe-inner-body">
+                      {/* Usamos la misma geometría que el cuerpo de la jeringa */}
+                      <rect x="30" y="20" width="40" height="300" rx="2" />
+                   </clipPath>
+                 </defs>
+
+                 {/* 2. CUERPO DE LA JERINGA */}
                  <rect x="30" y="20" width="40" height="300" rx="2" fill="var(--bg-page)" stroke="var(--text-muted)" strokeWidth="2" fillOpacity="0.5" />
                  
+                 {/* 3. LÍQUIDO ANIMADO (CON CLIP PATH APLICADO) */}
                  <motion.rect 
-                    x="32" 
+                    // APLICAMOS LA MÁSCARA AQUÍ:
+                    clipPath="url(#syringe-inner-body)"
+                    // Ajustamos X y Width para que llenen mejor el espacio dentro del borde
+                    x="30" 
+                    width="40"
+                    // Cálculo de posición y altura
                     y={320 - (resultTick * 3)} 
-                    width="36" 
                     height={resultTick * 3} 
                     fill="var(--color-brand-primary)" 
                     opacity="0.6"
                     initial={{ height: 0 }}
-                    animate={{ height: Math.min(resultTick * 3, 300), y: 320 - Math.min(resultTick * 3, 300) }}
+                    // Aseguramos que la animación no exceda la altura máxima
+                    animate={{ height: Math.min(resultTick * 3, MAX_LIQUID_HEIGHT), y: 320 - Math.min(resultTick * 3, MAX_LIQUID_HEIGHT) }}
                     transition={{ type: "spring", stiffness: 50 }}
                  />
 
+                 {/* 4. MARCAS DE GRADUACIÓN */}
                  {[...Array(11)].map((_, i) => (
                     <g key={i} transform={`translate(0, ${320 - (i * 30)})`}>
                        <line x1="30" y1="0" x2="45" y2="0" stroke="var(--text-muted)" strokeWidth="1" />
@@ -187,9 +176,11 @@ export default function PeptideCalculator() {
                     </g>
                  ))}
 
+                 {/* 5. ÉMBOLO ANIMADO */}
                  <motion.g 
                     initial={{ y: 0 }}
-                    animate={{ y: -Math.min(resultTick * 3, 300) }}
+                    // Aseguramos que el émbolo no baje más allá del tope
+                    animate={{ y: -Math.min(resultTick * 3, MAX_LIQUID_HEIGHT) }}
                     transition={{ type: "spring", stiffness: 50 }}
                  >
                     <rect x="32" y="320" width="36" height="10" fill="#333" />
@@ -197,12 +188,15 @@ export default function PeptideCalculator() {
                     <circle cx="50" cy="415" r="15" fill="var(--bg-page)" stroke="#ccc" strokeWidth="2" />
                  </motion.g>
 
+                 {/* Aguja */}
                  <line x1="50" y1="20" x2="50" y2="0" stroke="var(--text-muted)" strokeWidth="1" />
               </svg>
               
+              {/* ETIQUETA FLOTANTE */}
               <motion.div 
                  className="absolute left-[180px]"
                  initial={{ top: "80%" }}
+                 // Ajustamos el cálculo para que la etiqueta siga el tope del líquido
                  animate={{ top: `${80 - (Math.min(resultTick, 100) * 0.75)}%` }} 
               >
                  <div className="bg-[var(--color-brand-primary)] text-[var(--bg-page)] text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">
