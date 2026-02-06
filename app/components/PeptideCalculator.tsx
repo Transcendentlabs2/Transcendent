@@ -104,7 +104,7 @@ export default function PeptideCalculator() {
             {/* Input 3 */}
             <div className="space-y-2">
               <label className="flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
-                <span className="flex items-center gap-2"><Syringe className="w-4 h-4 text-rose-500" /> Desired Dosage</span>
+                <span className="flex items-center gap-2"><Syringe className="w-4 h-4 text-rose-500" /> Concentration Goal</span>
                 <span className="text-rose-500 font-mono text-xs">{dose} mcg</span>
               </label>
               <div className="relative flex items-center">
