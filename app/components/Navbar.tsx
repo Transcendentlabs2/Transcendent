@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Beaker, Menu, X, ShoppingCart, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image"; // <--- IMPORTANTE: Importamos el componente Image
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -14,24 +15,21 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Función para manejar el scroll suave manual (opcional, pero recomendado para UX perfecta)
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const targetId = href.replace("#", "");
     const element = document.getElementById(targetId);
     
     if (element) {
-      // Cerramos menú móvil si está abierto
       setMobileOpen(false);
-      // Scroll suave
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   const navLinks = [
     { name: "Catalog", href: "#catalog" },
-    { name: "Peptide Science", href: "#science" }, // Apunta al LabGrid
-    { name: "Testing", href: "#testing" },         // Apunta al TrustTicker
+    { name: "Peptide Science", href: "#science" },
+    { name: "Testing", href: "#testing" },
     { name: "FAQ", href: "#faq" },
   ];
 
@@ -39,39 +37,53 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         scrolled
-          ? "bg-[var(--bg-page)]/80 backdrop-blur-md border-[var(--glass-border)] py-3"
+          ? "bg-white/80 dark:bg-[var(--bg-page)]/80 backdrop-blur-md border-slate-200 dark:border-[var(--glass-border)] py-3 shadow-sm"
           : "bg-transparent py-6 border-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         
-        {/* Logo Area (Click para ir arriba) */}
+        {/* --- LOGO AREA --- */}
         <a 
           href="#"
           onClick={(e) => handleScrollTo(e, "#hero")}
           className="flex items-center gap-3 group cursor-pointer"
         >
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--color-brand-primary)]/10 border border-[var(--color-brand-primary)]/20 group-hover:border-[var(--color-brand-primary)] transition-colors">
-            <Beaker className="w-5 h-5 text-[var(--color-brand-primary)] transform group-hover:rotate-12 transition-transform" />
+          {/* Contenedor del Logo Imagen */}
+          <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden transition-transform group-hover:scale-105">
+            {/* Asegúrate de que tu logo esté en /public/img/logo.png o cambia la ruta aquí */}
+            <Image 
+                src="/img/logo.web" 
+                alt="Transcendent Labs Logo" 
+                fill 
+                className="object-contain"
+                priority
+            />
           </div>
+
+          {/* Texto del Logo */}
           <div className="flex flex-col">
-            <span className="font-display font-bold text-lg leading-none tracking-wide text-[var(--text-main)]">
+            {/* Título Principal: Negro en Light, Blanco en Dark */}
+            <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-slate-900 dark:text-[var(--text-main)]">
               TRANSCENDENT
             </span>
-            <span className="font-mono text-[10px] tracking-[0.2em] text-[var(--color-brand-secondary)] uppercase">
+            
+            {/* Subtítulo: Gris oscuro en Light (para que se lea), Verde Neón en Dark */}
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-slate-600 dark:text-[var(--color-brand-secondary)]">
               Labs & Research
             </span>
           </div>
         </a>
 
-        {/* Desktop Navigation */}
+        {/* --- DESKTOP NAVIGATION --- */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
               key={link.name}
               href={link.href}
               onClick={(e) => handleScrollTo(e, link.href)}
-              className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors relative group cursor-pointer"
+              // Links: Gris oscuro en light, gris claro en dark. Hover siempre el color primario.
+              className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] dark:hover:text-[var(--color-brand-primary)] transition-colors relative group cursor-pointer"
             >
               {link.name}
               <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-[var(--color-brand-primary)] transition-all duration-300 group-hover:w-full" />
@@ -79,46 +91,57 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Actions */}
+        {/* --- ACTIONS --- */}
         <div className="hidden md:flex items-center gap-4">
-          <button className="p-2 text-[var(--text-main)] hover:bg-[var(--glass-border)] rounded-full transition-colors cursor-pointer">
+          <button className="p-2 text-slate-700 dark:text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-[var(--glass-border)] rounded-full transition-colors cursor-pointer">
             <Search className="w-5 h-5" />
           </button>
-          <button className="relative p-2 text-[var(--text-main)] hover:bg-[var(--glass-border)] rounded-full transition-colors group cursor-pointer">
+          
+          <button className="relative p-2 text-slate-700 dark:text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-[var(--glass-border)] rounded-full transition-colors group cursor-pointer">
             <ShoppingCart className="w-5 h-5 group-hover:text-[var(--color-brand-primary)] transition-colors" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-brand-secondary)] rounded-full animate-pulse"></span>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 dark:bg-[var(--color-brand-secondary)] rounded-full animate-pulse"></span>
           </button>
         </div>
 
-        {/* Mobile Toggle */}
+        {/* --- MOBILE TOGGLE --- */}
         <button
-          className="md:hidden text-[var(--text-main)]"
+          className="md:hidden text-slate-900 dark:text-[var(--text-main)]"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
           {mobileOpen ? <X /> : <Menu />}
         </button>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* --- MOBILE MENU OVERLAY --- */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-[var(--glass-border)] bg-[var(--bg-page)] overflow-hidden"
+            className="md:hidden border-t border-slate-200 dark:border-[var(--glass-border)] bg-white dark:bg-[var(--bg-page)] overflow-hidden shadow-xl"
           >
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-6 flex flex-col gap-6">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-display font-medium text-[var(--text-main)] hover:text-[var(--color-brand-primary)] cursor-pointer"
+                  className="text-lg font-display font-bold text-slate-800 dark:text-[var(--text-main)] hover:text-[var(--color-brand-primary)] cursor-pointer"
                   onClick={(e) => handleScrollTo(e, link.href)}
                 >
                   {link.name}
                 </a>
               ))}
+              
+              {/* Iconos móviles extra */}
+              <div className="flex gap-4 mt-4 border-t border-slate-100 dark:border-white/10 pt-6">
+                 <button className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-400">
+                    <Search className="w-4 h-4" /> Search
+                 </button>
+                 <button className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-400">
+                    <ShoppingCart className="w-4 h-4" /> Cart
+                 </button>
+              </div>
             </div>
           </motion.div>
         )}
