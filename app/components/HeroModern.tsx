@@ -1,6 +1,6 @@
 "use client";
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Beaker, FileText, Activity } from "lucide-react";
+import { ArrowRight, Dna, Activity } from "lucide-react"; // Importamos DNA
 
 export default function HeroModern() {
   const fadeInUp: Variants = {
@@ -21,11 +21,12 @@ export default function HeroModern() {
   };
 
   return (
-    // CAMBIO: Aumenté el padding superior en desktop (lg:pt-40) para separarlo del Navbar
-    <section className="relative w-full min-h-screen flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12">
+    // OPTIMIZACIÓN SAFARI: Usamos min-h-[100dvh] para evitar saltos con la barra de URL dinámica de iOS
+    <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
       {/* --- FONDO DECORATIVO INTERNO --- */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+      {/* OPTIMIZACIÓN: translate-z-0 fuerza la aceleración de hardware para la máscara */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden transform translate-z-0">
          {/* Grid tenue */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
@@ -40,8 +41,6 @@ export default function HeroModern() {
           animate="visible"
           className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 md:space-y-8 w-full max-w-2xl mx-auto lg:mx-0"
         >
-          {/* (ELIMINADO: Badge 'System Online' removido aquí) */}
-
           {/* Títulos Responsive */}
           <motion.div variants={fadeInUp} className="w-full flex flex-col items-center lg:items-start">
             <span className="block text-lg md:text-2xl text-[var(--text-muted)] font-medium mb-2 tracking-widest uppercase">
@@ -75,11 +74,6 @@ export default function HeroModern() {
                 Explore Catalog <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </button>
-            
-            {/* <button className="px-8 py-4 rounded-lg border border-[var(--glass-border)] text-[var(--text-main)] font-semibold hover:bg-[var(--glass-bg)] transition-colors flex items-center gap-2 justify-center">
-              <FileText className="w-4 h-4" />
-              Documentation
-            </button> */}
           </motion.div>
           
           {/* Stats */}
@@ -100,14 +94,15 @@ export default function HeroModern() {
         </motion.div>
 
         {/* COLUMNA DERECHA (Molécula) */}
+        {/* OPTIMIZACIÓN: Agregamos transform-gpu para forzar capas en iOS */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[300px] md:h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0"
+          className="relative h-[300px] md:h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0 transform-gpu"
         >
-          {/* Glow de fondo */}
-          <div className="absolute inset-0 bg-[var(--accent-glow)] rounded-full blur-[60px] opacity-60" />
+          {/* Glow de fondo - Usamos opacidad reducida para no matar el rendimiento en móviles antiguos */}
+          <div className="absolute inset-0 bg-[var(--accent-glow)] rounded-full blur-[60px] opacity-60 translate-z-0" />
 
           {/* Molécula */}
           <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px]">
@@ -115,12 +110,15 @@ export default function HeroModern() {
             <motion.div 
               animate={{ rotate: 360 }}
               transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              // OPTIMIZACIÓN: will-change-transform es CRÍTICO para animaciones infinitas suaves en Safari
+              style={{ willChange: "transform" }}
               className="absolute inset-0 rounded-full border border-dashed border-[var(--glass-border)]"
             />
             {/* Anillo Interno */}
             <motion.div 
               animate={{ rotate: -360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              style={{ willChange: "transform" }}
               className="absolute inset-8 md:inset-12 rounded-full border border-[var(--glass-border)] opacity-60"
             >
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
@@ -129,13 +127,16 @@ export default function HeroModern() {
             {/* Núcleo Central */}
             <div className="absolute inset-0 flex items-center justify-center">
                <div className="relative w-24 h-24 md:w-32 md:h-32 bg-[var(--bg-page)] rounded-full border border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
-                  <Beaker className="w-8 h-8 md:w-12 md:h-12 text-[var(--color-brand-primary)] animate-pulse" />
+                  {/* CAMBIO DE ICONO: Usamos DNA para representar péptidos/laboratorio */}
+                  <Dna className="w-10 h-10 md:w-14 md:h-14 text-[var(--color-brand-primary)] animate-pulse" strokeWidth={1.5} />
+                  
                   <motion.div 
                     animate={{ rotate: 360 }}
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    style={{ willChange: "transform" }}
                     className="absolute inset-0 rounded-full"
                   >
-                    <div className="absolute top-2 left-1/2 w-2 h-2 bg-[var(--color-brand-secondary)] rounded-full" />
+                    <div className="absolute top-2 left-1/2 w-2 h-2 bg-[var(--color-brand-secondary)] rounded-full shadow-[0_0_8px_currentColor]" />
                   </motion.div>
                </div>
             </div>
@@ -144,7 +145,8 @@ export default function HeroModern() {
             <motion.div 
               animate={{ y: [0, -20, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-4 -right-0 md:top-10 md:right-0 bg-[var(--bg-page)]/90 backdrop-blur-md p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
+              style={{ willChange: "transform" }}
+              className="absolute -top-4 -right-0 md:top-10 md:right-0 bg-[var(--bg-page)]/80 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
             >
                <div className="flex items-center gap-3">
                  <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg">
