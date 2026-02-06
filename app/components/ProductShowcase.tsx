@@ -1,14 +1,13 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ArrowRight, ShoppingCart, ScanLine } from "lucide-react";
+import { Plus, ArrowRight, ScanLine, Info } from "lucide-react"; // Agregamos Info icon
 
 // --- 1. IMPORTACIÓN MANUAL DE IMÁGENES ---
-// Asegúrate de tener estos archivos en tu carpeta pública o assets
 import imggh from '../img/gh.webp';
 import imgnad from '../img/nad.webp';
 
-// Datos Actualizados con referencia a la imagen importada
+// Datos Actualizados
 const PRODUCTS = [
   {
     id: 1,
@@ -62,16 +61,17 @@ const PRODUCTS = [
 
 const CATEGORIES = ["All", "Healing", "Metabolic", "Growth"];
 
-// --- SUBCOMPONENTE: CONTENEDOR TIPO LABORATORIO (ANIMACIÓN PREMIUM) ---
+// --- SUBCOMPONENTE: CONTENEDOR TIPO LABORATORIO ---
 const LabContainer = ({ image, name }: { image: any, name: string }) => {
   return (
-    <div className="relative w-48 h-64 mx-auto flex items-center justify-center">
+    <div className="relative w-48 h-64 mx-auto flex items-center justify-center transform-gpu">
       
-      {/* 1. FONDO HUD ROTATORIO (SVG ANIMADO) */}
+      {/* 1. FONDO HUD ROTATORIO (Optimizado Safari) */}
       <motion.div 
         className="absolute inset-0 z-0 flex items-center justify-center opacity-30 group-hover:opacity-60 transition-opacity duration-500"
         animate={{ rotate: 360 }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        style={{ willChange: "transform" }} // Fuerza GPU en iOS
       >
         <svg viewBox="0 0 200 200" className="w-full h-full fill-none stroke-[var(--text-muted)] stroke-[0.5]">
           <circle cx="100" cy="100" r="90" strokeDasharray="4 4" />
@@ -80,36 +80,38 @@ const LabContainer = ({ image, name }: { image: any, name: string }) => {
         </svg>
       </motion.div>
 
-      {/* 2. IMAGEN WEBP (FLOTANDO) */}
+      {/* 2. IMAGEN WEBP (FULL COLOR SIEMPRE) */}
       <motion.div
         className="relative z-10 w-32 h-auto"
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        style={{ willChange: "transform" }}
       >
         <img 
-          src={image.src} // Next.js importa imagenes como objeto, usa .src
+          src={image.src} 
           alt={name} 
-          className="w-full h-full object-contain drop-shadow-2xl filter contrast-125 saturate-0 group-hover:saturate-100 transition-all duration-500"
+          // CAMBIO: saturate-100 siempre para que se vea a color y contraste-110 para que resalte
+          className="w-full h-full object-contain drop-shadow-2xl filter contrast-110 saturate-100 transition-all duration-500"
         />
         
-        {/* Reflejo inferior estilo suelo pulido */}
-        <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-t from-white/20 to-transparent blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-500 rounded-full scale-x-75" />
+        {/* Reflejo inferior */}
+        <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-t from-white/20 to-transparent blur-md opacity-40 rounded-full scale-x-75" />
       </motion.div>
 
-      {/* 3. EFECTO SCANNER (HAZ DE LUZ VERTICAL) */}
+      {/* 3. EFECTO SCANNER */}
       <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-xl">
         <motion.div
-          className="w-full h-[2px] bg-[var(--color-brand-primary)] shadow-[0_0_15px_var(--color-brand-primary)] opacity-0 group-hover:opacity-100"
+          className="w-full h-[2px] bg-[var(--color-brand-primary)] shadow-[0_0_15px_var(--color-brand-primary)] opacity-0 group-hover:opacity-50"
           initial={{ top: "0%" }}
           animate={{ top: ["0%", "100%", "0%"] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "top" }}
         />
       </div>
 
-      {/* 4. MARCOS TECNOLÓGICOS (CORNERS) */}
-      <div className="absolute inset-0 z-20 pointer-events-none p-2 opacity-50 group-hover:opacity-100 transition-opacity duration-300">
+      {/* 4. MARCOS TECNOLÓGICOS */}
+      <div className="absolute inset-0 z-20 pointer-events-none p-2 opacity-30 group-hover:opacity-100 transition-opacity duration-300">
          <svg className="w-full h-full fill-none stroke-[var(--text-main)] stroke-1" viewBox="0 0 100 100" preserveAspectRatio="none">
-            {/* Esquinas animadas que se cierran al hacer hover (usando CSS transition en el path si fuera posible, aqui simple) */}
             <path d="M10,0 L0,0 L0,10" vectorEffect="non-scaling-stroke" />
             <path d="M90,0 L100,0 L100,10" vectorEffect="non-scaling-stroke" />
             <path d="M100,90 L100,100 L90,100" vectorEffect="non-scaling-stroke" />
@@ -174,7 +176,8 @@ export default function ProductShowcase() {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
               key={product.id}
-              className="group relative bg-[#E8E8E8] dark:bg-[#121212] rounded-[2rem] p-4 flex flex-col items-center text-center transition-all hover:shadow-[0_0_30px_rgba(0,201,255,0.1)] border border-transparent hover:border-[var(--glass-border)]"
+              // Fondo adaptativo: gris claro en light, negro suave en dark
+              className="group relative bg-[#F5F5F5] dark:bg-[#0A0A0A] rounded-[2rem] p-4 flex flex-col items-center text-center transition-all hover:shadow-[0_0_30px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_30px_rgba(0,201,255,0.1)] border border-transparent hover:border-[var(--glass-border)]"
             >
               {/* Tag Flotante */}
               {product.tag && (
@@ -183,11 +186,11 @@ export default function ProductShowcase() {
                  </span>
               )}
 
-              {/* FONDO ILUMINADO (Glow) */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--color-brand-primary)] rounded-full blur-[80px] opacity-0 group-hover:opacity-20 transition-opacity duration-700" />
+              {/* FONDO ILUMINADO (Glow sutil) */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--color-brand-primary)] rounded-full blur-[80px] opacity-0 group-hover:opacity-10 transition-opacity duration-700" />
 
-              {/* RENDERIZADO DEL NUEVO COMPONENTE DE IMAGEN */}
-              <div className="relative z-10 w-full mb-4">
+              {/* IMAGEN */}
+              <div className="relative z-10 w-full mb-2">
                  <LabContainer image={product.image} name={product.name} />
               </div>
 
@@ -201,16 +204,32 @@ export default function ProductShowcase() {
                  <h3 className="text-xl font-bold font-display text-gray-900 dark:text-white mb-1">
                     {product.name}
                  </h3>
-                 <p className="text-xs text-gray-500 font-mono mb-4">{product.dose} • {product.category}</p>
+                 <p className="text-xs text-gray-500 font-mono mb-6">{product.dose} • {product.category}</p>
                  
-                 <div className="flex items-center justify-between mt-2 border-t border-gray-300 dark:border-gray-800 pt-4">
-                    <span className="text-lg font-bold text-gray-900 dark:text-white font-mono">
-                        ${product.price.toFixed(2)}
-                    </span>
-                    
-                    <button className="flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-black px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider hover:scale-105 hover:bg-[var(--color-brand-primary)] hover:text-white transition-all">
-                        Add <Plus className="w-3 h-3" />
-                    </button>
+                 {/* ZONA DE ACCIÓN: PRECIO Y BOTONES */}
+                 <div className="border-t border-gray-200 dark:border-gray-800 pt-4 w-full">
+                    <div className="flex justify-between items-center mb-3">
+                        <span className="text-xl font-bold text-gray-900 dark:text-white font-mono">
+                           ${product.price.toFixed(2)}
+                        </span>
+                        {/* Status Dot */}
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span className="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400">In Stock</span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                        {/* 1. BOTÓN MORE INFO (NUEVO) */}
+                        <button className="flex items-center justify-center gap-1 border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 px-3 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                           <Info className="w-3 h-3" /> Info
+                        </button>
+                        
+                        {/* 2. BOTÓN ADD TO CART */}
+                        <button className="flex items-center justify-center gap-1 bg-gray-900 dark:bg-white text-white dark:text-black px-3 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--color-brand-primary)] dark:hover:bg-[var(--color-brand-primary)] hover:text-white dark:hover:text-white transition-colors shadow-lg shadow-black/5">
+                           Add <Plus className="w-3 h-3" />
+                        </button>
+                    </div>
                  </div>
               </div>
 
