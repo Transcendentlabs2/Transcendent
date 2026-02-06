@@ -1,17 +1,18 @@
 'use client';
 
 import { Atom } from "lucide-react";
-// Importamos todos los componentes
+
+// --- IMPORTACIONES DE COMPONENTES ---
 import PremiumBackground from "./components/PremiumBackground";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero"; 
+import HeroModern from "./components/HeroModern";
 import TrustTicker from "./components/TrustTicker";
 import LabGrid from "./components/LabGrid";
 import ProductShowcase from "./components/ProductShowcase";
-import PeptideCalculator from "./components/PeptideCalculator"; // <--- IMPORTAR NUEVO
+import BatchVerifier from "./components/BatchVerifier"; // <--- 1. IMPORTAR NUEVO COMPONENTE
+import PeptideCalculator from "./components/PeptideCalculator";
 import FAQSection from "./components/FAQSection";
 import Footer from "./components/Footer";
-import HeroModern from "./components/HeroModern";
 
 export default function Home() {
   return (
@@ -22,37 +23,43 @@ export default function Home() {
       <PremiumBackground />
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 dark:opacity-5 pointer-events-none mix-blend-overlay fixed z-0"></div>
 
-      {/* 1. Hero */}
+      {/* 1. Hero (Impresión Inicial) */}
       <section id="hero">
         <HeroModern />
       </section>
 
-      {/* 2. Trust */}
+      {/* 2. Trust (Prueba Social Pasiva) */}
       <section id="testing" className="scroll-mt-24">
         <TrustTicker />
       </section>
       
-      {/* 3. Science */}
+      {/* 3. Science (Autoridad Técnica) */}
       <section id="science" className="scroll-mt-24">
         <LabGrid />
       </section>
       
-      {/* 4. Catalog */}
+      {/* 4. Catalog (VENTA) */}
       <section id="catalog" className="scroll-mt-24">
         <ProductShowcase />
       </section>
+
+      {/* 5. VERIFICACIÓN (CONFIANZA ACTIVA - NUEVO) */}
+      {/* Colocado estratégicamente después de los productos para cerrar la duda de calidad */}
+      <section id="verification" className="scroll-mt-24">
+        <BatchVerifier />
+      </section>
       
-      {/* 5. CALCULATOR (NUEVA SECCIÓN) */}
+      {/* 6. Calculator (UTILIDAD / ENGAGEMENT) */}
       <section id="calculator" className="scroll-mt-24">
         <PeptideCalculator />
       </section>
       
-      {/* 6. FAQ */}
+      {/* 7. FAQ (Manejo de Objeciones) */}
       <section id="faq" className="scroll-mt-24">
         <FAQSection />
       </section>
       
-      {/* 7. Footer */}
+      {/* 8. Footer */}
       <Footer />
 
       {/* Copyright */}

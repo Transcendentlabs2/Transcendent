@@ -5,9 +5,7 @@ import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-// NOTA IMPORTANTE: Si moviste el logo a "public/img/logo.png" para arreglar el error de Vercel,
-// debes borrar este import y usar el string directo en el src más abajo.
-// Si ya lo tienes en "src/assets/logo.webp", deja esta línea como está.
+// Ajusta esta ruta si tu logo está en otra parte
 import logo from "../assets/logo.webp"; 
 
 export default function Navbar() {
@@ -31,11 +29,13 @@ export default function Navbar() {
     }
   };
 
+  // --- ESTRATEGIA DE NAVEGACIÓN ACTUALIZADA ---
   const navLinks = [
-    { name: "Catalog", href: "#catalog" },
-    { name: "Peptide Science", href: "#science" },
-    { name: "Testing", href: "#testing" },
-    { name: "FAQ", href: "#faq" },
+    { name: "Catalog", href: "#catalog" },       // Prioridad 1: Ventas
+    { name: "Verify Batch", href: "#verification" }, // Prioridad 2: Confianza (NUEVO LINK)
+    { name: "Calculator", href: "#calculator" }, // Prioridad 3: Herramienta
+    { name: "Science", href: "#science" },       // Prioridad 4: Autoridad
+    { name: "FAQ", href: "#faq" },               // Prioridad 5: Dudas
   ];
 
   return (
@@ -54,10 +54,9 @@ export default function Navbar() {
           onClick={(e) => handleScrollTo(e, "#hero")}
           className="flex items-center gap-3 group cursor-pointer"
         >
-          {/* Logo Imagen */}
           <div className="relative w-10 h-10 md:w-12 md:h-12 transition-transform group-hover:scale-105">
             <Image 
-                src={logo} // Si usas public, cambia esto por: "/img/logo.png"
+                src={logo} 
                 alt="Transcendent Labs Logo" 
                 fill 
                 className="object-contain"
@@ -66,17 +65,10 @@ export default function Navbar() {
             />
           </div>
 
-          {/* Texto del Logo */}
           <div className="flex flex-col">
             <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-slate-900 dark:text-[var(--text-main)] transition-colors">
               TRANSCENDENT
             </span>
-            
-            {/* --- SOLUCIÓN APLICADA AQUÍ --- */}
-            {/* 1. 'text-emerald-900': Color muy oscuro para Light Mode (Legible).
-                2. 'dark:text-[var(--color-brand-secondary)]': Color neón SOLO en Dark Mode.
-                3. Eliminamos data-[theme] y clases sin prefijo conflictivas.
-            */}
             <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-emerald-900 dark:text-[var(--color-brand-secondary)] transition-colors duration-300">
               Labs & Research
             </span>
