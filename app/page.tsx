@@ -11,6 +11,7 @@ import ProductShowcase from "./components/ProductShowcase";
 import PeptideCalculator from "./components/PeptideCalculator"; // <--- IMPORTAR NUEVO
 import FAQSection from "./components/FAQSection";
 import Footer from "./components/Footer";
+import HeroModern from "./components/HeroModern";
 
 export default function Home() {
   return (
@@ -23,7 +24,7 @@ export default function Home() {
 
       {/* 1. Hero */}
       <section id="hero">
-        <Hero />
+        <HeroModern />
       </section>
 
       {/* 2. Trust */}
