@@ -7,11 +7,12 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   const [theme, setTheme] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Leer preferencia guardada
-    const savedTheme = localStorage.getItem("theme") || "dark";
+    // CAMBIO AQUÍ: Si no hay nada guardado, usa "light" en vez de "dark"
+    const savedTheme = localStorage.getItem("theme") || "light"; 
+    
     setTheme(savedTheme);
     
-    // 2. Aplicar la configuración inicial (CLASE + ATRIBUTO)
+    // Aplicar la configuración inicial
     const root = document.documentElement;
     root.setAttribute("data-theme", savedTheme);
     
@@ -23,24 +24,25 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   }, []);
 
   const toggleTheme = () => {
+    // Si todavía no se ha cargado el tema (null), no hagas nada
     if (!theme) return;
 
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
 
-    // 3. Aplicar el cambio al DOM (CLASE + ATRIBUTO)
+    // Aplicar el cambio al DOM
     const root = document.documentElement;
-    root.setAttribute("data-theme", newTheme); // Para tus variables CSS
+    root.setAttribute("data-theme", newTheme);
     
     if (newTheme === "dark") {
-      root.classList.add("dark"); // Para que Tailwind sepa que es modo oscuro
+      root.classList.add("dark");
     } else {
-      root.classList.remove("dark"); // Para que Tailwind sepa que es modo claro
+      root.classList.remove("dark");
     }
   };
 
-  // Evitar renderizado hasta que esté montado
+  // Evitar renderizado hasta que esté montado para prevenir Flash of Unstyled Content
   if (!theme) return <>{children}</>;
 
   return (
