@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 // Ajusta esta ruta si tu carpeta assets está en otro lado
-import logo from "@/assets/logo.png"; 
+import logo from "../assets/logo.webp"; 
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
