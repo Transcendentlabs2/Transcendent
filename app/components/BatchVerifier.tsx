@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle, FileBarChart, Microscope, AlertCircle, ScanLine } from "lucide-react";
+import { Search, CheckCircle, Microscope, AlertCircle, ScanLine } from "lucide-react";
 
 interface BatchData {
   product: string;
@@ -74,7 +74,6 @@ export default function BatchVerifier() {
         </div>
 
         {/* Search Box Container */}
-        {/* Quitamos márgenes inferiores excesivos si no hay resultados */}
         <div className={`relative max-w-md mx-auto transition-all duration-300 ${result || error ? 'mb-8' : 'mb-0'}`}>
            <form onSubmit={handleSearch} className="relative flex items-center group">
               <div className="absolute left-4 text-[var(--text-muted)]">
@@ -86,7 +85,7 @@ export default function BatchVerifier() {
                 placeholder="ENTER LOT # (E.G., A1092)"
                 value={query}
                 onChange={handleInputChange}
-                className="w-full bg-white dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-14 text-base font-mono font-bold text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] transition-all uppercase shadow-lg shadow-black/5"
+                className="w-full bg-white dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-14 text-base font-mono font-bold text-slate-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] transition-all uppercase shadow-lg shadow-black/5"
               />
               
               <button 
@@ -102,7 +101,6 @@ export default function BatchVerifier() {
               </button>
            </form>
            
-           {/* Sugerencia solo visible si no hay resultados aun */}
            {!result && !error && (
              <p className="mt-3 text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-widest opacity-70">
                 Try searching: <span className="text-[var(--text-main)] font-bold">A1092</span>, <span className="text-[var(--text-main)] font-bold">B2024</span>
@@ -110,8 +108,7 @@ export default function BatchVerifier() {
            )}
         </div>
 
-        {/* Results Area - ALTURA DINÁMICA */}
-        {/* Eliminamos el min-h-[200px]. Ahora la altura es automática (min-h-0) */}
+        {/* Results Area */}
         <div className="relative flex justify-center items-start min-h-0">
            <AnimatePresence mode="wait">
              
@@ -119,42 +116,53 @@ export default function BatchVerifier() {
              {result && (
                <motion.div
                  key="result"
-                 layout // Anima el cambio de tamaño del contenedor padre
+                 layout
                  initial={{ opacity: 0, y: -20, height: 0 }}
                  animate={{ opacity: 1, y: 0, height: "auto" }}
                  exit={{ opacity: 0, y: -10, height: 0 }}
-                 className="w-full max-w-lg bg-white dark:bg-[#111] border border-green-500/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden transform-gpu"
+                 // CORRECCIÓN DE COLOR AQUÍ: bg-white explícito para light mode
+                 className="w-full max-w-lg bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-2xl shadow-gray-200/50 dark:shadow-black/50 relative overflow-hidden transform-gpu"
                >
+                  {/* Barra superior de éxito */}
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-400 to-emerald-600" />
                   
-                  <div className="flex justify-between items-start mb-6 mt-2">
+                  <div className="flex justify-between items-start mb-8 mt-1">
                      <div className="text-left">
-                        <h3 className="text-xl font-display font-bold text-[var(--text-main)] tracking-tight">{result.product}</h3>
-                        <div className="inline-flex items-center gap-1.5 mt-2 px-2 py-1 rounded bg-green-500/10 text-green-600 dark:text-green-400">
-                           <CheckCircle className="w-3.5 h-3.5" />
+                        {/* Texto explícito Slate-900 para light mode */}
+                        <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-white tracking-tight">{result.product}</h3>
+                        <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                           <CheckCircle className="w-4 h-4" />
                            <span className="text-[10px] font-bold uppercase tracking-wider">Analysis Verified</span>
                         </div>
                      </div>
                      <div className="text-right">
-                        <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold mb-1">Purity Score</p>
-                        <p className="text-4xl font-mono font-bold text-[var(--text-main)] tracking-tighter">{result.purity}</p>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-bold mb-1">Purity Score</p>
+                        <p className="text-4xl font-mono font-bold text-slate-900 dark:text-white tracking-tighter">{result.purity}</p>
                      </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-left border-t border-dashed border-gray-200 dark:border-white/10 pt-5">
+                  {/* Tabla de detalles con texto de alto contraste */}
+                  <div className="grid grid-cols-2 gap-8 text-left border-t border-dashed border-gray-200 dark:border-white/10 pt-6">
                      <div>
-                        <p className="text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Analysis Date</p>
-                        <p className="text-sm font-mono font-medium text-[var(--text-main)]">{result.date}</p>
+                        <p className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 mb-1">Analysis Date</p>
+                        <p className="text-base font-mono font-bold text-slate-800 dark:text-gray-200">{result.date}</p>
                      </div>
                      <div>
-                        <p className="text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Method</p>
-                        <p className="text-sm font-mono font-medium text-[var(--text-main)]">HPLC / MS</p>
+                        <p className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 mb-1">Method</p>
+                        <p className="text-base font-mono font-bold text-slate-800 dark:text-gray-200">HPLC / MS</p>
+                     </div>
+                     <div>
+                        <p className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 mb-1">Status</p>
+                        <p className="text-base font-mono font-bold text-green-600 dark:text-green-400">{result.status}</p>
+                     </div>
+                     <div>
+                        <p className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 mb-1">Lab ID</p>
+                        <p className="text-base font-mono font-bold text-slate-800 dark:text-gray-200">TL-{query.toUpperCase()}</p>
                      </div>
                   </div>
 
-                  <button className="mt-6 w-full py-3 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[var(--text-main)] rounded-xl transition-colors border border-gray-200 dark:border-white/5">
-                     <FileBarChart className="w-4 h-4" /> Download Full COA (PDF)
-                  </button>
+                  {/* BOTÓN ELIMINADO AQUÍ */}
+
                </motion.div>
              )}
 
@@ -168,13 +176,14 @@ export default function BatchVerifier() {
                    opacity: 1, 
                    y: 0,
                    height: "auto",
-                   x: [0, -5, 5, -5, 5, 0] // Shake suave
+                   x: [0, -5, 5, -5, 5, 0] 
                  }}
                  exit={{ opacity: 0, y: -10, height: 0 }}
                  transition={{ duration: 0.3 }}
+                 // Fondo rojo muy claro en light mode
                  className="w-full max-w-md bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-5 flex items-center gap-5 shadow-lg transform-gpu"
                >
-                  <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-white dark:bg-red-900/20 border border-red-100 dark:border-transparent flex items-center justify-center shrink-0">
                      <AlertCircle className="w-6 h-6 text-red-500" />
                   </div>
                   <div className="text-left">
