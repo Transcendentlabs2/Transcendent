@@ -5,7 +5,9 @@ import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-// Ajusta esta ruta si tu carpeta assets está en otro lado
+// NOTA IMPORTANTE: Si moviste el logo a "public/img/logo.png" para arreglar el error de Vercel,
+// debes borrar este import y usar el string directo en el src más abajo.
+// Si ya lo tienes en "src/assets/logo.webp", deja esta línea como está.
 import logo from "../assets/logo.webp"; 
 
 export default function Navbar() {
@@ -55,7 +57,7 @@ export default function Navbar() {
           {/* Logo Imagen */}
           <div className="relative w-10 h-10 md:w-12 md:h-12 transition-transform group-hover:scale-105">
             <Image 
-                src={logo} 
+                src={logo} // Si usas public, cambia esto por: "/img/logo.png"
                 alt="Transcendent Labs Logo" 
                 fill 
                 className="object-contain"
@@ -66,16 +68,18 @@ export default function Navbar() {
 
           {/* Texto del Logo */}
           <div className="flex flex-col">
-            <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-slate-900 dark:text-[var(--text-main)]">
+            <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-slate-900 dark:text-[var(--text-main)] transition-colors">
               TRANSCENDENT
             </span>
             
-            {/* --- AQUÍ ESTÁ EL CAMBIO DE COLOR --- */}
-            {/* Light Mode: text-emerald-700 (Verde oscuro legible) 
-                Dark Mode: text-[var(--color-brand-secondary)] (Verde Neón) */}
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-[var(--color-brand-secondary)] data-[theme=light]:text-emerald-800 data-[theme=light]:font-extrabold transition-colors duration-300">
-    Labs & Research
-  </span>
+            {/* --- SOLUCIÓN APLICADA AQUÍ --- */}
+            {/* 1. 'text-emerald-900': Color muy oscuro para Light Mode (Legible).
+                2. 'dark:text-[var(--color-brand-secondary)]': Color neón SOLO en Dark Mode.
+                3. Eliminamos data-[theme] y clases sin prefijo conflictivas.
+            */}
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-emerald-900 dark:text-[var(--color-brand-secondary)] transition-colors duration-300">
+              Labs & Research
+            </span>
           </div>
         </a>
 
