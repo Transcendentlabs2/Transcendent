@@ -73,9 +73,9 @@ export default function Navbar() {
             {/* --- AQUÍ ESTÁ EL CAMBIO DE COLOR --- */}
             {/* Light Mode: text-emerald-700 (Verde oscuro legible) 
                 Dark Mode: text-[var(--color-brand-secondary)] (Verde Neón) */}
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-emerald-700 dark:text-[var(--color-brand-secondary)]">
-              Labs & Research
-            </span>
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-[var(--color-brand-secondary)] data-[theme=light]:text-emerald-800 data-[theme=light]:font-extrabold transition-colors duration-300">
+    Labs & Research
+  </span>
           </div>
         </a>
 
