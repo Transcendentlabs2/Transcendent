@@ -4,14 +4,16 @@ import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+// Asegúrate de que la ruta sea correcta
 import logo from "../assets/logo.webp"; 
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Detectar scroll para activar el efecto "Glass"
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -36,10 +38,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 border-b ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white dark:bg-black border-slate-200 dark:border-white/10 py-2 shadow-sm"
-          : "bg-white dark:bg-black border-transparent py-4"
+          ? "bg-[var(--bg-page)]/90 backdrop-blur-md border-b border-[var(--glass-border)] py-3 shadow-sm"
+          : "bg-transparent border-b border-transparent py-6"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -49,7 +51,7 @@ export default function Navbar() {
             <a 
                 href="#"
                 onClick={(e) => handleScrollTo(e, "#hero")}
-                className="relative w-10 h-10 shrink-0 cursor-pointer hover:scale-105 transition-transform"
+                className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 cursor-pointer hover:scale-105 transition-transform"
             >
                 <Image 
                     src={logo} 
@@ -60,17 +62,20 @@ export default function Navbar() {
                 />
             </a>
 
-            {/* Separador vertical */}
-            <div className="hidden md:block h-8 w-[1px] bg-slate-200 dark:bg-white/20" />
+            {/* Separador vertical: Se adapta al color del texto suavemente */}
+            <div className={`hidden md:block h-8 w-[1px] bg-[var(--text-muted)] opacity-20`} />
 
             <div className="flex flex-col justify-center">
-                {/* TÍTULO */}
-                <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-slate-900 dark:text-white mb-1.5">
+                {/* TÍTULO: Usa text-[var(--text-main)] para ser idéntico al Hero */}
+                <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-[var(--text-main)] mb-1.5 transition-colors">
                     TRANSCENDENT
                 </span>
                 
-                {/* BADGE (CÁPSULA) - El diseño exacto que pediste */}
-                <div className="flex items-center justify-center px-3 py-1 rounded-full bg-black dark:bg-emerald-500/10 border border-transparent dark:border-emerald-500/20 w-fit shadow-sm">
+                {/* BADGE (CÁPSULA)
+                    - Light Mode: Fondo NEGRO SÓLIDO (bg-slate-950) para contraste máximo.
+                    - Dark Mode: Fondo VERDE TRANSLÚCIDO.
+                */}
+                <div className="flex items-center justify-center px-3 py-0.5 rounded-full bg-slate-950 dark:bg-emerald-500/10 border border-slate-800 dark:border-emerald-500/20 w-fit shadow-sm">
                     <span className="font-mono text-[9px] md:text-[10px] uppercase font-bold text-[#4ADE80] tracking-[0.15em] leading-none">
                         Labs & Research
                     </span>
@@ -85,9 +90,10 @@ export default function Navbar() {
               key={link.name}
               href={link.href}
               onClick={(e) => handleScrollTo(e, link.href)}
-              className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white transition-colors py-2"
+              className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors py-2 relative group"
             >
               {link.name}
+              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-brand-primary)] transition-all duration-300 group-hover:w-full" />
             </a>
           ))}
         </nav>
@@ -95,17 +101,18 @@ export default function Navbar() {
         {/* --- RIGHT: ICONS --- */}
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2">
-             <button className="p-2 text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors">
+             <button className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
                 <Search className="w-5 h-5" />
              </button>
-             <button className="relative p-2 text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors group">
-                <ShoppingCart className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 dark:bg-emerald-500 rounded-full border border-white dark:border-black"></span>
+             
+             <button className="relative p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors group cursor-pointer">
+                <ShoppingCart className="w-5 h-5 group-hover:text-[var(--color-brand-primary)] transition-colors" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 dark:bg-[var(--color-brand-secondary)] rounded-full border border-[var(--bg-page)]"></span>
              </button>
           </div>
 
           <button
-            className="lg:hidden p-2 text-slate-900 dark:text-white"
+            className="lg:hidden p-2 text-[var(--text-main)]"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? <X /> : <Menu />}
@@ -120,19 +127,29 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="lg:hidden absolute top-[100%] left-0 right-0 bg-white dark:bg-black border-b border-slate-200 dark:border-white/10 shadow-xl"
+            className="lg:hidden absolute top-[100%] left-0 right-0 bg-[var(--bg-page)]/95 backdrop-blur-xl border-b border-[var(--glass-border)] shadow-2xl"
           >
             <div className="p-6 flex flex-col gap-4">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-bold text-slate-900 dark:text-white py-2 border-b border-slate-100 dark:border-white/10"
+                  className="text-lg font-bold text-[var(--text-main)] py-3 border-b border-[var(--glass-border)] last:border-0"
                   onClick={(e) => handleScrollTo(e, link.href)}
                 >
                   {link.name}
                 </a>
               ))}
+              
+              {/* Mobile Actions */}
+              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-[var(--glass-border)]">
+                 <button className="flex-1 py-3 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 rounded-lg text-[var(--text-main)] font-bold text-sm">
+                    <Search className="w-4 h-4" /> Search
+                 </button>
+                 <button className="flex-1 py-3 flex items-center justify-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] rounded-lg font-bold text-sm">
+                    <ShoppingCart className="w-4 h-4" /> Cart
+                 </button>
+              </div>
             </div>
           </motion.div>
         )}
