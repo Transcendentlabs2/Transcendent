@@ -76,10 +76,10 @@ export default function HeroModern() {
               </span>
             </button>
             
-            <button className="px-8 py-4 rounded-lg border border-[var(--glass-border)] text-[var(--text-main)] font-semibold hover:bg-[var(--glass-bg)] transition-colors flex items-center gap-2 justify-center">
+            {/* <button className="px-8 py-4 rounded-lg border border-[var(--glass-border)] text-[var(--text-main)] font-semibold hover:bg-[var(--glass-bg)] transition-colors flex items-center gap-2 justify-center">
               <FileText className="w-4 h-4" />
               Documentation
-            </button>
+            </button> */}
           </motion.div>
           
           {/* Stats */}
