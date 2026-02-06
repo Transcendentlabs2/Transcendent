@@ -29,13 +29,12 @@ export default function Navbar() {
     }
   };
 
-  // --- ESTRATEGIA DE NAVEGACIÓN ACTUALIZADA ---
   const navLinks = [
-    { name: "Catalog", href: "#catalog" },       // Prioridad 1: Ventas
-    { name: "Verify Batch", href: "#verification" }, // Prioridad 2: Confianza (NUEVO LINK)
-    { name: "Calculator", href: "#calculator" }, // Prioridad 3: Herramienta
-    { name: "Science", href: "#science" },       // Prioridad 4: Autoridad
-    { name: "FAQ", href: "#faq" },               // Prioridad 5: Dudas
+    { name: "Catalog", href: "#catalog" },
+    { name: "Verify Batch", href: "#verification" },
+    { name: "Calculator", href: "#calculator" },
+    { name: "Science", href: "#science" },
+    { name: "FAQ", href: "#faq" },
   ];
 
   return (
@@ -69,9 +68,13 @@ export default function Navbar() {
             <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-slate-900 dark:text-[var(--text-main)] transition-colors">
               TRANSCENDENT
             </span>
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-emerald-900 dark:text-[var(--color-brand-secondary)] transition-colors duration-300">
-              Labs & Research
-            </span>
+            
+            {/* BADGE DEL SUBTÍTULO: Resuelve visibilidad en Light Mode */}
+            <div className="mt-1.5 px-2 py-0.5 rounded-full bg-slate-950 dark:bg-emerald-500/10 border border-slate-800 dark:border-emerald-500/20 w-fit transition-all duration-300 group-hover:border-emerald-500/50">
+              <span className="font-mono text-[9px] md:text-[10px] tracking-[0.15em] uppercase font-bold text-emerald-400 dark:text-[var(--color-brand-secondary)] block">
+                Labs & Research
+              </span>
+            </div>
           </div>
         </a>
 
