@@ -80,7 +80,7 @@ export default function Hero() {
                  Antes era /10 y se perdía. Ahora /40 asegura que se vea negro.
                - Dark Mode: 'dark:text-white/10' (Se mantiene sutil en fondo oscuro).
             */}
-            <span className="block text-[10vw] md:text-[6rem] lg:text-[7rem] leading-[0.85] font-bold tracking-widest text-black/40 dark:text-white/10 font-display scale-105 origin-bottom transition-colors duration-500">
+            <span className="block text-[10vw] md:text-[6rem] lg:text-[7rem] leading-[0.85] font-bold tracking-widest text-black/90 dark:text-white/10 font-display scale-105 origin-bottom transition-colors duration-500">
               TRANSCENDENT
             </span>
             
