@@ -11,7 +11,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -35,123 +35,120 @@ export default function Navbar() {
   ];
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
-        scrolled
-          ? "bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl border-slate-200 dark:border-white/10 py-3"
-          : "bg-transparent py-5 border-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-        
-        {/* --- LEFT: BRAND IDENTITY --- */}
-        <div className="flex items-center gap-4">
-            {/* Logo Image */}
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
+          scrolled
+            ? "bg-white/95 dark:bg-[#050505]/90 backdrop-blur-md py-3 shadow-md border-gray-200 dark:border-white/10"
+            : "bg-white/95 dark:bg-[#050505]/60 backdrop-blur-sm py-4 border-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          
+          {/* --- LEFT: BRANDING --- */}
+          <div className="flex items-center gap-3 md:gap-4">
             <a 
-                href="#"
-                onClick={(e) => handleScrollTo(e, "#hero")}
-                className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+              href="#"
+              onClick={(e) => handleScrollTo(e, "#hero")}
+              className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 hover:opacity-90 transition-opacity"
             >
-                <Image 
-                    src={logo} 
-                    alt="Logo" 
-                    fill 
-                    className="object-contain"
-                    priority
-                />
+              <Image 
+                  src={logo} 
+                  alt="Logo" 
+                  fill 
+                  className="object-contain"
+                  priority
+              />
             </a>
 
-            {/* Separator Line (Visible on Desktop) */}
-            <div className="hidden md:block h-8 w-[1px] bg-slate-200 dark:bg-white/10" />
+            {/* Separador vertical: visible solo en desktop */}
+            <div className="hidden md:block w-[1px] h-8 bg-gray-300 dark:bg-white/20"></div>
 
-            {/* Brand Name Structure */}
-            <div className="flex flex-col md:flex-row md:items-baseline gap-0 md:gap-3">
-                <span className="font-display font-bold text-lg tracking-tight text-slate-900 dark:text-white">
-                    TRANSCENDENT
-                </span>
-                
-                {/* SOLUCIÓN CRÍTICA:
-                   En lugar de un subtítulo verde claro ilegible, usamos un "Tag" estilizado.
-                   - Light Mode: Fondo gris muy suave, texto oscuro (Legibilidad 100%)
-                   - Dark Mode: Fondo verde oscuro translúcido, texto verde neón.
-                */}
-                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md border border-slate-200 dark:border-emerald-500/20 w-fit">
-                    <FlaskConical className="w-3 h-3 text-slate-500 dark:text-emerald-400" />
-                    <span className="font-mono text-[10px] uppercase font-bold text-slate-600 dark:text-emerald-400 tracking-wider">
-                        Labs & Research
-                    </span>
-                </div>
+            <div className="flex flex-col">
+              {/* TÍTULO PRINCIPAL: Negro absoluto en Light, Blanco absoluto en Dark */}
+              <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-black dark:text-white">
+                TRANSCENDENT
+              </span>
+              
+              {/* BADGE CRÍTICO DE LEGIBILIDAD */}
+              {/* Light Mode: Fondo NEGRO sólido, Texto VERDE BRILLANTE */}
+              {/* Dark Mode: Fondo VERDE OSCURO transp, Texto VERDE SUAVE */}
+              <div className="mt-1 flex items-center gap-1.5 w-fit px-2 py-0.5 rounded bg-black dark:bg-emerald-950/40 border border-transparent dark:border-emerald-500/30">
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#4ADE80] tracking-widest">
+                    Labs & Research
+                  </span>
+              </div>
             </div>
-        </div>
-
-        {/* --- CENTER: NAVIGATION (Desktop) --- */}
-        <nav className="hidden lg:flex items-center gap-1 bg-slate-50 dark:bg-white/5 p-1 rounded-full border border-slate-200 dark:border-white/5">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={(e) => handleScrollTo(e, link.href)}
-              className="px-4 py-1.5 rounded-full text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white hover:shadow-sm transition-all duration-200"
-            >
-              {link.name}
-            </a>
-          ))}
-        </nav>
-
-        {/* --- RIGHT: ACTIONS --- */}
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2">
-             <button className="p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors">
-                <Search className="w-5 h-5" />
-             </button>
-             <button className="relative p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors group">
-                <ShoppingCart className="w-5 h-5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white dark:border-[#0a0a0a]"></span>
-             </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 text-slate-900 dark:text-white"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? <X /> : <Menu />}
-          </button>
-        </div>
-      </div>
+          {/* --- CENTER: NAVIGATION (Desktop) --- */}
+          {/* Usamos text-gray-600 en light para que no compita con el logo, pero hover black */}
+          <nav className="hidden lg:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={(e) => handleScrollTo(e, link.href)}
+                className="text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors relative group py-2"
+              >
+                {link.name}
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-black dark:bg-emerald-500 transition-all duration-300 group-hover:w-full" />
+              </a>
+            ))}
+          </nav>
 
-      {/* --- MOBILE MENU --- */}
+          {/* --- RIGHT: ICONS --- */}
+          <div className="flex items-center gap-2">
+            <button className="hidden md:flex p-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors">
+              <Search className="w-5 h-5" />
+            </button>
+            
+            <button className="relative p-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors group">
+              <ShoppingCart className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 dark:bg-emerald-500 rounded-full"></span>
+            </button>
+
+            <button
+              className="lg:hidden p-2 text-black dark:text-white"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* --- MOBILE MENU OVERLAY --- */}
+      {/* Fondo blanco sólido en light, negro en dark. Sin transparencias que confundan. */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="lg:hidden absolute top-full left-0 right-0 border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] shadow-2xl"
+            className="fixed top-[70px] left-0 right-0 z-40 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-white/10 shadow-xl lg:hidden"
           >
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-6 flex flex-col gap-1">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="flex items-center justify-between text-lg font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 py-2 border-b border-slate-100 dark:border-white/5 last:border-0"
+                  className="block py-4 text-lg font-bold text-black dark:text-white border-b border-gray-100 dark:border-white/5 active:text-emerald-600"
                   onClick={(e) => handleScrollTo(e, link.href)}
                 >
                   {link.name}
                 </a>
               ))}
-              <div className="flex gap-4 pt-4 mt-2">
-                 <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white font-bold text-sm">
+              
+              <div className="flex items-center gap-4 mt-6 pt-2">
+                 <button className="flex-1 py-3 flex items-center justify-center gap-2 bg-gray-100 dark:bg-white/5 rounded-lg text-black dark:text-white font-bold text-sm">
                     <Search className="w-4 h-4" /> Search
-                 </button>
-                 <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/20">
-                    <ShoppingCart className="w-4 h-4" /> Cart (0)
                  </button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
