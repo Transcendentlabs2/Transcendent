@@ -26,7 +26,7 @@ export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="relative py-24 px-4 md:px-8 max-w-4xl mx-auto z-10">
+    <section className="relative py-24 px-4 md:px-8 max-w-4xl mx-auto z-10" id="faq">
       
       {/* Header técnico */}
       <div className="flex items-center gap-4 mb-12 border-b border-[var(--glass-border)] pb-6">
@@ -49,56 +49,68 @@ export default function FAQSection() {
           const isOpen = openIndex === index;
 
           return (
-            <motion.div
-              key={index}
-              initial={false}
-              className={`border rounded-xl overflow-hidden transition-all duration-300 ${
-                isOpen 
-                  ? "bg-[var(--bg-page)]/80 border-[var(--color-brand-primary)] shadow-[0_0_20px_rgba(0,201,255,0.1)]" 
-                  : "bg-[var(--bg-page)]/30 border-[var(--glass-border)] hover:border-[var(--text-muted)]"
-              }`}
-            >
-              <button
-                onClick={() => setOpenIndex(isOpen ? null : index)}
-                className="w-full flex items-center justify-between p-6 text-left"
-              >
-                <span className={`font-mono text-sm md:text-base uppercase tracking-wider font-bold transition-colors ${
-                    isOpen ? "text-[var(--color-brand-primary)]" : "text-[var(--text-main)]"
-                }`}>
-                  <span className="text-[var(--text-muted)] mr-4">0{index + 1}.</span>
-                  {faq.question}
-                </span>
-                
-                <span className={`p-2 rounded-full transition-colors ${
-                    isOpen ? "bg-[var(--color-brand-primary)] text-[var(--bg-page)]" : "bg-[var(--glass-border)] text-[var(--text-muted)]"
-                }`}>
-                  {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                </span>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+            <div key={index} className="overflow-hidden"> {/* Wrapper para evitar overflow issues en animación */}
+                <motion.div
+                  initial={false}
+                  animate={{ 
+                      backgroundColor: isOpen ? "rgba(var(--bg-page-rgb), 0.8)" : "rgba(var(--bg-page-rgb), 0.3)",
+                      borderColor: isOpen ? "var(--color-brand-primary)" : "var(--glass-border)"
+                  }}
+                  className={`border rounded-xl overflow-hidden transition-all duration-300 transform-gpu ${
+                    isOpen 
+                      ? "bg-[var(--bg-page)]/80 shadow-[0_0_20px_rgba(0,201,255,0.1)]" 
+                      : "bg-[var(--bg-page)]/30 hover:border-[var(--text-muted)]"
+                  }`}
+                >
+                  <button
+                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                    className="w-full flex items-center justify-between p-6 text-left active:scale-[0.99] transition-transform duration-100" // Feedback táctil en móvil
+                    style={{ WebkitTapHighlightColor: "transparent" }} // Quita el flash gris en iOS
                   >
-                    <div className="px-6 pb-6 pt-0">
-                      <div className="h-px w-full bg-gradient-to-r from-[var(--color-brand-primary)]/50 to-transparent mb-4" />
-                      <p className="text-[var(--text-muted)] leading-relaxed text-sm md:text-base">
-                        {index === 3 && ( // Alerta visual para la pregunta legal
-                            <span className="flex items-center gap-2 text-amber-500 font-bold text-xs uppercase mb-2 tracking-widest">
-                                <ShieldAlert className="w-4 h-4" /> Compliance Warning
-                            </span>
-                        )}
-                        {faq.answer}
-                      </p>
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 pr-4">
+                        <span className="text-[var(--text-muted)] font-mono text-xs opacity-50">0{index + 1}.</span>
+                        <span className={`font-mono text-sm md:text-base uppercase tracking-wider font-bold transition-colors ${
+                          isOpen ? "text-[var(--color-brand-primary)]" : "text-[var(--text-main)]"
+                        }`}>
+                          {faq.question}
+                        </span>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+                    
+                    <span className={`p-2 rounded-full transition-colors shrink-0 ${
+                      isOpen ? "bg-[var(--color-brand-primary)] text-[var(--bg-page)]" : "bg-[var(--glass-border)] text-[var(--text-muted)]"
+                    }`}>
+                      {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                    </span>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }} // Curva "Spring" suave para iOS
+                        style={{ willChange: "height" }} // Optimización crítica para Safari
+                      >
+                        <div className="px-6 pb-6 pt-0">
+                          <div className="h-px w-full bg-gradient-to-r from-[var(--color-brand-primary)]/50 to-transparent mb-4" />
+                          
+                          {/* Contenido de la respuesta */}
+                          <div className="text-[var(--text-muted)] leading-relaxed text-sm md:text-base">
+                            {index === 3 && ( 
+                                <span className="flex items-center gap-2 text-amber-500 font-bold text-xs uppercase mb-2 tracking-widest bg-amber-500/10 p-2 rounded w-fit border border-amber-500/20">
+                                    <ShieldAlert className="w-4 h-4" /> Compliance Warning
+                                </span>
+                            )}
+                            <p>{faq.answer}</p>
+                          </div>
+
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+            </div>
           );
         })}
       </div>
