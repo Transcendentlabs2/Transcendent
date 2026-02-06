@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image"; // <--- IMPORTANTE: Importamos el componente Image
+import Image from "next/image";
+
+// 1. IMPORTAMOS LA IMAGEN AQUÍ
+// Asegúrate de que la ruta sea correcta según donde guardaste el archivo.
+// El '@' suele apuntar a la carpeta 'src'.
+import logo from "../assets/logo.webp"; 
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -50,25 +55,23 @@ export default function Navbar() {
           className="flex items-center gap-3 group cursor-pointer"
         >
           {/* Contenedor del Logo Imagen */}
-          <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden transition-transform group-hover:scale-105">
-            {/* Asegúrate de que tu logo esté en /public/img/logo.png o cambia la ruta aquí */}
+          {/* Al usar import, mantenemos el contenedor relativo para controlar el tamaño */}
+          <div className="relative w-10 h-10 md:w-12 md:h-12 transition-transform group-hover:scale-105">
             <Image 
-                src="/img/logo.web" 
+                src={logo} // <--- AQUÍ USAMOS LA VARIABLE IMPORTADA
                 alt="Transcendent Labs Logo" 
-                fill 
-                className="object-contain"
-                priority
+                fill // Esto hace que la imagen llene el contenedor padre (w-12 h-12)
+                className="object-contain" // Asegura que el logo no se recorte ni deforme
+                priority // Carga prioritaria para el LCP (Largest Contentful Paint)
+                sizes="(max-width: 768px) 40px, 48px" // Optimización para móviles/desktop
             />
           </div>
 
           {/* Texto del Logo */}
           <div className="flex flex-col">
-            {/* Título Principal: Negro en Light, Blanco en Dark */}
             <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-slate-900 dark:text-[var(--text-main)]">
               TRANSCENDENT
             </span>
-            
-            {/* Subtítulo: Gris oscuro en Light (para que se lea), Verde Neón en Dark */}
             <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-slate-600 dark:text-[var(--color-brand-secondary)]">
               Labs & Research
             </span>
@@ -82,7 +85,6 @@ export default function Navbar() {
               key={link.name}
               href={link.href}
               onClick={(e) => handleScrollTo(e, link.href)}
-              // Links: Gris oscuro en light, gris claro en dark. Hover siempre el color primario.
               className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] dark:hover:text-[var(--color-brand-primary)] transition-colors relative group cursor-pointer"
             >
               {link.name}
@@ -133,7 +135,6 @@ export default function Navbar() {
                 </a>
               ))}
               
-              {/* Iconos móviles extra */}
               <div className="flex gap-4 mt-4 border-t border-slate-100 dark:border-white/10 pt-6">
                  <button className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-400">
                     <Search className="w-4 h-4" /> Search
