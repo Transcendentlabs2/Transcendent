@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle, Microscope, AlertCircle, ScanLine } from "lucide-react";
+import { Search, CheckCircle, Microscope, AlertCircle, ScanLine, FileText } from "lucide-react";
 
 interface BatchData {
   product: string;
@@ -76,32 +76,35 @@ export default function BatchVerifier() {
         {/* Search Box Container */}
         <div className={`relative max-w-md mx-auto transition-all duration-300 ${result || error ? 'mb-8' : 'mb-0'}`}>
            <form onSubmit={handleSearch} className="relative flex items-center group">
-              <div className="absolute left-4 text-[var(--text-muted)]">
-                 <ScanLine className="w-5 h-5 opacity-50" />
+              <div className="absolute left-4 z-20 text-gray-400">
+                 <ScanLine className="w-5 h-5 opacity-70" />
               </div>
 
-              {/* INPUT CORREGIDO - COLORES FORZADOS */}
+              {/* INPUT BLINDADO CON !IMPORTANT */}
               <input 
                 type="text" 
                 placeholder="ENTER LOT # (E.G., A1092)"
                 value={query}
                 onChange={handleInputChange}
-                className="w-full 
-                  bg-white dark:bg-white/10 
-                  backdrop-blur-md 
-                  border border-gray-200 dark:border-white/10 
-                  rounded-2xl py-4 pl-12 pr-14 
-                  text-base font-mono font-bold 
-                  text-black dark:text-white 
-                  placeholder:text-gray-400 dark:placeholder:text-gray-400
-                  focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] 
-                  transition-all uppercase shadow-lg shadow-black/5"
+                className="
+                  w-full relative z-10
+                  py-4 pl-12 pr-14 
+                  rounded-2xl 
+                  border 
+                  text-base font-mono font-bold uppercase
+                  transition-all shadow-lg
+                  focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-primary)]
+                  
+                  /* ESTILOS DE COLOR FORZADOS (!important) */
+                  bg-white !text-slate-900 border-gray-200 placeholder:text-gray-400
+                  dark:bg-slate-900/80 dark:!text-white dark:border-white/10 dark:placeholder:text-gray-500
+                "
               />
               
               <button 
                 type="submit"
                 disabled={loading}
-                className="absolute right-2 p-2.5 bg-[var(--text-main)] text-[var(--bg-page)] rounded-xl hover:scale-105 hover:bg-[var(--color-brand-primary)] hover:text-white disabled:opacity-50 disabled:scale-100 transition-all shadow-md"
+                className="absolute right-2 z-20 p-2.5 bg-[var(--text-main)] text-[var(--bg-page)] rounded-xl hover:scale-105 hover:bg-[var(--color-brand-primary)] hover:text-white disabled:opacity-50 disabled:scale-100 transition-all shadow-md cursor-pointer"
               >
                  {loading ? (
                     <div className="w-5 h-5 border-2 border-t-transparent border-current rounded-full animate-spin" />
@@ -132,7 +135,6 @@ export default function BatchVerifier() {
                  exit={{ opacity: 0, y: -10, height: 0 }}
                  className="w-full max-w-lg bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-2xl shadow-gray-200/50 dark:shadow-black/50 relative overflow-hidden transform-gpu"
                >
-                  {/* Barra superior de éxito */}
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-400 to-emerald-600" />
                   
                   <div className="flex justify-between items-start mb-8 mt-1">
