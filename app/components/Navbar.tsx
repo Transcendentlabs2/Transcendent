@@ -69,8 +69,8 @@ export default function Navbar() {
               TRANSCENDENT
             </span>
             
-            {/* BADGE DEL SUBTÍTULO: Resuelve visibilidad en Light Mode */}
-            <div className="mt-1.5 px-2 py-0.5 rounded-full bg-slate-950 dark:bg-emerald-500/10 border border-slate-800 dark:border-emerald-500/20 w-fit transition-all duration-300 group-hover:border-emerald-500/50">
+            {/* BADGE DEL SUBTÍTULO: Negro sólido en light mode para contraste máximo */}
+            <div className="mt-1.5 px-3 py-0.5 rounded-full bg-black dark:bg-emerald-500/10 border border-transparent dark:border-emerald-500/20 w-fit transition-all duration-300 group-hover:border-emerald-500/50">
               <span className="font-mono text-[9px] md:text-[10px] tracking-[0.15em] uppercase font-bold text-emerald-400 dark:text-[var(--color-brand-secondary)] block">
                 Labs & Research
               </span>
