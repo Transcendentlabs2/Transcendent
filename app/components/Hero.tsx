@@ -75,19 +75,18 @@ export default function Hero() {
           </motion.div>
 
           <motion.h1 variants={fadeUp} className="relative z-20 select-none text-center">
-            {/* 1. TEXTO FONDO "PEPTIDE"
-               - Light Mode: text-slate-200 (Gris Piedra Sólido - Muy visible pero sutil)
-               - Dark Mode: dark:text-white/20 (Blanco translúcido)
-            */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-slate-200 dark:text-white/10 font-display scale-105 origin-bottom transition-colors duration-500">
+            {/* 1. TEXTO FONDO: Oscurecido a text-slate-300 para que se vea en blanco */}
+            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-slate-300 dark:text-white/10 font-display scale-105 origin-bottom transition-colors duration-500">
               PEPTIDE
             </span>
             
-            {/* 2. TEXTO PRINCIPAL "SCIENCE"
-               - Light Mode: Deep Ocean Gradient (Azul Marino a Verde Azulado Oscuro). Mucho contraste.
-               - Dark Mode: Neon Gradient (Cyan a Verde Lima).
+            {/* 2. TEXTO PRINCIPAL: 
+                IMPORTANTE: Eliminé la clase 'text-gradient-hero' que causaba el conflicto.
+                Ahora usamos clases utilitarias directas:
+                - Light: Azul Oscuro a Teal Oscuro (Legible)
+                - Dark: Cyan a Verde Neon (Brillante)
             */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest font-display mt-[-2vw] md:-mt-8 drop-shadow-sm filter bg-clip-text text-transparent bg-gradient-to-r from-blue-900 via-teal-800 to-blue-900 dark:from-[#00C9FF] dark:via-[#92FE9D] dark:to-[#00C9FF] bg-[length:200%_auto] animate-[textShine_5s_linear_infinite]">
+            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest font-display mt-[-2vw] md:-mt-8 drop-shadow-sm filter bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-teal-600 to-blue-700 dark:from-[#00C9FF] dark:via-[#92FE9D] dark:to-[#00C9FF] bg-[length:200%_auto] animate-[textShine_5s_linear_infinite]">
               SCIENCE
             </span>
           </motion.h1>
