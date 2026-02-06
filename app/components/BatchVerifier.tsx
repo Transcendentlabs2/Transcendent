@@ -80,12 +80,22 @@ export default function BatchVerifier() {
                  <ScanLine className="w-5 h-5 opacity-50" />
               </div>
 
+              {/* INPUT CORREGIDO - COLORES FORZADOS */}
               <input 
                 type="text" 
                 placeholder="ENTER LOT # (E.G., A1092)"
                 value={query}
                 onChange={handleInputChange}
-                className="w-full bg-white dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-14 text-base font-mono font-bold text-slate-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] transition-all uppercase shadow-lg shadow-black/5"
+                className="w-full 
+                  bg-white dark:bg-white/10 
+                  backdrop-blur-md 
+                  border border-gray-200 dark:border-white/10 
+                  rounded-2xl py-4 pl-12 pr-14 
+                  text-base font-mono font-bold 
+                  text-black dark:text-white 
+                  placeholder:text-gray-400 dark:placeholder:text-gray-400
+                  focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] 
+                  transition-all uppercase shadow-lg shadow-black/5"
               />
               
               <button 
@@ -120,7 +130,6 @@ export default function BatchVerifier() {
                  initial={{ opacity: 0, y: -20, height: 0 }}
                  animate={{ opacity: 1, y: 0, height: "auto" }}
                  exit={{ opacity: 0, y: -10, height: 0 }}
-                 // CORRECCIÓN DE COLOR AQUÍ: bg-white explícito para light mode
                  className="w-full max-w-lg bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-2xl shadow-gray-200/50 dark:shadow-black/50 relative overflow-hidden transform-gpu"
                >
                   {/* Barra superior de éxito */}
@@ -128,7 +137,6 @@ export default function BatchVerifier() {
                   
                   <div className="flex justify-between items-start mb-8 mt-1">
                      <div className="text-left">
-                        {/* Texto explícito Slate-900 para light mode */}
                         <h3 className="text-2xl font-display font-bold text-slate-900 dark:text-white tracking-tight">{result.product}</h3>
                         <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400">
                            <CheckCircle className="w-4 h-4" />
@@ -141,7 +149,6 @@ export default function BatchVerifier() {
                      </div>
                   </div>
                   
-                  {/* Tabla de detalles con texto de alto contraste */}
                   <div className="grid grid-cols-2 gap-8 text-left border-t border-dashed border-gray-200 dark:border-white/10 pt-6">
                      <div>
                         <p className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 mb-1">Analysis Date</p>
@@ -160,9 +167,6 @@ export default function BatchVerifier() {
                         <p className="text-base font-mono font-bold text-slate-800 dark:text-gray-200">TL-{query.toUpperCase()}</p>
                      </div>
                   </div>
-
-                  {/* BOTÓN ELIMINADO AQUÍ */}
-
                </motion.div>
              )}
 
@@ -180,7 +184,6 @@ export default function BatchVerifier() {
                  }}
                  exit={{ opacity: 0, y: -10, height: 0 }}
                  transition={{ duration: 0.3 }}
-                 // Fondo rojo muy claro en light mode
                  className="w-full max-w-md bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-5 flex items-center gap-5 shadow-lg transform-gpu"
                >
                   <div className="w-12 h-12 rounded-full bg-white dark:bg-red-900/20 border border-red-100 dark:border-transparent flex items-center justify-center shrink-0">
