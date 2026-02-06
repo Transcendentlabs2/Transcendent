@@ -11,23 +11,56 @@ export default function PeptideCalculator() {
   const [resultTick, setResultTick] = useState<number>(0);
   const [resultVol, setResultVol] = useState<number>(0); 
   
-  // Constantes de dimensiones
+  // --- LIMITES DUROS (Hard Limits) ---
+  // Esto evita que el usuario rompa la UI con números irreales
+  const MAX_VIAL_MG = 50;
+  const MAX_WATER_ML = 10;
+  const MAX_DOSE_MCG = 5000;
+
+  // Constantes de dimensiones visuales
   const SYRINGE_TOP = 20;
   const SYRINGE_HEIGHT = 300;
-  
-  // Escala: 3px por unidad
   const PIXELS_PER_TICK = 3; 
 
   useEffect(() => {
-    const conc = vialQty / waterVol;
+    // Evitamos división por cero
+    const safeWaterVol = waterVol === 0 ? 0.1 : waterVol;
+    const safeVialQty = vialQty === 0 ? 1 : vialQty;
+
+    const conc = safeVialQty / safeWaterVol;
     const doseInMg = dose / 1000;
-    const volumeToInject = doseInMg / conc;
+    
+    let volumeToInject = 0;
+    if (conc > 0) {
+        volumeToInject = doseInMg / conc;
+    }
+
     setResultVol(volumeToInject);
     
-    // Limitamos visualmente a 100 IU
+    // Limitamos visualmente a 100 IU para que no se salga de la jeringa gráfica
+    // Aunque el cálculo matemático de más, la jeringa solo muestra hasta 100.
     const ticks = Math.min(volumeToInject * 100, 100);
     setResultTick(ticks);
   }, [vialQty, waterVol, dose]);
+
+  // --- HANDLERS CON VALIDACIÓN ---
+  const handleVialChange = (val: number) => {
+    if (val > MAX_VIAL_MG) val = MAX_VIAL_MG;
+    if (val < 0) val = 0;
+    setVialQty(val);
+  };
+
+  const handleWaterChange = (val: number) => {
+    if (val > MAX_WATER_ML) val = MAX_WATER_ML;
+    if (val < 0) val = 0;
+    setWaterVol(val);
+  };
+
+  const handleDoseChange = (val: number) => {
+    if (val > MAX_DOSE_MCG) val = MAX_DOSE_MCG;
+    if (val < 0) val = 0;
+    setDose(val);
+  };
 
   return (
     <section className="relative py-24 px-4 md:px-8 max-w-5xl mx-auto z-10" id="calculator">
@@ -78,23 +111,23 @@ export default function PeptideCalculator() {
             <div className="space-y-2">
               <label className="flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
                 <span className="flex items-center gap-2"><Pipette className="w-4 h-4 text-[var(--color-brand-primary)]" /> Peptide Vial Quantity</span>
-                <span className="text-[var(--color-brand-secondary)] font-mono text-xs">{vialQty} mg</span>
+                <span className="text-[var(--color-brand-secondary)] font-mono text-xs">Max: {MAX_VIAL_MG}mg</span>
               </label>
               <div className="relative flex items-center">
                  <input 
                     type="number" 
-                    inputMode="decimal" // Optimización Móvil: Teclado numérico
+                    inputMode="decimal"
                     value={vialQty} 
-                    onChange={(e) => setVialQty(Math.max(0, Number(e.target.value)))} 
+                    onChange={(e) => handleVialChange(Number(e.target.value))} 
                     className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-primary)] focus:outline-none font-mono text-lg" 
                  />
                  <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">mg</span>
               </div>
               <input 
                 type="range" min="1" max="30" step="1" 
-                value={vialQty} 
-                onChange={(e) => setVialQty(Number(e.target.value))} 
-                className="w-full accent-[var(--color-brand-primary)] h-1 bg-[var(--glass-border)] rounded-lg cursor-pointer touch-none" // touch-none mejora el drag en móvil
+                value={Math.min(vialQty, 30)} // El slider llega hasta 30 visualmente, pero input permite hasta 50
+                onChange={(e) => handleVialChange(Number(e.target.value))} 
+                className="w-full accent-[var(--color-brand-primary)] h-1 bg-[var(--glass-border)] rounded-lg cursor-pointer touch-none"
               />
             </div>
 
@@ -102,14 +135,14 @@ export default function PeptideCalculator() {
             <div className="space-y-2">
               <label className="flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
                 <span className="flex items-center gap-2"> Bacteriostatic Water</span>
-                <span className="text-[var(--color-brand-secondary)] font-mono text-xs">{waterVol} ml</span>
+                <span className="text-[var(--color-brand-secondary)] font-mono text-xs">Max: {MAX_WATER_ML}ml</span>
               </label>
               <div className="relative flex items-center">
                  <input 
                     type="number" 
                     inputMode="decimal"
                     value={waterVol} 
-                    onChange={(e) => setWaterVol(Math.max(0.1, Number(e.target.value)))} 
+                    onChange={(e) => handleWaterChange(Number(e.target.value))} 
                     className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-secondary)] focus:outline-none font-mono text-lg" 
                  />
                  <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">ml</span>
@@ -117,7 +150,7 @@ export default function PeptideCalculator() {
               <input 
                 type="range" min="1" max="10" step="0.5" 
                 value={waterVol} 
-                onChange={(e) => setWaterVol(Number(e.target.value))} 
+                onChange={(e) => handleWaterChange(Number(e.target.value))} 
                 className="w-full accent-[var(--color-brand-secondary)] h-1 bg-[var(--glass-border)] rounded-lg cursor-pointer touch-none"
               />
             </div>
@@ -126,22 +159,22 @@ export default function PeptideCalculator() {
             <div className="space-y-2">
               <label className="flex items-center justify-between text-sm font-bold text-[var(--text-main)] uppercase tracking-wide">
                 <span className="flex items-center gap-2"><Syringe className="w-4 h-4 text-rose-500" /> Concentration Goal</span>
-                <span className="text-rose-500 font-mono text-xs">{dose} mcg</span>
+                <span className="text-rose-500 font-mono text-xs">Max: {MAX_DOSE_MCG}mcg</span>
               </label>
               <div className="relative flex items-center">
                  <input 
                     type="number" 
                     inputMode="decimal"
                     value={dose} 
-                    onChange={(e) => setDose(Math.max(0, Number(e.target.value)))} 
+                    onChange={(e) => handleDoseChange(Number(e.target.value))} 
                     className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-rose-500 focus:outline-none font-mono text-lg" 
                  />
                  <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">mcg</span>
               </div>
               <input 
                 type="range" min="50" max="2000" step="50" 
-                value={dose} 
-                onChange={(e) => setDose(Number(e.target.value))} 
+                value={Math.min(dose, 2000)} // Slider visual hasta 2000
+                onChange={(e) => handleDoseChange(Number(e.target.value))} 
                 className="w-full accent-rose-500 h-1 bg-[var(--glass-border)] rounded-lg cursor-pointer touch-none"
               />
             </div>
@@ -166,12 +199,11 @@ export default function PeptideCalculator() {
              </div>
            </div>
 
-           {/* --- SVG JERINGA --- */}
-           {/* transform-gpu asegura que la animación sea suave en Safari */}
+           {/* --- SVG JERINGA (MANTENIENDO OPTIMIZACIÓN Y CLIP-PATH) --- */}
            <div className="relative w-full max-w-[200px] h-[400px] transform-gpu">
               <svg viewBox="0 0 100 400" className="w-full h-full drop-shadow-2xl">
                  
-                 {/* MÁSCARA (CRÍTICO: NO TOCAR) */}
+                 {/* MÁSCARA (CRÍTICO: Mantiene el líquido dentro) */}
                  <defs>
                    <clipPath id="syringe-body-clip">
                       <rect x="30" y={SYRINGE_TOP} width="40" height={SYRINGE_HEIGHT} rx="2" />
@@ -181,7 +213,7 @@ export default function PeptideCalculator() {
                  {/* Cuerpo Jeringa */}
                  <rect x="30" y={SYRINGE_TOP} width="40" height={SYRINGE_HEIGHT} rx="2" fill="var(--bg-page)" stroke="var(--text-muted)" strokeWidth="2" fillOpacity="0.5" />
                  
-                 {/* LÍQUIDO CON MÁSCARA APLICADA */}
+                 {/* LÍQUIDO AZUL */}
                  <motion.rect 
                    clipPath="url(#syringe-body-clip)" 
                    x="30" 
@@ -192,7 +224,6 @@ export default function PeptideCalculator() {
                    initial={{ height: 0 }}
                    animate={{ height: resultTick * PIXELS_PER_TICK }}
                    transition={{ type: "spring", stiffness: 40, damping: 20 }}
-                   // Optimización Safari: will-change
                    style={{ willChange: "height" }}
                  />
 
@@ -209,7 +240,7 @@ export default function PeptideCalculator() {
                    initial={{ y: SYRINGE_TOP }}
                    animate={{ y: SYRINGE_TOP + (resultTick * PIXELS_PER_TICK) }}
                    transition={{ type: "spring", stiffness: 40, damping: 20 }}
-                   style={{ willChange: "transform" }} // Optimización Safari
+                   style={{ willChange: "transform" }}
                  >
                    <rect x="30" y="0" width="40" height="10" fill="#333" />
                    <rect x="45" y="10" width="10" height="300" fill="#ccc" opacity="0.5" />

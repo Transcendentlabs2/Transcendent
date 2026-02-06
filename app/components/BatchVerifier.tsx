@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle, Microscope, AlertCircle, ScanLine, FileText } from "lucide-react";
+import { Search, CheckCircle, Microscope, AlertCircle, ScanLine } from "lucide-react";
 
 interface BatchData {
   product: string;
@@ -24,6 +24,9 @@ export default function BatchVerifier() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
+  // Límite de caracteres para el Lote
+  const MAX_CHARS = 10;
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!query) return;
@@ -44,7 +47,11 @@ export default function BatchVerifier() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setQuery(e.target.value);
+      // 1. Cortar a MAX_CHARS
+      // 2. Convertir a Mayúsculas automáticamente para mejor UX
+      const val = e.target.value.slice(0, MAX_CHARS).toUpperCase();
+      
+      setQuery(val);
       if (error) setError(false);
   };
 
@@ -80,12 +87,13 @@ export default function BatchVerifier() {
                  <ScanLine className="w-5 h-5 opacity-70" />
               </div>
 
-              {/* INPUT BLINDADO CON !IMPORTANT */}
+              {/* INPUT BLINDADO CON LÍMITE Y COLORES */}
               <input 
                 type="text" 
                 placeholder="ENTER LOT # (E.G., A1092)"
                 value={query}
                 onChange={handleInputChange}
+                maxLength={MAX_CHARS} // Límite nativo HTML
                 className="
                   w-full relative z-10
                   py-4 pl-12 pr-14 
@@ -115,9 +123,11 @@ export default function BatchVerifier() {
            </form>
            
            {!result && !error && (
-             <p className="mt-3 text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-widest opacity-70">
-                Try searching: <span className="text-[var(--text-main)] font-bold">A1092</span>, <span className="text-[var(--text-main)] font-bold">B2024</span>
-             </p>
+             <div className="mt-3 flex justify-between items-center text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-widest opacity-70 px-2">
+                <p>Try: <span className="text-[var(--text-main)] font-bold">A1092</span></p>
+                {/* Contador de caracteres opcional */}
+                <p>{query.length}/{MAX_CHARS}</p>
+             </div>
            )}
         </div>
 
