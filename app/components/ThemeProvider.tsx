@@ -3,30 +3,48 @@ import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState("dark");
-  const [mounted, setMounted] = useState(false);
+  // Inicializamos estado sin valor para evitar errores de hidratación
+  const [theme, setTheme] = useState<string | null>(null);
 
   useEffect(() => {
-    setMounted(true);
-    // Verificar preferencia guardada o default
+    // 1. Leer preferencia guardada
     const savedTheme = localStorage.getItem("theme") || "dark";
     setTheme(savedTheme);
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    
+    // 2. Aplicar la configuración inicial (CLASE + ATRIBUTO)
+    const root = document.documentElement;
+    root.setAttribute("data-theme", savedTheme);
+    
+    if (savedTheme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
   }, []);
 
   const toggleTheme = () => {
+    if (!theme) return;
+
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
+
+    // 3. Aplicar el cambio al DOM (CLASE + ATRIBUTO)
+    const root = document.documentElement;
+    root.setAttribute("data-theme", newTheme); // Para tus variables CSS
+    
+    if (newTheme === "dark") {
+      root.classList.add("dark"); // Para que Tailwind sepa que es modo oscuro
+    } else {
+      root.classList.remove("dark"); // Para que Tailwind sepa que es modo claro
+    }
   };
 
-  // Evitar renderizado incorrecto en el servidor (Hydration mismatch)
-  if (!mounted) return <>{children}</>;
+  // Evitar renderizado hasta que esté montado
+  if (!theme) return <>{children}</>;
 
   return (
     <>
-      {/* Botón movido a BOTTOM-RIGHT y con z-index 100 para estar siempre encima */}
       <div className="fixed bottom-6 right-6 z-[100]">
         <button 
            onClick={toggleTheme} 
