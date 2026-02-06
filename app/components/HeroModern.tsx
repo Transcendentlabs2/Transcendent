@@ -21,12 +21,12 @@ export default function HeroModern() {
   };
 
   return (
-    // CAMBIO 1: Usamos var(--bg-page) para que coincida exactamente con tu tema global
-    <section className="relative w-full min-h-screen flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:py-0">
+    // CAMBIO: Aumenté el padding superior en desktop (lg:pt-40) para separarlo del Navbar
+    <section className="relative w-full min-h-screen flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12">
       
-      {/* --- FONDO DECORATIVO INTERNO (Se suma al PremiumBackground) --- */}
+      {/* --- FONDO DECORATIVO INTERNO --- */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
-         {/* Grid tenue que usa tus colores de texto pero muy transparente */}
+         {/* Grid tenue */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
 
@@ -34,23 +34,13 @@ export default function HeroModern() {
       <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         
         {/* COLUMNA IZQUIERDA (Texto) */}
-        {/* CAMBIO 2: 'items-center' y 'text-center' forzados para móvil, 'lg:items-start' para PC */}
         <motion.div 
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
           className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 md:space-y-8 w-full max-w-2xl mx-auto lg:mx-0"
         >
-          {/* Badge */}
-          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm shadow-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-brand-secondary)] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-brand-secondary)]"></span>
-            </span>
-            <span className="text-[10px] md:text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase">
-              System Online v2.4
-            </span>
-          </motion.div>
+          {/* (ELIMINADO: Badge 'System Online' removido aquí) */}
 
           {/* Títulos Responsive */}
           <motion.div variants={fadeInUp} className="w-full flex flex-col items-center lg:items-start">
@@ -58,7 +48,7 @@ export default function HeroModern() {
               Advanced Research
             </span>
             
-            {/* TÍTULO PRINCIPAL: Usa var(--text-main) para asegurar contraste en Light/Dark */}
+            {/* TÍTULO PRINCIPAL */}
             <h1 className="flex flex-col items-center lg:items-start leading-none">
               <span className="block text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-[var(--text-main)] mb-1 transition-colors duration-300">
                 TRANSCENDENT
@@ -116,7 +106,7 @@ export default function HeroModern() {
           transition={{ duration: 1, delay: 0.4 }}
           className="relative h-[300px] md:h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0"
         >
-          {/* Glow de fondo usando variable de acento */}
+          {/* Glow de fondo */}
           <div className="absolute inset-0 bg-[var(--accent-glow)] rounded-full blur-[60px] opacity-60" />
 
           {/* Molécula */}
