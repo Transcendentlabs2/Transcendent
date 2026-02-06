@@ -1,6 +1,49 @@
 "use client";
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Dna, Activity } from "lucide-react"; // Importamos DNA
+import { ArrowRight, Activity } from "lucide-react";
+
+// --- 1. COMPONENTE SVG PREMIUM "PEPTIDE CORE" ---
+const PeptideCoreIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 100 100" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg" 
+    className={className}
+  >
+    <defs>
+      {/* Gradiente Premium: De tu Primary Blue a Secondary Green */}
+      <linearGradient id="peptideGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="var(--color-brand-primary)" />
+        <stop offset="100%" stopColor="var(--color-brand-secondary)" />
+      </linearGradient>
+    </defs>
+    
+    {/* Estructura Hexagonal Estilizada */}
+    <path 
+      d="M50 5 L93.3 30 V80 L50 105 L6.7 80 V30 L50 5Z" 
+      stroke="url(#peptideGradient)" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeDasharray="4 4" 
+      className="opacity-30"
+    />
+    
+    {/* Enlaces Químicos Centrales */}
+    <path 
+      d="M50 20 V50 L75.9 65 M50 50 L24.1 65" 
+      stroke="url(#peptideGradient)" 
+      strokeWidth="6" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+    
+    {/* Nodos (Átomos) */}
+    <circle cx="50" cy="20" r="6" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="3" />
+    <circle cx="75.9" cy="65" r="6" fill="var(--bg-page)" stroke="var(--color-brand-secondary)" strokeWidth="3" />
+    <circle cx="24.1" cy="65" r="6" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="3" />
+    <circle cx="50" cy="50" r="9" fill="url(#peptideGradient)" />
+  </svg>
+);
 
 export default function HeroModern() {
   const fadeInUp: Variants = {
@@ -21,13 +64,12 @@ export default function HeroModern() {
   };
 
   return (
-    // OPTIMIZACIÓN SAFARI: Usamos min-h-[100dvh] para evitar saltos con la barra de URL dinámica de iOS
+    // OPTIMIZACIÓN SAFARI: min-h-[100dvh] previene saltos de UI en iOS
     <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
-      {/* --- FONDO DECORATIVO INTERNO --- */}
-      {/* OPTIMIZACIÓN: translate-z-0 fuerza la aceleración de hardware para la máscara */}
+      {/* --- FONDO DECORATIVO --- */}
+      {/* Hardware Acceleration activada para evitar repintados */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden transform translate-z-0">
-         {/* Grid tenue */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
 
@@ -47,7 +89,6 @@ export default function HeroModern() {
               Advanced Research
             </span>
             
-            {/* TÍTULO PRINCIPAL */}
             <h1 className="flex flex-col items-center lg:items-start leading-none">
               <span className="block text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-[var(--text-main)] mb-1 transition-colors duration-300">
                 TRANSCENDENT
@@ -93,68 +134,74 @@ export default function HeroModern() {
           </motion.div>
         </motion.div>
 
-        {/* COLUMNA DERECHA (Molécula) */}
-        {/* OPTIMIZACIÓN: Agregamos transform-gpu para forzar capas en iOS */}
+        {/* COLUMNA DERECHA (Molécula 3D Abstracta) */}
+        {/* Usamos transform-gpu para suavidad en móviles */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
           className="relative h-[300px] md:h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0 transform-gpu"
         >
-          {/* Glow de fondo - Usamos opacidad reducida para no matar el rendimiento en móviles antiguos */}
+          {/* Glow de fondo optimizado */}
           <div className="absolute inset-0 bg-[var(--accent-glow)] rounded-full blur-[60px] opacity-60 translate-z-0" />
 
-          {/* Molécula */}
+          {/* Estructura Orbital */}
           <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px]">
-            {/* Anillo Externo */}
+            
+            {/* Anillo Externo (Dashed) */}
             <motion.div 
               animate={{ rotate: 360 }}
-              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              // OPTIMIZACIÓN: will-change-transform es CRÍTICO para animaciones infinitas suaves en Safari
-              style={{ willChange: "transform" }}
+              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+              style={{ willChange: "transform" }} // Optimización Safari
               className="absolute inset-0 rounded-full border border-dashed border-[var(--glass-border)]"
             />
-            {/* Anillo Interno */}
+            
+            {/* Anillo Interno (Órbita del electrón) */}
             <motion.div 
               animate={{ rotate: -360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
               style={{ willChange: "transform" }}
               className="absolute inset-8 md:inset-12 rounded-full border border-[var(--glass-border)] opacity-60"
             >
+              {/* Electrón orbitando */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
             </motion.div>
 
-            {/* Núcleo Central */}
+            {/* NÚCLEO CENTRAL CON ICONO PREMIUM */}
             <div className="absolute inset-0 flex items-center justify-center">
-               <div className="relative w-24 h-24 md:w-32 md:h-32 bg-[var(--bg-page)] rounded-full border border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
-                  {/* CAMBIO DE ICONO: Usamos DNA para representar péptidos/laboratorio */}
-                  <Dna className="w-10 h-10 md:w-14 md:h-14 text-[var(--color-brand-primary)] animate-pulse" strokeWidth={1.5} />
+               <div className="relative w-28 h-28 md:w-40 md:h-40 bg-[var(--bg-page)] rounded-full border border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
                   
+                  {/* AQUÍ ESTÁ EL SVG PERSONALIZADO */}
+                  <div className="w-16 h-16 md:w-24 md:h-24 animate-pulse">
+                     <PeptideCoreIcon className="w-full h-full drop-shadow-[0_0_10px_rgba(0,201,255,0.3)]" />
+                  </div>
+
+                  {/* Órbita interna decorativa */}
                   <motion.div 
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                     style={{ willChange: "transform" }}
-                    className="absolute inset-0 rounded-full"
+                    className="absolute inset-2 rounded-full border border-[var(--glass-border)] opacity-30"
                   >
-                    <div className="absolute top-2 left-1/2 w-2 h-2 bg-[var(--color-brand-secondary)] rounded-full shadow-[0_0_8px_currentColor]" />
+                     <div className="absolute bottom-2 left-1/2 w-1.5 h-1.5 bg-[var(--color-brand-secondary)] rounded-full" />
                   </motion.div>
                </div>
             </div>
 
-            {/* Tarjeta Flotante */}
+            {/* Tarjeta Flotante "Bio-Availability" */}
             <motion.div 
-              animate={{ y: [0, -20, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ y: [0, -15, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
               style={{ willChange: "transform" }}
-              className="absolute -top-4 -right-0 md:top-10 md:right-0 bg-[var(--bg-page)]/80 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
+              className="absolute -top-2 -right-2 md:top-12 md:-right-4 bg-[var(--bg-page)]/85 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
             >
                <div className="flex items-center gap-3">
                  <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg">
                     <Activity className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-brand-primary)]" />
                  </div>
                  <div>
-                   <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase">Bio-Availability</p>
-                   <p className="text-xs md:text-sm font-bold text-[var(--text-main)]">Optimized</p>
+                   <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Bio-Availability</p>
+                   <p className="text-xs md:text-sm font-bold text-[var(--text-main)]">99% Optimized</p>
                  </div>
                </div>
             </motion.div>
