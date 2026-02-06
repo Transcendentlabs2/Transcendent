@@ -2,46 +2,59 @@
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, Activity } from "lucide-react";
 
-// --- 1. COMPONENTE SVG PREMIUM "PEPTIDE CORE" ---
+// --- 1. COMPONENTE SVG PREMIUM "PEPTIDE CORE" (Ajustado) ---
 const PeptideCoreIcon = ({ className }: { className?: string }) => (
   <svg 
     viewBox="0 0 100 100" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg" 
     className={className}
+    // overflow-visible permite que los brillos (shadows) se salgan un poco sin cortarse
+    style={{ overflow: "visible" }}
   >
     <defs>
-      {/* Gradiente Premium: De tu Primary Blue a Secondary Green */}
       <linearGradient id="peptideGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="var(--color-brand-primary)" />
         <stop offset="100%" stopColor="var(--color-brand-secondary)" />
       </linearGradient>
+      {/* Filtro para brillo interno en Safari */}
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
     </defs>
     
-    {/* Estructura Hexagonal Estilizada */}
+    {/* Estructura Hexagonal Exterior (Más grande) */}
     <path 
-      d="M50 5 L93.3 30 V80 L50 105 L6.7 80 V30 L50 5Z" 
+      d="M50 2 L95 27 V77 L50 102 L5 77 V27 L50 2Z" 
       stroke="url(#peptideGradient)" 
-      strokeWidth="2" 
+      strokeWidth="1.5" 
       strokeLinecap="round" 
-      strokeDasharray="4 4" 
-      className="opacity-30"
+      strokeDasharray="3 3" 
+      className="opacity-40"
     />
     
-    {/* Enlaces Químicos Centrales */}
+    {/* Enlaces Químicos Centrales (Sólidos) */}
     <path 
-      d="M50 20 V50 L75.9 65 M50 50 L24.1 65" 
+      d="M50 20 V50 L76 65 M50 50 L24 65" 
       stroke="url(#peptideGradient)" 
-      strokeWidth="6" 
+      strokeWidth="5" 
       strokeLinecap="round" 
       strokeLinejoin="round"
+      filter="url(#glow)" // Añade brillo sutil
     />
     
-    {/* Nodos (Átomos) */}
-    <circle cx="50" cy="20" r="6" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="3" />
-    <circle cx="75.9" cy="65" r="6" fill="var(--bg-page)" stroke="var(--color-brand-secondary)" strokeWidth="3" />
-    <circle cx="24.1" cy="65" r="6" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="3" />
-    <circle cx="50" cy="50" r="9" fill="url(#peptideGradient)" />
+    {/* Nodos (Átomos) - Fondo transparente (fill="none" o color del tema) */}
+    {/* Usamos el color de página para 'cortar' las líneas, dando efecto de profundidad */}
+    <circle cx="50" cy="20" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
+    <circle cx="76" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-secondary)" strokeWidth="2.5" />
+    <circle cx="24" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
+    
+    {/* Núcleo Central */}
+    <circle cx="50" cy="50" r="8" fill="url(#peptideGradient)" className="animate-pulse" />
   </svg>
 );
 
@@ -64,16 +77,15 @@ export default function HeroModern() {
   };
 
   return (
-    // OPTIMIZACIÓN SAFARI: min-h-[100dvh] previene saltos de UI en iOS
+    // OPTIMIZACIÓN SAFARI: 100dvh evita el salto de la barra de navegación
     <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
       {/* --- FONDO DECORATIVO --- */}
-      {/* Hardware Acceleration activada para evitar repintados */}
+      {/* translate-z-0 fuerza a Safari a usar la GPU */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden transform translate-z-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
 
-      {/* --- CONTENEDOR PRINCIPAL --- */}
       <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         
         {/* COLUMNA IZQUIERDA (Texto) */}
@@ -83,7 +95,6 @@ export default function HeroModern() {
           animate="visible"
           className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 md:space-y-8 w-full max-w-2xl mx-auto lg:mx-0"
         >
-          {/* Títulos Responsive */}
           <motion.div variants={fadeInUp} className="w-full flex flex-col items-center lg:items-start">
             <span className="block text-lg md:text-2xl text-[var(--text-muted)] font-medium mb-2 tracking-widest uppercase">
               Advanced Research
@@ -99,7 +110,6 @@ export default function HeroModern() {
             </h1>
           </motion.div>
 
-          {/* Descripción */}
           <motion.p variants={fadeInUp} className="w-full text-base md:text-lg text-[var(--text-muted)] leading-relaxed px-2 lg:px-0">
             Pioneering the next evolution of bio-active compounds. We engineer 
             peptides that push the boundaries of human potential. 
@@ -108,7 +118,6 @@ export default function HeroModern() {
             </span>
           </motion.p>
 
-          {/* Botones */}
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0 justify-center lg:justify-start">
             <button className="group relative px-8 py-4 bg-[var(--text-main)] text-[var(--bg-page)] font-bold rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--color-brand-primary)]/20 active:scale-95">
               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -117,7 +126,6 @@ export default function HeroModern() {
             </button>
           </motion.div>
           
-          {/* Stats */}
           <motion.div variants={fadeInUp} className="pt-4 md:pt-8 flex gap-8 border-t border-[var(--glass-border)] w-full lg:w-auto justify-center lg:justify-start">
             <div className="text-center lg:text-left">
               <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)]">99.8%</h3>
@@ -135,45 +143,48 @@ export default function HeroModern() {
         </motion.div>
 
         {/* COLUMNA DERECHA (Molécula 3D Abstracta) */}
-        {/* Usamos transform-gpu para suavidad en móviles */}
+        {/* transform-gpu aisla esta capa para rendimiento en iOS */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
           className="relative h-[300px] md:h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0 transform-gpu"
         >
-          {/* Glow de fondo optimizado */}
+          {/* Glow de fondo */}
           <div className="absolute inset-0 bg-[var(--accent-glow)] rounded-full blur-[60px] opacity-60 translate-z-0" />
 
           {/* Estructura Orbital */}
           <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px]">
             
-            {/* Anillo Externo (Dashed) */}
+            {/* Anillo Externo */}
             <motion.div 
               animate={{ rotate: 360 }}
               transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              style={{ willChange: "transform" }} // Optimización Safari
+              style={{ willChange: "transform" }}
               className="absolute inset-0 rounded-full border border-dashed border-[var(--glass-border)]"
             />
             
-            {/* Anillo Interno (Órbita del electrón) */}
+            {/* Anillo Interno */}
             <motion.div 
               animate={{ rotate: -360 }}
               transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
               style={{ willChange: "transform" }}
               className="absolute inset-8 md:inset-12 rounded-full border border-[var(--glass-border)] opacity-60"
             >
-              {/* Electrón orbitando */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
             </motion.div>
 
-            {/* NÚCLEO CENTRAL CON ICONO PREMIUM */}
+            {/* NÚCLEO CENTRAL - CONTENEDOR AJUSTADO */}
             <div className="absolute inset-0 flex items-center justify-center">
-               <div className="relative w-28 h-28 md:w-40 md:h-40 bg-[var(--bg-page)] rounded-full border border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
+               {/* CAMBIO CLAVE: Quitamos overflow-hidden del contenedor principal 
+                  y usamos p-0 para maximizar el espacio del SVG.
+                  El SVG ahora es el 70% del contenedor (w-3/4) para que sea enorme pero no toque los bordes.
+               */}
+               <div className="relative w-28 h-28 md:w-40 md:h-40 bg-[var(--bg-page)]/80 backdrop-blur-sm rounded-full border border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
                   
-                  {/* AQUÍ ESTÁ EL SVG PERSONALIZADO */}
-                  <div className="w-16 h-16 md:w-24 md:h-24 animate-pulse">
-                     <PeptideCoreIcon className="w-full h-full drop-shadow-[0_0_10px_rgba(0,201,255,0.3)]" />
+                  {/* SVG MÁS GRANDE: w-[75%] ocupa casi todo el círculo */}
+                  <div className="w-[75%] h-[75%] animate-pulse-slow">
+                     <PeptideCoreIcon className="w-full h-full drop-shadow-[0_0_15px_rgba(0,201,255,0.4)]" />
                   </div>
 
                   {/* Órbita interna decorativa */}
@@ -181,19 +192,19 @@ export default function HeroModern() {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                     style={{ willChange: "transform" }}
-                    className="absolute inset-2 rounded-full border border-[var(--glass-border)] opacity-30"
+                    className="absolute inset-1 rounded-full border border-[var(--glass-border)] opacity-30"
                   >
                      <div className="absolute bottom-2 left-1/2 w-1.5 h-1.5 bg-[var(--color-brand-secondary)] rounded-full" />
                   </motion.div>
                </div>
             </div>
 
-            {/* Tarjeta Flotante "Bio-Availability" */}
+            {/* Tarjeta Flotante */}
             <motion.div 
               animate={{ y: [0, -15, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
               style={{ willChange: "transform" }}
-              className="absolute -top-2 -right-2 md:top-12 md:-right-4 bg-[var(--bg-page)]/85 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
+              className="absolute -top-2 -right-2 md:top-12 md:-right-4 bg-[var(--bg-page)]/90 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
             >
                <div className="flex items-center gap-3">
                  <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg">
