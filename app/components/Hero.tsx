@@ -75,24 +75,25 @@ export default function Hero() {
           </motion.div>
 
           <motion.h1 variants={fadeUp} className="relative z-20 select-none text-center">
-            {/* 1. TEXTO FONDO: Oscurecido a text-slate-300 para que se vea en blanco */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest text-slate-300 dark:text-white/10 font-display scale-105 origin-bottom transition-colors duration-500">
-              PEPTIDE
+            {/* 1. TEXTO FONDO: "TRANSCENDENT"
+               - Light Mode: text-slate-900/10 (Negro al 10% de opacidad). Esto crea una sombra gris perfecta sobre blanco.
+               - Dark Mode: dark:text-white/10 (Blanco al 10%).
+            */}
+            <span className="block text-[10vw] md:text-[6rem] lg:text-[7rem] leading-[0.85] font-bold tracking-widest text-slate-900/10 dark:text-white/10 font-display scale-105 origin-bottom transition-colors duration-500">
+              TRANSCENDENT
             </span>
             
-            {/* 2. TEXTO PRINCIPAL: 
-                IMPORTANTE: Eliminé la clase 'text-gradient-hero' que causaba el conflicto.
-                Ahora usamos clases utilitarias directas:
-                - Light: Azul Oscuro a Teal Oscuro (Legible)
-                - Dark: Cyan a Verde Neon (Brillante)
+            {/* 2. TEXTO PRINCIPAL: "LABS"
+               - Light Mode: Gradient "Midnight" (Slate-900 a Blue-900). Oscuro, casi negro, contraste máximo.
+               - Dark Mode: Gradient "Neon" (Cyan a Green). Brillante sobre negro.
             */}
-            <span className="block text-[12vw] md:text-[8rem] lg:text-[9rem] leading-[0.85] font-bold tracking-widest font-display mt-[-2vw] md:-mt-8 drop-shadow-sm filter bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-teal-600 to-blue-700 dark:from-[#00C9FF] dark:via-[#92FE9D] dark:to-[#00C9FF] bg-[length:200%_auto] animate-[textShine_5s_linear_infinite]">
-              SCIENCE
+            <span className="block text-[15vw] md:text-[9rem] lg:text-[11rem] leading-[0.8] font-bold tracking-widest font-display mt-[-3vw] md:-mt-8 drop-shadow-sm filter bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 dark:from-[#00C9FF] dark:via-[#92FE9D] dark:to-[#00C9FF] bg-[length:200%_auto] animate-[textShine_5s_linear_infinite]">
+              LABS
             </span>
           </motion.h1>
 
           <motion.p variants={fadeUp} className="mt-8 md:mt-12 text-base md:text-lg text-slate-600 dark:text-slate-300 font-medium max-w-xl leading-relaxed tracking-wide text-center px-4">
-            Transcendent is engineering the next generation of bio-active compounds. 
+            Engineering the next generation of bio-active compounds. 
             <strong className="text-gray-900 dark:text-white font-bold"> Beyond evolution.</strong>
           </motion.p>
           
