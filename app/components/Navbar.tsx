@@ -13,46 +13,39 @@ export default function Navbar() {
   
   const lastScrollY = useRef(0);
 
-  // 1. OPTIMIZACIÓN SAFARI: Bloqueo del scroll del body cuando el menú móvil está abierto
+  // 1. OPTIMIZACIÓN SAFARI: Bloqueo del scroll del body
   useEffect(() => {
     if (mobileOpen) {
-      document.body.style.overflow = "hidden"; // Congela el fondo
-      document.body.style.touchAction = "none"; // Deshabilita gestos en el fondo (iOS)
+      document.body.style.overflow = "hidden"; 
+      document.body.style.touchAction = "none"; 
     } else {
-      document.body.style.overflow = ""; // Libera el scroll
+      document.body.style.overflow = ""; 
       document.body.style.touchAction = "";
     }
-    // Cleanup al desmontar
     return () => {
       document.body.style.overflow = "";
       document.body.style.touchAction = "";
     };
   }, [mobileOpen]);
 
-  // 2. Lógica de Scroll "Anti-Rebote" para iOS
+  // 2. Lógica de Scroll
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
-      // Evitar cálculos en rebotes negativos de Safari (scroll < 0)
       if (currentScrollY < 0) return;
 
       setScrolled(currentScrollY > 20);
 
-      // Lógica de esconder/mostrar
-      // Añadimos un umbral de diferencia (10px) para evitar "jitter" al tocar la pantalla
       if (Math.abs(currentScrollY - lastScrollY.current) > 10) {
          if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-           setIsVisible(false); // Bajando -> Esconder
+           setIsVisible(false); 
          } else {
-           setIsVisible(true);  // Subiendo -> Mostrar
+           setIsVisible(true); 
          }
       }
-
       lastScrollY.current = currentScrollY;
     };
 
-    // { passive: true } mejora el rendimiento del scroll en móviles un 100%
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -79,12 +72,10 @@ export default function Navbar() {
 
   return (
     <header
-      // will-change-transform: Activa la aceleración de GPU en iOS para animaciones suaves
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform ${
         showNavbar ? "translate-y-0" : "-translate-y-full"
       } ${
         scrolled
-          // Backdrop-blur funciona bien en Safari moderno, pero el background con opacidad ayuda al contraste
           ? "bg-[var(--bg-page)]/90 backdrop-blur-xl border-b border-[var(--glass-border)] py-3 shadow-sm"
           : "bg-transparent border-b border-transparent py-5"
       }`}
@@ -97,7 +88,7 @@ export default function Navbar() {
                 href="#"
                 onClick={(e) => handleScrollTo(e, "#hero")}
                 className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 cursor-pointer hover:scale-105 transition-transform"
-                style={{ WebkitTapHighlightColor: "transparent" }} // Elimina el flash gris al tocar en iOS
+                style={{ WebkitTapHighlightColor: "transparent" }}
             >
                 <Image 
                     src={logo} 
@@ -108,7 +99,6 @@ export default function Navbar() {
                 />
             </a>
 
-            {/* Separador vertical */}
             <div className={`hidden md:block h-8 w-[1px] bg-[var(--text-muted)] opacity-20`} />
 
             <div className="flex flex-col justify-center">
@@ -116,7 +106,6 @@ export default function Navbar() {
                     TRANSCENDENT
                 </span>
                 
-                {/* BADGE (CÁPSULA) */}
                 <div className="flex items-center justify-center px-3 py-0.5 rounded-full bg-black dark:bg-emerald-500/10 border border-transparent dark:border-emerald-500/20 w-fit shadow-sm">
                     <span className="font-mono text-[9px] md:text-[10px] uppercase font-bold text-[#4ADE80] tracking-[0.15em] leading-none">
                         Labs & Research
@@ -125,7 +114,7 @@ export default function Navbar() {
             </div>
         </div>
 
-        {/* --- CENTER: NAVIGATION --- */}
+        {/* --- CENTER: NAVIGATION (Desktop) --- */}
         <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
@@ -153,12 +142,16 @@ export default function Navbar() {
              </button>
           </div>
 
-          {/* Botón Móvil: Área táctil mejorada (min 44px para iOS) */}
+          {/* --- CORRECCIÓN AQUÍ --- */}
+          {/* 1. Agregamos 'flex items-center justify-center' a las clases.
+             2. Eliminamos 'display: flex' del style inline para que lg:hidden funcione.
+          */}
           <button
-            className="lg:hidden p-2 -mr-2 text-[var(--text-main)] active:scale-95 transition-transform"
+            className="lg:hidden flex items-center justify-center p-2 -mr-2 text-[var(--text-main)] active:scale-95 transition-transform"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
-            style={{ minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
+            // Solo dejamos las dimensiones mínimas para el touch target, quitamos el display
+            style={{ minWidth: "44px", minHeight: "44px" }} 
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -170,12 +163,12 @@ export default function Navbar() {
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "100vh" }} // Usamos 100vh para cubrir pantalla completa y evitar glitches de scroll
+            animate={{ opacity: 1, height: "100vh" }} 
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden absolute top-[100%] left-0 right-0 bg-[var(--bg-page)] border-b border-[var(--glass-border)] shadow-2xl overflow-y-auto"
-            style={{ maxHeight: "calc(100vh - 80px)" }} // Fallback seguro para altura
+            style={{ maxHeight: "calc(100vh - 80px)" }} 
           >
-            <div className="p-6 flex flex-col gap-4 pb-20"> {/* pb-20 para dar espacio al scroll final */}
+            <div className="p-6 flex flex-col gap-4 pb-20"> 
               {navLinks.map((link) => (
                 <a
                   key={link.name}
