@@ -9,7 +9,6 @@ const PeptideCoreIcon = ({ className }: { className?: string }) => (
     fill="none" 
     xmlns="http://www.w3.org/2000/svg" 
     className={className}
-    // overflow-visible permite que los brillos (shadows) se salgan un poco sin cortarse
     style={{ overflow: "visible" }}
   >
     <defs>
@@ -17,7 +16,6 @@ const PeptideCoreIcon = ({ className }: { className?: string }) => (
         <stop offset="0%" stopColor="var(--color-brand-primary)" />
         <stop offset="100%" stopColor="var(--color-brand-secondary)" />
       </linearGradient>
-      {/* Filtro para brillo interno en Safari */}
       <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
         <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
         <feMerge>
@@ -27,7 +25,6 @@ const PeptideCoreIcon = ({ className }: { className?: string }) => (
       </filter>
     </defs>
     
-    {/* Estructura Hexagonal Exterior (Más grande) */}
     <path 
       d="M50 2 L95 27 V77 L50 102 L5 77 V27 L50 2Z" 
       stroke="url(#peptideGradient)" 
@@ -37,23 +34,19 @@ const PeptideCoreIcon = ({ className }: { className?: string }) => (
       className="opacity-40"
     />
     
-    {/* Enlaces Químicos Centrales (Sólidos) */}
     <path 
       d="M50 20 V50 L76 65 M50 50 L24 65" 
       stroke="url(#peptideGradient)" 
       strokeWidth="5" 
       strokeLinecap="round" 
       strokeLinejoin="round"
-      filter="url(#glow)" // Añade brillo sutil
+      filter="url(#glow)" 
     />
     
-    {/* Nodos (Átomos) - Fondo transparente (fill="none" o color del tema) */}
-    {/* Usamos el color de página para 'cortar' las líneas, dando efecto de profundidad */}
     <circle cx="50" cy="20" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
     <circle cx="76" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-secondary)" strokeWidth="2.5" />
     <circle cx="24" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
     
-    {/* Núcleo Central */}
     <circle cx="50" cy="50" r="8" fill="url(#peptideGradient)" className="animate-pulse" />
   </svg>
 );
@@ -76,12 +69,19 @@ export default function HeroModern() {
     }
   };
 
+  // --- FUNCIÓN DE SCROLL AL CATÁLOGO ---
+  const scrollToCatalog = () => {
+    const catalogSection = document.getElementById('catalog');
+    if (catalogSection) {
+      catalogSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     // OPTIMIZACIÓN SAFARI: 100dvh evita el salto de la barra de navegación
     <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
       {/* --- FONDO DECORATIVO --- */}
-      {/* translate-z-0 fuerza a Safari a usar la GPU */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden transform translate-z-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
@@ -119,7 +119,11 @@ export default function HeroModern() {
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0 justify-center lg:justify-start">
-            <button className="group relative px-8 py-4 bg-[var(--text-main)] text-[var(--bg-page)] font-bold rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--color-brand-primary)]/20 active:scale-95">
+            {/* BOTÓN CON ACCIÓN DE SCROLL */}
+            <button 
+                onClick={scrollToCatalog}
+                className="group relative px-8 py-4 bg-[var(--text-main)] text-[var(--bg-page)] font-bold rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--color-brand-primary)]/20 active:scale-95 cursor-pointer"
+            >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Explore Catalog <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
@@ -143,7 +147,6 @@ export default function HeroModern() {
         </motion.div>
 
         {/* COLUMNA DERECHA (Molécula 3D Abstracta) */}
-        {/* transform-gpu aisla esta capa para rendimiento en iOS */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -174,15 +177,10 @@ export default function HeroModern() {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
             </motion.div>
 
-            {/* NÚCLEO CENTRAL - CONTENEDOR AJUSTADO */}
+            {/* NÚCLEO CENTRAL - CONTENEDOR AJUSTADO (Light Mode Fix) */}
             <div className="absolute inset-0 flex items-center justify-center">
-               {/* CAMBIO CLAVE: Quitamos overflow-hidden del contenedor principal 
-                  y usamos p-0 para maximizar el espacio del SVG.
-                  El SVG ahora es el 70% del contenedor (w-3/4) para que sea enorme pero no toque los bordes.
-               */}
-               <div className="relative w-28 h-28 md:w-40 md:h-40 bg-[var(--bg-page)]/80 backdrop-blur-sm rounded-full border border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
+               <div className="relative w-28 h-28 md:w-40 md:h-40 bg-[var(--bg-page)]/80 backdrop-blur-sm rounded-full border border-slate-200 dark:border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
                   
-                  {/* SVG MÁS GRANDE: w-[75%] ocupa casi todo el círculo */}
                   <div className="w-[75%] h-[75%] animate-pulse-slow">
                      <PeptideCoreIcon className="w-full h-full drop-shadow-[0_0_15px_rgba(0,201,255,0.4)]" />
                   </div>
