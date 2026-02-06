@@ -4,36 +4,55 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-// Verifica que la ruta de tu logo sea correcta
 import logo from "../assets/logo.webp"; 
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true); // Estado para controlar si se ve o no
+  const [isVisible, setIsVisible] = useState(true);
   
-  // Usamos useRef para guardar la última posición del scroll sin causar re-renders innecesarios
   const lastScrollY = useRef(0);
 
+  // 1. OPTIMIZACIÓN SAFARI: Bloqueo del scroll del body cuando el menú móvil está abierto
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden"; // Congela el fondo
+      document.body.style.touchAction = "none"; // Deshabilita gestos en el fondo (iOS)
+    } else {
+      document.body.style.overflow = ""; // Libera el scroll
+      document.body.style.touchAction = "";
+    }
+    // Cleanup al desmontar
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [mobileOpen]);
+
+  // 2. Lógica de Scroll "Anti-Rebote" para iOS
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // 1. Lógica para el fondo transparente/glass (se mantiene igual)
+      // Evitar cálculos en rebotes negativos de Safari (scroll < 0)
+      if (currentScrollY < 0) return;
+
       setScrolled(currentScrollY > 20);
 
-      // 2. Lógica Inteligente: Esconder al bajar, mostrar al subir
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        // Si estamos bajando Y ya hemos pasado 100px desde el top -> Ocultar
-        setIsVisible(false);
-      } else {
-        // Si estamos subiendo O estamos muy cerca del top -> Mostrar
-        setIsVisible(true);
+      // Lógica de esconder/mostrar
+      // Añadimos un umbral de diferencia (10px) para evitar "jitter" al tocar la pantalla
+      if (Math.abs(currentScrollY - lastScrollY.current) > 10) {
+         if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+           setIsVisible(false); // Bajando -> Esconder
+         } else {
+           setIsVisible(true);  // Subiendo -> Mostrar
+         }
       }
 
       lastScrollY.current = currentScrollY;
     };
 
+    // { passive: true } mejora el rendimiento del scroll en móviles un 100%
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -56,18 +75,18 @@ export default function Navbar() {
     { name: "FAQ", href: "#faq" },
   ];
 
-  // Forzamos que la barra sea visible si el menú móvil está abierto
   const showNavbar = isVisible || mobileOpen;
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out transform ${
-        // CLASE CLAVE: Si showNavbar es false, movemos el header hacia arriba fuera de la vista
+      // will-change-transform: Activa la aceleración de GPU en iOS para animaciones suaves
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform ${
         showNavbar ? "translate-y-0" : "-translate-y-full"
       } ${
         scrolled
-          ? "bg-[var(--bg-page)]/90 backdrop-blur-md border-b border-[var(--glass-border)] py-3 shadow-sm"
-          : "bg-transparent border-b border-transparent py-6"
+          // Backdrop-blur funciona bien en Safari moderno, pero el background con opacidad ayuda al contraste
+          ? "bg-[var(--bg-page)]/90 backdrop-blur-xl border-b border-[var(--glass-border)] py-3 shadow-sm"
+          : "bg-transparent border-b border-transparent py-5"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -78,6 +97,7 @@ export default function Navbar() {
                 href="#"
                 onClick={(e) => handleScrollTo(e, "#hero")}
                 className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 cursor-pointer hover:scale-105 transition-transform"
+                style={{ WebkitTapHighlightColor: "transparent" }} // Elimina el flash gris al tocar en iOS
             >
                 <Image 
                     src={logo} 
@@ -92,12 +112,11 @@ export default function Navbar() {
             <div className={`hidden md:block h-8 w-[1px] bg-[var(--text-muted)] opacity-20`} />
 
             <div className="flex flex-col justify-center">
-                {/* TÍTULO */}
                 <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-[var(--text-main)] mb-1.5 transition-colors">
                     TRANSCENDENT
                 </span>
                 
-                {/* BADGE (CÁPSULA) - Diseño preservado */}
+                {/* BADGE (CÁPSULA) */}
                 <div className="flex items-center justify-center px-3 py-0.5 rounded-full bg-black dark:bg-emerald-500/10 border border-transparent dark:border-emerald-500/20 w-fit shadow-sm">
                     <span className="font-mono text-[9px] md:text-[10px] uppercase font-bold text-[#4ADE80] tracking-[0.15em] leading-none">
                         Labs & Research
@@ -122,7 +141,7 @@ export default function Navbar() {
         </nav>
 
         {/* --- RIGHT: ICONS --- */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
              <button className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
                 <Search className="w-5 h-5" />
@@ -134,11 +153,14 @@ export default function Navbar() {
              </button>
           </div>
 
+          {/* Botón Móvil: Área táctil mejorada (min 44px para iOS) */}
           <button
-            className="lg:hidden p-2 text-[var(--text-main)]"
+            className="lg:hidden p-2 -mr-2 text-[var(--text-main)] active:scale-95 transition-transform"
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+            style={{ minWidth: "44px", minHeight: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
-            {mobileOpen ? <X /> : <Menu />}
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
@@ -147,30 +169,30 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="lg:hidden absolute top-[100%] left-0 right-0 bg-[var(--bg-page)]/95 backdrop-blur-xl border-b border-[var(--glass-border)] shadow-2xl"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "100vh" }} // Usamos 100vh para cubrir pantalla completa y evitar glitches de scroll
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden absolute top-[100%] left-0 right-0 bg-[var(--bg-page)] border-b border-[var(--glass-border)] shadow-2xl overflow-y-auto"
+            style={{ maxHeight: "calc(100vh - 80px)" }} // Fallback seguro para altura
           >
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-6 flex flex-col gap-4 pb-20"> {/* pb-20 para dar espacio al scroll final */}
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-bold text-[var(--text-main)] py-3 border-b border-[var(--glass-border)] last:border-0"
+                  className="text-lg font-bold text-[var(--text-main)] py-4 border-b border-[var(--glass-border)] last:border-0 active:text-[var(--color-brand-primary)] transition-colors"
                   onClick={(e) => handleScrollTo(e, link.href)}
                 >
                   {link.name}
                 </a>
               ))}
               
-              {/* Mobile Actions */}
-              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-[var(--glass-border)]">
-                 <button className="flex-1 py-3 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 rounded-lg text-[var(--text-main)] font-bold text-sm">
-                    <Search className="w-4 h-4" /> Search
+              <div className="flex items-center gap-4 mt-4 pt-6 border-t border-[var(--glass-border)]">
+                 <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 rounded-lg text-[var(--text-main)] font-bold text-sm active:bg-[var(--text-muted)]/20">
+                    <Search className="w-5 h-5" /> Search
                  </button>
-                 <button className="flex-1 py-3 flex items-center justify-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] rounded-lg font-bold text-sm">
-                    <ShoppingCart className="w-4 h-4" /> Cart
+                 <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] rounded-lg font-bold text-sm active:scale-95 transition-transform">
+                    <ShoppingCart className="w-5 h-5" /> Cart
                  </button>
               </div>
             </div>
