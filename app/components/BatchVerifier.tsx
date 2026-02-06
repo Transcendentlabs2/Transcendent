@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, CheckCircle, FileBarChart, Microscope, AlertCircle, ScanLine } from "lucide-react";
 
-// Definimos la estructura de los datos
 interface BatchData {
   product: string;
   purity: string;
@@ -12,7 +11,6 @@ interface BatchData {
   status: string;
 }
 
-// Datos simulados
 const BATCH_DB: Record<string, BatchData> = {
   "A1092": { product: "TESAMORELIN", purity: "99.8%", date: "2024-01-15", status: "PASSED" },
   "B2024": { product: "BPC-157", purity: "99.9%", date: "2024-02-10", status: "PASSED" },
@@ -34,7 +32,6 @@ export default function BatchVerifier() {
     setResult(null);
     setError(false);
 
-    // Simular delay de red
     setTimeout(() => {
       const data = BATCH_DB[query.toUpperCase().trim()];
       if (data) {
@@ -48,11 +45,10 @@ export default function BatchVerifier() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setQuery(e.target.value);
-      if (error) setError(false); // Limpia el error apenas el usuario escribe (Mejor UX)
+      if (error) setError(false);
   };
 
   return (
-    // USAMOS var(--bg-page) PARA QUE EL CAMBIO DE TEMA SEA INSTANTÁNEO Y PERFECTO
     <section className="py-24 px-4 border-y border-[var(--glass-border)] bg-[var(--bg-page)] transition-colors duration-500 relative overflow-hidden">
       
       {/* Fondo decorativo sutil */}
@@ -73,14 +69,14 @@ export default function BatchVerifier() {
              Verify Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)]">Research</span>
            </h2>
            <p className="text-[var(--text-muted)] max-w-xl mx-auto text-sm md:text-base leading-relaxed">
-             Transparency is our core protocol. Enter the lot number found on your vial to view the HPLC purity report and mass spectrometry analysis.
+             Transparency is our core protocol. Enter the lot number found on your vial to view the HPLC purity report.
            </p>
         </div>
 
         {/* Search Box Container */}
-        <div className="relative max-w-md mx-auto mb-12">
+        {/* Quitamos márgenes inferiores excesivos si no hay resultados */}
+        <div className={`relative max-w-md mx-auto transition-all duration-300 ${result || error ? 'mb-8' : 'mb-0'}`}>
            <form onSubmit={handleSearch} className="relative flex items-center group">
-              {/* Icono de escaneo decorativo */}
               <div className="absolute left-4 text-[var(--text-muted)]">
                  <ScanLine className="w-5 h-5 opacity-50" />
               </div>
@@ -90,7 +86,6 @@ export default function BatchVerifier() {
                 placeholder="ENTER LOT # (E.G., A1092)"
                 value={query}
                 onChange={handleInputChange}
-                // OPTIMIZACIÓN SAFARI: text-base (16px) evita que el iPhone haga zoom al hacer focus
                 className="w-full bg-white dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-14 text-base font-mono font-bold text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50 focus:outline-none focus:border-[var(--color-brand-primary)] focus:ring-1 focus:ring-[var(--color-brand-primary)] transition-all uppercase shadow-lg shadow-black/5"
               />
               
@@ -107,27 +102,29 @@ export default function BatchVerifier() {
               </button>
            </form>
            
-           <p className="mt-3 text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-widest opacity-70">
-              Try searching: <span className="text-[var(--text-main)] font-bold">A1092</span>, <span className="text-[var(--text-main)] font-bold">B2024</span>
-           </p>
+           {/* Sugerencia solo visible si no hay resultados aun */}
+           {!result && !error && (
+             <p className="mt-3 text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-widest opacity-70">
+                Try searching: <span className="text-[var(--text-main)] font-bold">A1092</span>, <span className="text-[var(--text-main)] font-bold">B2024</span>
+             </p>
+           )}
         </div>
 
-        {/* Results Area */}
-        {/* min-h fijado para evitar saltos de layout */}
-        <div className="min-h-[200px] relative flex justify-center items-start">
+        {/* Results Area - ALTURA DINÁMICA */}
+        {/* Eliminamos el min-h-[200px]. Ahora la altura es automática (min-h-0) */}
+        <div className="relative flex justify-center items-start min-h-0">
            <AnimatePresence mode="wait">
              
              {/* SUCCESS STATE */}
              {result && (
                <motion.div
                  key="result"
-                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                 exit={{ opacity: 0, scale: 0.95 }}
-                 // OPTIMIZACIÓN SAFARI: transform-gpu
+                 layout // Anima el cambio de tamaño del contenedor padre
+                 initial={{ opacity: 0, y: -20, height: 0 }}
+                 animate={{ opacity: 1, y: 0, height: "auto" }}
+                 exit={{ opacity: 0, y: -10, height: 0 }}
                  className="w-full max-w-lg bg-white dark:bg-[#111] border border-green-500/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden transform-gpu"
                >
-                  {/* Barra superior de éxito */}
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-400 to-emerald-600" />
                   
                   <div className="flex justify-between items-start mb-6 mt-2">
@@ -165,14 +162,16 @@ export default function BatchVerifier() {
              {error && (
                <motion.div
                  key="error"
-                 initial={{ opacity: 0, scale: 0.9 }}
+                 layout
+                 initial={{ opacity: 0, y: -20, height: 0 }}
                  animate={{ 
                    opacity: 1, 
-                   scale: 1,
-                   x: [0, -10, 10, -5, 5, 0] // Shake effect
+                   y: 0,
+                   height: "auto",
+                   x: [0, -5, 5, -5, 5, 0] // Shake suave
                  }}
-                 exit={{ opacity: 0, scale: 0.9 }}
-                 transition={{ duration: 0.4 }}
+                 exit={{ opacity: 0, y: -10, height: 0 }}
+                 transition={{ duration: 0.3 }}
                  className="w-full max-w-md bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-5 flex items-center gap-5 shadow-lg transform-gpu"
                >
                   <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
@@ -181,7 +180,7 @@ export default function BatchVerifier() {
                   <div className="text-left">
                      <h4 className="text-sm font-bold text-red-700 dark:text-red-400 uppercase tracking-wide">Batch Not Found</h4>
                      <p className="text-xs text-red-600/80 dark:text-red-300/70 mt-1 leading-relaxed">
-                        The lot number <span className="font-mono font-bold text-red-700 dark:text-red-300">"{query}"</span> does not exist in our database. Please check the label again.
+                        The lot number <span className="font-mono font-bold text-red-700 dark:text-red-300">"{query}"</span> does not exist.
                      </p>
                   </div>
                </motion.div>
