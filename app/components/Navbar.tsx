@@ -5,10 +5,8 @@ import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-// 1. IMPORTAMOS LA IMAGEN AQUÍ
-// Asegúrate de que la ruta sea correcta según donde guardaste el archivo.
-// El '@' suele apuntar a la carpeta 'src'.
-import logo from "../assets/logo.webp"; 
+// Ajusta esta ruta si tu carpeta assets está en otro lado
+import logo from "@/assets/logo.png"; 
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -54,16 +52,15 @@ export default function Navbar() {
           onClick={(e) => handleScrollTo(e, "#hero")}
           className="flex items-center gap-3 group cursor-pointer"
         >
-          {/* Contenedor del Logo Imagen */}
-          {/* Al usar import, mantenemos el contenedor relativo para controlar el tamaño */}
+          {/* Logo Imagen */}
           <div className="relative w-10 h-10 md:w-12 md:h-12 transition-transform group-hover:scale-105">
             <Image 
-                src={logo} // <--- AQUÍ USAMOS LA VARIABLE IMPORTADA
+                src={logo} 
                 alt="Transcendent Labs Logo" 
-                fill // Esto hace que la imagen llene el contenedor padre (w-12 h-12)
-                className="object-contain" // Asegura que el logo no se recorte ni deforme
-                priority // Carga prioritaria para el LCP (Largest Contentful Paint)
-                sizes="(max-width: 768px) 40px, 48px" // Optimización para móviles/desktop
+                fill 
+                className="object-contain"
+                priority
+                sizes="(max-width: 768px) 40px, 48px"
             />
           </div>
 
@@ -72,7 +69,11 @@ export default function Navbar() {
             <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-slate-900 dark:text-[var(--text-main)]">
               TRANSCENDENT
             </span>
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-slate-600 dark:text-[var(--color-brand-secondary)]">
+            
+            {/* --- AQUÍ ESTÁ EL CAMBIO DE COLOR --- */}
+            {/* Light Mode: text-emerald-700 (Verde oscuro legible) 
+                Dark Mode: text-[var(--color-brand-secondary)] (Verde Neón) */}
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-emerald-700 dark:text-[var(--color-brand-secondary)]">
               Labs & Research
             </span>
           </div>
