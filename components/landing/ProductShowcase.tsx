@@ -2,16 +2,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, ArrowRight, ScanLine, Info, FlaskConical } from "lucide-react";
-import Image from "next/image"; // Usaremos Next Image para optimización
+import Image from "next/image";
+import CatalogModal from "../landing/CatalogModal"; // <--- IMPORTAMOS EL NUEVO COMPONENTE (Paso 2)
 
-// Definimos la forma de los datos que vienen de la BD
 interface Product {
   id: string;
   name: string;
   category: string;
-  price: number; // Prisma devuelve Decimal o Float, lo convertiremos a number
+  price: number;
   stock: number;
-  images: string; // URL de Cloudinary
+  images: string;
   purity?: string;
   slug: string;
   description?: string;
@@ -19,17 +19,15 @@ interface Product {
 
 const CATEGORIES = ["All", "Research Peptides", "Nootropics", "Supplements", "SARMs"];
 
-// --- 1. LAB CONTAINER (Adaptado para URL de imagen) ---
+// --- 1. LAB CONTAINER ---
 const LabContainer = ({ image, name }: { image: string, name: string }) => {
   return (
     <div className="relative w-48 h-64 mx-auto flex items-center justify-center transform-gpu">
-      
       {/* Fondo HUD Rotatorio */}
       <motion.div 
         className="absolute inset-0 z-0 flex items-center justify-center opacity-40 group-hover:opacity-100 transition-opacity duration-500"
         animate={{ rotate: 360 }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        style={{ willChange: "transform" }}
       >
         <svg viewBox="0 0 200 200" className="w-full h-full fill-none stroke-[var(--text-muted)] stroke-[0.5] group-hover:stroke-[1] transition-all">
           <circle cx="100" cy="100" r="90" strokeDasharray="4 4" />
@@ -38,14 +36,12 @@ const LabContainer = ({ image, name }: { image: string, name: string }) => {
         </svg>
       </motion.div>
 
-      {/* Imagen del Producto (Cloudinary) */}
+      {/* Imagen del Producto */}
       <motion.div
-        className="relative z-10 w-32 h-40" // Ajusté altura para contener mejor el frasco
+        className="relative z-10 w-32 h-40"
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        style={{ willChange: "transform" }}
       >
-        {/* Usamos Next Image optimizado */}
         <Image 
           src={image} 
           alt={name} 
@@ -53,12 +49,10 @@ const LabContainer = ({ image, name }: { image: string, name: string }) => {
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-contain drop-shadow-2xl filter contrast-110 saturate-100 transition-all duration-500"
         />
-        
-        {/* Reflejo */}
         <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-t from-black/10 to-transparent blur-md opacity-30 rounded-full scale-x-75" />
       </motion.div>
 
-      {/* Efecto Scanner Vertical */}
+      {/* Scanner Vertical */}
       <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-xl">
         <motion.div
           className="w-full h-[2px] bg-[var(--color-brand-primary)] shadow-[0_0_15px_var(--color-brand-primary)] opacity-0 group-hover:opacity-40"
@@ -72,15 +66,20 @@ const LabContainer = ({ image, name }: { image: string, name: string }) => {
 };
 
 // --- COMPONENTE PRINCIPAL ---
-// Ahora recibe "products" como prop desde el servidor
 export default function ProductShowcase({ products }: { products: Product[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [isCatalogOpen, setCatalogOpen] = useState(false); // Estado para el modal
 
+  // 1. FILTRADO
   const filteredProducts = activeCategory === "All" 
     ? products 
     : products.filter(p => p.category === activeCategory);
 
+  // 2. LIMITADO (Solo mostramos 4 en la vitrina principal)
+  const displayProducts = filteredProducts.slice(0, 4);
+
   return (
+    <>
     <section className="relative py-24 px-4 md:px-8 max-w-7xl mx-auto z-10 bg-[var(--bg-page)] transition-colors duration-300" id="catalog">
       
       {/* HEADER */}
@@ -112,14 +111,15 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      {/* GRID PRODUCTOS */}
+      {/* GRID PRODUCTOS (Centrado automático con 'justify-center') */}
       <motion.div 
         layout
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
+        // CLAVE: 'justify-center' centra las tarjetas si hay pocas
+        className="flex flex-wrap justify-center gap-6 md:gap-8"
       >
         <AnimatePresence mode="popLayout">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
+          {displayProducts.length > 0 ? (
+            displayProducts.map((product) => (
               <motion.div
                 layout
                 initial={{ opacity: 0, y: 20 }}
@@ -127,29 +127,25 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
                 key={product.id}
-                className="group relative rounded-[2.5rem] p-5 flex flex-col items-center text-center transition-all duration-300 
+                // CLAVE: Ancho fijo o flexible para grid adaptable
+                className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] p-5 flex flex-col items-center text-center transition-all duration-300 
                            bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-xl shadow-sm
                            hover:border-[var(--color-brand-primary)]/50 hover:shadow-[0_0_30px_var(--accent-glow)]"
               >
                 
-                {/* Tag "BEST SELLER" (Lógica simulada: si stock < 50 es High Demand) */}
                 {product.stock < 50 && (
                    <span className="absolute top-5 right-5 z-30 bg-[var(--text-main)] text-[var(--bg-page)] text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
                        HIGH DEMAND
                    </span>
                 )}
 
-                {/* Glow de Fondo */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--accent-glow)] rounded-full blur-[90px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-                {/* Imagen */}
                 <div className="relative z-10 w-full mb-2">
                    <LabContainer image={product.images} name={product.name} />
                 </div>
 
-                {/* Info Producto */}
                 <div className="w-full px-1 relative z-10 mt-auto">
-                   {/* Usamos el SLUG o ID como "Lote" para que se vea técnico */}
                    <div className="flex items-center justify-center gap-2 mb-3 opacity-60 group-hover:opacity-100 transition-opacity">
                       <ScanLine className="w-3 h-3 text-[var(--color-brand-primary)]" />
                       <p className="text-[10px] uppercase tracking-widest font-mono text-[var(--text-muted)] truncate max-w-[100px]">
@@ -161,13 +157,11 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                       {product.name}
                    </h3>
                    
-                   {/* Mapeamos Purity a la zona de descripción técnica */}
                    <p className="text-xs text-[var(--text-muted)] font-mono mb-6 flex items-center justify-center gap-2">
                       <FlaskConical className="w-3 h-3" />
                       {product.purity || "Premium Grade"} 
                    </p>
                    
-                   {/* Footer Precio y Botones */}
                    <div className="border-t border-[var(--glass-border)] pt-5 w-full">
                       <div className="flex justify-between items-center mb-4">
                           <span className="text-xl font-bold text-[var(--text-main)] font-mono">
@@ -195,21 +189,31 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
               </motion.div>
             ))
           ) : (
-             // Estado vacío si no hay productos
-             <div className="col-span-full py-20 text-center text-[var(--text-muted)]">
+             <div className="w-full py-20 text-center text-[var(--text-muted)]">
                 <p>No active compounds found in this category.</p>
              </div>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* Footer Link */}
+      {/* Footer Link (ABRE EL MODAL) */}
       <div className="mt-16 text-center">
-         <button className="flex items-center gap-2 mx-auto text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors text-sm font-mono uppercase tracking-widest group">
+         <button 
+           onClick={() => setCatalogOpen(true)}
+           className="flex items-center gap-2 mx-auto text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors text-sm font-mono uppercase tracking-widest group border-b border-transparent hover:border-[var(--text-main)] pb-1"
+         >
            View Full Research Catalog <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
          </button>
       </div>
 
     </section>
+
+    {/* --- CATALOG MODAL (Paso 2) --- */}
+    <AnimatePresence>
+      {isCatalogOpen && (
+        <CatalogModal products={products} onClose={() => setCatalogOpen(false)} />
+      )}
+    </AnimatePresence>
+    </>
   );
 }
