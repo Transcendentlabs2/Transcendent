@@ -1,23 +1,12 @@
 "use client";
 import { deleteProduct } from "@/app/actions/products";
-import { Trash2, Edit, Package, AlertCircle } from "lucide-react";
+import { Trash2, Edit, Package } from "lucide-react";
 import Image from "next/image";
 import Swal from "sweetalert2";
 
-// Definimos la interfaz del producto
-interface Product {
-    id: string;
-    name: string;
-    category: string;
-    price: number;
-    stock: number;
-    images: string;
-    slug: string;
-}
-
 interface ProductListProps {
     products: any[];
-    onEdit: (product: any) => void; // Tipado correcto para la función
+    onEdit: (product: any) => void;
 }
 
 export default function ProductList({ products, onEdit }: ProductListProps) {
@@ -28,10 +17,10 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
         text: "This action cannot be undone.",
         icon: 'warning',
         showCancelButton: true,
-        background: '#1a1a1a',
-        color: '#fff',
+        background: 'var(--bg-page)', // Usa variable CSS
+        color: 'var(--text-main)',    // Usa variable CSS
         confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#404040',
+        cancelButtonColor: 'var(--text-muted)',
         confirmButtonText: 'Yes, delete it'
     });
 
@@ -42,9 +31,9 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                 title: 'Deleted!',
                 text: 'Product removed.',
                 icon: 'success',
-                background: '#1a1a1a',
-                color: '#fff',
-                confirmButtonColor: '#0ea5e9',
+                background: 'var(--bg-page)',
+                color: 'var(--text-main)',
+                confirmButtonColor: 'var(--color-brand-primary)',
                 timer: 1500,
                 showConfirmButton: false
             });
@@ -56,7 +45,7 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
 
   if (products.length === 0) {
       return (
-          <div className="flex flex-col items-center justify-center p-12 border border-dashed border-[var(--glass-border)] rounded-2xl text-[var(--text-muted)] mt-8">
+          <div className="flex flex-col items-center justify-center p-12 border border-dashed border-[var(--glass-border)] rounded-2xl text-[var(--text-muted)] mt-8 bg-[var(--bg-page)]/50">
               <Package className="w-12 h-12 mb-4 opacity-50" />
               <p>No products found in the database.</p>
           </div>
@@ -68,9 +57,12 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
       {products.map((product) => (
         <div key={product.id} className="group bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-2xl overflow-hidden hover:border-[var(--color-brand-primary)]/50 hover:shadow-lg hover:shadow-[var(--color-brand-primary)]/5 transition-all duration-300 flex flex-col">
             
-            {/* Header Imagen - Ajustado para que se vea completa */}
-            <div className="relative h-52 w-full bg-[#111] border-b border-[var(--glass-border)] p-4 flex items-center justify-center">
-                <div className="relative w-full h-full">
+            {/* Header Imagen - CORREGIDO: Fondo suave adaptable */}
+            <div className="relative h-52 w-full bg-[var(--text-muted)]/5 border-b border-[var(--glass-border)] p-4 flex items-center justify-center overflow-hidden">
+                {/* Fondo sutil decorativo detrás del producto */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-brand-primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative w-full h-full z-10">
                     <Image 
                         src={product.images} 
                         alt={product.name} 
@@ -79,13 +71,15 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                 </div>
-                <div className="absolute top-3 right-3 bg-[var(--bg-page)]/80 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-[var(--text-muted)] uppercase border border-[var(--glass-border)] shadow-sm">
+                
+                {/* Badge Categoría */}
+                <div className="absolute top-3 right-3 bg-[var(--bg-page)]/80 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-[var(--text-muted)] uppercase border border-[var(--glass-border)] shadow-sm z-20">
                     {product.category}
                 </div>
             </div>
 
             {/* Info Body */}
-            <div className="p-5 flex-1 flex flex-col">
+            <div className="p-5 flex-1 flex flex-col bg-[var(--bg-page)]">
                 <div className="flex justify-between items-start mb-2 gap-4">
                     <h4 className="font-bold text-[var(--text-main)] text-base leading-tight line-clamp-2">{product.name}</h4>
                     <span className="text-[var(--color-brand-primary)] font-mono font-bold whitespace-nowrap">${Number(product.price).toFixed(2)}</span>
@@ -102,7 +96,6 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                     </div>
 
                     <div className="flex gap-2">
-                        {/* Botón Editar corregido */}
                         <button 
                             onClick={() => onEdit(product)}
                             className="p-2 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] hover:bg-[var(--glass-border)] rounded-lg transition-colors" 
