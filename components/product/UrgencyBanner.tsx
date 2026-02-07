@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Timer, AlertCircle } from "lucide-react";
+import { Timer, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function UrgencyBanner() {
@@ -25,29 +25,22 @@ export default function UrgencyBanner() {
   }, []);
 
   return (
-    <div className="bg-[#050505] border-b border-[var(--glass-border)] py-2 px-4 flex items-center justify-between md:justify-center gap-4 relative overflow-hidden">
-      {/* Scanline Effect */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none" />
-      <div className="absolute top-0 bottom-0 left-0 w-1 bg-red-500 animate-pulse" />
+    // CAMBIO: Fondo glassmorphism con borde de acento, no negro sólido
+    <div className="w-full bg-[var(--color-brand-primary)]/5 backdrop-blur-md border-b border-[var(--color-brand-primary)]/20 py-2.5 flex justify-center relative overflow-hidden">
+      <div className="flex items-center gap-3 md:gap-6 z-10">
+         <div className="flex items-center gap-2 text-[var(--color-brand-primary)] animate-pulse">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">Priority Dispatch</span>
+         </div>
+         
+         <div className="h-3 w-[1px] bg-[var(--text-muted)] opacity-30" />
 
-      <div className="flex items-center gap-2 z-10">
-        <AlertCircle className="w-3 h-3 text-red-500" />
-        <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] hidden md:inline-block">
-          Logistic Cutoff Sequence Initiated
-        </span>
-        <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)] md:hidden">
-          Dispatch Cutoff
-        </span>
-      </div>
-
-      <div className="flex items-center gap-2 z-10">
-        <span className="text-[10px] font-mono text-red-500 animate-pulse">●</span>
-        <motion.div 
-          key={timeLeft}
-          className="font-mono text-sm font-bold text-[var(--text-main)] tabular-nums tracking-widest"
-        >
-          {timeLeft}
-        </motion.div>
+         <div className="flex items-center gap-2">
+            <span className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wide hidden sm:inline-block">Cutoff in:</span>
+            <span className="font-mono text-xs md:text-sm font-bold text-[var(--text-main)] tabular-nums">
+               {timeLeft}
+            </span>
+         </div>
       </div>
     </div>
   );
