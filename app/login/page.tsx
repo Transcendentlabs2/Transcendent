@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext"; // Ajusta la ruta si lo guardaste en otro lado
+import { useAuth } from "../../context/AuthContext"; // Ajusta la ruta si lo guardaste en otro lado
 import { FlaskConical, Atom, ArrowRight, ScanFace, AlertCircle } from "lucide-react";
 import Image from "next/image";
 // Asegúrate de que la ruta a tu logo sea correcta según tu estructura

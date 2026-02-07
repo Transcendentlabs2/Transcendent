@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import ThemeProvider from "./components/ThemeProvider";
-import { AuthProvider } from "./context/AuthContext"; // <--- Importamos el AuthProvider
+import ThemeProvider from "../components/landing/ThemeProvider";
+import { AuthProvider } from "../context/AuthContext"; // <--- Importamos el AuthProvider
 
 const poppins = Poppins({
   subsets: ["latin"],

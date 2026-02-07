@@ -3,16 +3,16 @@
 import { Atom } from "lucide-react";
 
 // --- IMPORTACIONES DE COMPONENTES ---
-import PremiumBackground from "./components/PremiumBackground";
-import Navbar from "./components/Navbar";
-import HeroModern from "./components/HeroModern";
-import TrustTicker from "./components/TrustTicker";
-import LabGrid from "./components/LabGrid";
-import ProductShowcase from "./components/ProductShowcase";
-import BatchVerifier from "./components/BatchVerifier"; // <--- 1. IMPORTAR NUEVO COMPONENTE
-import PeptideCalculator from "./components/PeptideCalculator";
-import FAQSection from "./components/FAQSection";
-import Footer from "./components/Footer";
+import PremiumBackground from "../components/landing/PremiumBackground";
+import Navbar from "../components/landing/Navbar";
+import HeroModern from "../components/landing/HeroModern";
+import TrustTicker from "../components/landing/TrustTicker";
+import LabGrid from "../components/landing/LabGrid";
+import ProductShowcase from "../components/landing/ProductShowcase";
+import BatchVerifier from "../components/landing/BatchVerifier"; // <--- 1. IMPORTAR NUEVO COMPONENTE
+import PeptideCalculator from "../components/landing/PeptideCalculator";
+import FAQSection from "../components/landing/FAQSection";
+import Footer from "../components/landing/Footer";
 
 export default function Home() {
   return (

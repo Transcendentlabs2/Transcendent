@@ -14,7 +14,7 @@ import {
   LogOut          // Icono para Cerrar Sesión
 } from "lucide-react";
 
-import { useAuth } from "../context/AuthContext"; // Ajusta la ruta según donde creaste el archivo
+import { useAuth } from "../../context/AuthContext"; // Ajusta la ruta según donde creaste el archivo
 import logo from "../assets/logo.webp";
 
 export default function Footer() {

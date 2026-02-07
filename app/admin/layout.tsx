@@ -1,5 +1,5 @@
-import { AdminProvider } from "../context/AdminContext";
-import AdminLayoutWrapper from "../components/admin/AdminLayoutWrapper";
+import { AdminProvider } from "../../context/AdminContext";
+import AdminLayoutWrapper from "../../components/admin/AdminLayoutWrapper";
 
 export default function AdminLayout({
   children,
