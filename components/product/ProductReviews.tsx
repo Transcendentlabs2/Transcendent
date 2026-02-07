@@ -1,69 +1,75 @@
 "use client";
 
-import { Star, BadgeCheck } from "lucide-react";
+import { Star, CheckCircle2, User } from "lucide-react";
 
 const REVIEWS = [
   {
-    id: 1,
+    id: "REV-001",
     user: "Dr. A. Miller",
-    lab: "NeuroGen Labs",
+    role: "Senior Researcher",
     rating: 5,
-    text: "HPLC analysis confirmed 99.8% purity. The lyophilization quality is superior to previous vendors. Will restock for Q3 protocols.",
-    date: "2 days ago"
+    text: "HPLC analysis confirmed 99.8% purity. Lyophilization integrity exceeds standard market protocols.",
+    status: "Verified Lab"
   },
   {
-    id: 2,
-    user: "Research Dept.",
-    lab: "Univ. of Caldas",
+    id: "REV-002",
+    user: "BioTech Dept",
+    role: "Institutional Buyer",
     rating: 5,
-    text: "Solubility in bacteriostatic water was instant. No cloudiness. Delivery to Manizales was surprisingly fast (24h).",
-    date: "1 week ago"
+    text: "Instant solubility in bacteriostatic media. Zero turbidity observed. Logistics efficiency: Optimal.",
+    status: "Verified Lab"
   },
   {
-    id: 3,
+    id: "REV-003",
     user: "J. Bastidas",
-    lab: "Private Practice",
+    role: "Clinical Specialist",
     rating: 5,
-    text: "Excellent packaging. Temperature indicators showed it stayed cool during transit. Crucial for peptide stability.",
-    date: "2 weeks ago"
+    text: "Cold-chain packaging maintained thermal stability throughout transit. Essential for peptide viability.",
+    status: "Verified Lab"
   },
 ];
 
 export default function ProductReviews() {
   return (
-    // CONTENEDOR DESLIZABLE HORIZONTAL
     <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:mx-0 md:px-0 scrollbar-hide">
       
       {REVIEWS.map((review) => (
         <div 
           key={review.id}
-          className="snap-center shrink-0 w-[85vw] md:w-auto bg-[var(--glass-bg)] border border-[var(--glass-border)] p-6 rounded-2xl flex flex-col gap-4 shadow-sm"
+          className="snap-center shrink-0 w-[85vw] md:w-auto bg-[var(--bg-page)] border border-[var(--glass-border)] p-0 rounded-xl flex flex-col group hover:border-[var(--color-brand-primary)]/30 transition-colors"
         >
-          {/* Header Review */}
-          <div className="flex justify-between items-start">
-             <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[var(--color-brand-primary)] to-cyan-600 flex items-center justify-center text-white font-bold text-xs">
-                   {review.user.charAt(0)}
+          {/* Header Técnico */}
+          <div className="flex justify-between items-center p-4 border-b border-[var(--glass-border)] bg-[var(--glass-bg)]">
+             <div className="flex items-center gap-2">
+                <div className="p-1.5 border border-[var(--glass-border)] rounded-md">
+                    <User className="w-3 h-3 text-[var(--text-muted)]" />
                 </div>
-                <div>
-                   <p className="font-bold text-sm text-[var(--text-main)]">{review.user}</p>
-                   <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{review.lab}</p>
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-[var(--text-main)] uppercase">{review.user}</span>
+                    <span className="text-[8px] font-mono text-[var(--text-muted)]">{review.id}</span>
                 </div>
              </div>
-             <div className="flex text-amber-400">
-                {[...Array(review.rating)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
+             <div className="flex gap-[1px]">
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} className={`w-1 h-3 ${i < review.rating ? "bg-[var(--color-brand-primary)]" : "bg-[var(--glass-border)]"}`} />
+                ))}
              </div>
           </div>
 
-          {/* Body */}
-          <p className="text-sm text-[var(--text-muted)] italic leading-relaxed">
-             "{review.text}"
-          </p>
+          {/* Body Texto Maquina de Escribir */}
+          <div className="p-4 flex-1">
+             <p className="text-xs font-mono text-[var(--text-muted)] leading-relaxed opacity-80">
+                &quot;{review.text}&quot;
+             </p>
+          </div>
 
-          {/* Badge */}
-          <div className="mt-auto flex items-center gap-1.5 text-[10px] font-bold text-emerald-500">
-             <BadgeCheck className="w-3.5 h-3.5" />
-             <span>Verified Purchase</span>
+          {/* Footer Status */}
+          <div className="p-3 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/50 flex justify-between items-center">
+             <span className="text-[8px] uppercase tracking-widest text-[var(--text-muted)]">{review.role}</span>
+             <div className="flex items-center gap-1.5 text-[9px] font-bold text-emerald-500 uppercase tracking-wider">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>{review.status}</span>
+             </div>
           </div>
         </div>
       ))}
