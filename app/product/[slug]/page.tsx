@@ -2,23 +2,45 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ProductTemplate from "@/components/product/ProductTemplate";
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const product = await prisma.product.findFirst({ where: { slug: params.slug } });
+// Definimos el tipo correcto para Next.js 15
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+// 1. GENERATE METADATA (Corregido: params es Promise)
+export async function generateMetadata({ params }: Props) {
+  // AWAIT OBLIGATORIO AQUÍ
+  const { slug } = await params;
+
+  const product = await prisma.product.findFirst({
+    where: { slug: slug },
+  });
+
   if (!product) return { title: "Compound Not Found" };
+
   return {
     title: `Buy ${product.name} | Research Grade | Transcendent Labs`,
     description: `High purity ${product.name} for laboratory research. HPLC verified. ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}.`,
   };
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+// 2. PAGE COMPONENT (Corregido: params es Promise)
+export default async function ProductPage({ params }: Props) {
+  // AWAIT OBLIGATORIO AQUÍ TAMBIÉN
+  const { slug } = await params;
+
   const product = await prisma.product.findFirst({
-    where: { slug: params.slug, isActive: true },
+    where: { 
+      slug: slug,
+      isActive: true 
+    },
   });
 
-  if (!product) notFound();
+  if (!product) {
+    notFound();
+  }
 
-  // Serializamos datos para evitar errores de Decimal
+  // Serializamos los datos
   const serializedProduct = {
     ...product,
     price: Number(product.price),
