@@ -3,7 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, ArrowRight, ScanLine, Info, FlaskConical } from "lucide-react";
 import Image from "next/image";
-import CatalogModal from "../landing/CatalogModal"; // <--- IMPORTAMOS EL NUEVO COMPONENTE (Paso 2)
+import CatalogModal from "./CatalogModal";
 
 interface Product {
   id: string;
@@ -17,13 +17,20 @@ interface Product {
   description?: string;
 }
 
+// 1. DEFINIMOS LAS CATEGORÍAS VISUALES
 const CATEGORIES = ["All", "Research Peptides", "Nootropics", "Supplements", "SARMs"];
 
-// --- 1. LAB CONTAINER ---
+// 2. CREAMOS EL MAPA DE TRADUCCIÓN (Visual -> Base de Datos)
+const CATEGORY_MAP: Record<string, string> = {
+  "Research Peptides": "peptides",
+  "Nootropics": "nootropics",
+  "Supplements": "supplements",
+  "SARMs": "sarms"
+};
+
 const LabContainer = ({ image, name }: { image: string, name: string }) => {
   return (
     <div className="relative w-48 h-64 mx-auto flex items-center justify-center transform-gpu">
-      {/* Fondo HUD Rotatorio */}
       <motion.div 
         className="absolute inset-0 z-0 flex items-center justify-center opacity-40 group-hover:opacity-100 transition-opacity duration-500"
         animate={{ rotate: 360 }}
@@ -36,7 +43,6 @@ const LabContainer = ({ image, name }: { image: string, name: string }) => {
         </svg>
       </motion.div>
 
-      {/* Imagen del Producto */}
       <motion.div
         className="relative z-10 w-32 h-40"
         animate={{ y: [0, -10, 0] }}
@@ -52,7 +58,6 @@ const LabContainer = ({ image, name }: { image: string, name: string }) => {
         <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-t from-black/10 to-transparent blur-md opacity-30 rounded-full scale-x-75" />
       </motion.div>
 
-      {/* Scanner Vertical */}
       <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-xl">
         <motion.div
           className="w-full h-[2px] bg-[var(--color-brand-primary)] shadow-[0_0_15px_var(--color-brand-primary)] opacity-0 group-hover:opacity-40"
@@ -65,35 +70,31 @@ const LabContainer = ({ image, name }: { image: string, name: string }) => {
   );
 };
 
-// --- COMPONENTE PRINCIPAL ---
 export default function ProductShowcase({ products }: { products: Product[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [isCatalogOpen, setCatalogOpen] = useState(false); // Estado para el modal
+  const [isCatalogOpen, setCatalogOpen] = useState(false);
 
-  // 1. FILTRADO
+  // 3. LÓGICA DE FILTRADO CORREGIDA
   const filteredProducts = activeCategory === "All" 
     ? products 
-    : products.filter(p => p.category === activeCategory);
+    : products.filter(p => p.category === CATEGORY_MAP[activeCategory]);
 
-  // 2. LIMITADO (Solo mostramos 4 en la vitrina principal)
   const displayProducts = filteredProducts.slice(0, 4);
 
   return (
     <>
     <section className="relative py-24 px-4 md:px-8 max-w-7xl mx-auto z-10 bg-[var(--bg-page)] transition-colors duration-300" id="catalog">
       
-      {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
         <div>
           <h2 className="text-4xl md:text-6xl font-display font-bold text-[var(--text-main)] mb-4">
             Active <span className="text-[var(--text-muted)]">Compounds</span>
           </h2>
           <p className="text-[var(--text-muted)] max-w-md text-lg font-sans">
-            Research-grade peptides synthesized for maximum bioavailability and scientific purity.
+            Research-grade peptides synthesized for maximum bioavailability.
           </p>
         </div>
 
-        {/* Filtros */}
         <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((cat) => (
             <button
@@ -111,10 +112,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      {/* GRID PRODUCTOS (Centrado automático con 'justify-center') */}
       <motion.div 
         layout
-        // CLAVE: 'justify-center' centra las tarjetas si hay pocas
         className="flex flex-wrap justify-center gap-6 md:gap-8"
       >
         <AnimatePresence mode="popLayout">
@@ -127,7 +126,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
                 key={product.id}
-                // CLAVE: Ancho fijo o flexible para grid adaptable
                 className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] p-5 flex flex-col items-center text-center transition-all duration-300 
                            bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-xl shadow-sm
                            hover:border-[var(--color-brand-primary)]/50 hover:shadow-[0_0_30px_var(--accent-glow)]"
@@ -196,7 +194,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </AnimatePresence>
       </motion.div>
 
-      {/* Footer Link (ABRE EL MODAL) */}
       <div className="mt-16 text-center">
          <button 
            onClick={() => setCatalogOpen(true)}
@@ -208,7 +205,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
     </section>
 
-    {/* --- CATALOG MODAL (Paso 2) --- */}
     <AnimatePresence>
       {isCatalogOpen && (
         <CatalogModal products={products} onClose={() => setCatalogOpen(false)} />
