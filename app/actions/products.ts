@@ -63,3 +63,30 @@ export async function toggleProductStatus(id: string, currentStatus: boolean) {
         return { success: false };
     }
 }
+
+export async function updateProduct(id: string, formData: FormData) {
+  try {
+    const data: any = {
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+      category: formData.get("category") as string,
+      price: parseFloat(formData.get("price") as string),
+      stock: parseInt(formData.get("stock") as string),
+      purity: formData.get("purity") as string,
+      // Si el usuario no subió imagen nueva, mantenemos la anterior (esto lo manejamos en el form, 
+      // pero aquí aseguramos recibir el string)
+      images: formData.get("imageUrl") as string,
+    };
+
+    await prisma.product.update({
+      where: { id },
+      data: data,
+    });
+
+    revalidatePath("/admin/products");
+    return { success: true, message: "Product updated successfully." };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Error updating product." };
+  }
+}
