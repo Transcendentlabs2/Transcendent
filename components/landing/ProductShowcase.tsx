@@ -5,8 +5,8 @@ import { Plus, ArrowRight, ScanLine, Info } from "lucide-react";
 
 // --- IMPORTACIÓN DE IMÁGENES ---
 // Asegúrate de que las rutas sean correctas
-import imggh from '../img/gh.webp'; 
-import imgnad from '../img/nad.webp';
+import imggh from '../../app/img/gh.webp'; 
+import imgnad from '../../app/img/nad.webp';
 
 // Datos de Productos
 const PRODUCTS = [

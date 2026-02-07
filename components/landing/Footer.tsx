@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext"; // Ajusta la ruta según donde creaste el archivo
-import logo from "../assets/logo.webp";
+import logo from "../../app/assets/logo.webp";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();

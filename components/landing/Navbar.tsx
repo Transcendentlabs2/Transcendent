@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import logo from "../assets/logo.webp"; 
+import logo from "../../app/assets/logo.webp"; 
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);

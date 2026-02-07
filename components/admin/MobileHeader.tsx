@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAdmin } from "../../context/AdminContext";
 import { Menu } from "lucide-react";
-import logo from "../../assets/logo.webp"; 
+import logo from "../../app/assets/logo.webp"; 
 
 export default function MobileHeader() {
   const { toggleSidebar } = useAdmin();

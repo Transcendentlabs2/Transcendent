@@ -15,7 +15,7 @@ import {
 import clsx from "clsx";
 
 // Ajusta la ruta a tu logo si es necesario
-import logo from "../../assets/logo.webp"; 
+import logo from "../../app/assets/logo.webp"; 
 
 const menuItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
