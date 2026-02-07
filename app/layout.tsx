@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "./components/ThemeProvider";
+import { AuthProvider } from "./context/AuthContext"; // <--- Importamos el AuthProvider
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -36,7 +37,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${poppins.variable} ${inter.variable} ${jetbrains.variable}`}>
       <body className="antialiased selection:bg-cyan-500/30 selection:text-cyan-600 dark:selection:text-cyan-200">
         <ThemeProvider>
-           {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
