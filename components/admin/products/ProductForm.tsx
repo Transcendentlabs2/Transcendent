@@ -32,8 +32,8 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         Swal.fire({ 
             icon: 'warning', 
             title: 'Missing Image', 
-            background: 'var(--bg-page)', // Adaptable
-            color: 'var(--text-main)'      // Adaptable
+            background: 'var(--bg-page)', 
+            color: 'var(--text-main)' 
         });
         setLoading(false);
         return;
@@ -72,22 +72,30 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-2xl shadow-2xl flex flex-col max-h-[90vh] md:max-h-[85vh]">
+    // AQUÍ ESTÁ LA CLAVE DEL LAYOUT:
+    // h-full (móvil) vs max-h-[85vh] (desktop)
+    // rounded-none (móvil) vs rounded-2xl (desktop)
+    <div className="relative w-full h-full sm:h-auto sm:max-h-[85vh] bg-[var(--bg-page)] border-0 sm:border sm:border-[var(--glass-border)] rounded-none sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       
       {/* Header Fijo */}
-      <div className="flex items-center justify-between p-5 border-b border-[var(--glass-border)] bg-[var(--bg-page)] sticky top-0 z-20 rounded-t-2xl">
+      <div className="flex items-center justify-between p-5 border-b border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0">
         <h3 className="text-lg md:text-xl font-display font-bold text-[var(--text-main)] flex items-center gap-3">
           <FlaskConical className="text-[var(--color-brand-primary)]" />
-          {initialData ? "Edit Compound Protocol" : "New Compound Protocol"}
+          {initialData ? "Edit Compound" : "New Compound"}
         </h3>
-        <button onClick={onClose} className="p-2 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors text-[var(--text-muted)]">
-          <X className="w-5 h-5" />
+        
+        {/* Botón Cerrar más grande en móvil para facilitar el toque */}
+        <button 
+            onClick={onClose} 
+            className="p-3 -mr-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400 rounded-full transition-colors active:scale-90"
+        >
+          <X className="w-6 h-6" />
         </button>
       </div>
 
       {/* Body con Scroll */}
-      <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar bg-[var(--bg-page)]">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 sm:pb-8 bg-[var(--bg-page)]">
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -123,18 +131,18 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
 
             <div className="space-y-2">
                 <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Scientific Description</label>
-                <textarea name="description" defaultValue={initialData?.description} rows={4} required className="input-scientific resize-none" />
+                <textarea name="description" defaultValue={initialData?.description} rows={6} required className="input-scientific resize-none" />
             </div>
 
-            {/* Imagen Cloudinary - CORREGIDO: Fondo sutil */}
+            {/* Imagen Cloudinary */}
             <div className="space-y-2">
                 <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Visual Documentation</label>
                 
                 <div className="border-2 border-dashed border-[var(--glass-border)] rounded-xl p-4 flex justify-center bg-[var(--text-muted)]/5 hover:bg-[var(--text-muted)]/10 transition-colors">
                     {imageUrl ? (
-                        <div className="relative w-full h-48 md:w-64 md:h-64">
+                        <div className="relative w-full h-56 md:w-64 md:h-64">
                             <Image src={imageUrl} alt="Product" fill className="object-contain rounded-lg" />
-                            <button type="button" onClick={() => setImageUrl("")} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:scale-110 transition-transform"><X className="w-4 h-4"/></button>
+                            <button type="button" onClick={() => setImageUrl("")} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 shadow-md hover:scale-110 transition-transform"><X className="w-5 h-5"/></button>
                         </div>
                     ) : (
                         <CldUploadWidget 
@@ -161,9 +169,9 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
                             }}
                         >
                             {({ open }) => (
-                                <button type="button" onClick={() => open()} className="flex flex-col items-center gap-2 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] py-8 transition-colors">
-                                    <ImagePlus className="w-8 h-8 opacity-50" /> 
-                                    <span className="text-sm font-bold">Upload Image</span>
+                                <button type="button" onClick={() => open()} className="flex flex-col items-center gap-2 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] py-8 transition-colors w-full">
+                                    <ImagePlus className="w-10 h-10 opacity-50" /> 
+                                    <span className="text-sm font-bold">Tap to Upload Image</span>
                                 </button>
                             )}
                         </CldUploadWidget>
@@ -173,18 +181,20 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         </form>
       </div>
 
-      {/* Footer Botones Fijo */}
-      <div className="flex justify-end gap-3 p-5 border-t border-[var(--glass-border)] bg-[var(--bg-page)] rounded-b-2xl sticky bottom-0 z-20">
-            <button onClick={onClose} className="px-5 py-2.5 rounded-xl font-bold text-sm text-[var(--text-muted)] hover:bg-[var(--glass-border)] transition-colors">Cancel</button>
+      {/* Footer Botones - Fijo abajo */}
+      <div className="flex justify-between sm:justify-end gap-3 p-5 border-t border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0 sticky bottom-0 z-20 pb-8 sm:pb-5">
+            <button onClick={onClose} className="px-6 py-3 rounded-xl font-bold text-sm text-[var(--text-muted)] bg-[var(--glass-border)]/50 sm:bg-transparent hover:bg-[var(--glass-border)] transition-colors w-full sm:w-auto">
+                Cancel
+            </button>
             <button 
                 onClick={(e) => {
                     const form = e.currentTarget.closest('.relative')?.querySelector('form');
                     form?.requestSubmit();
                 }}
                 disabled={loading} 
-                className="bg-[var(--text-main)] text-[var(--bg-page)] px-6 py-2.5 rounded-xl font-bold text-sm hover:scale-105 transition-all flex items-center gap-2 shadow-lg shadow-[var(--glass-border)]"
+                className="bg-[var(--text-main)] text-[var(--bg-page)] px-8 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--glass-border)] w-full sm:w-auto"
             >
-                {loading ? "Processing..." : <><Save className="w-4 h-4" /> {initialData ? "Save Changes" : "Create Product"}</>}
+                {loading ? "Processing..." : <><Save className="w-4 h-4" /> {initialData ? "Save" : "Create"}</>}
             </button>
       </div>
 
@@ -194,20 +204,15 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             background-color: var(--bg-page);
             border: 1px solid var(--glass-border);
             border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
+            padding: 0.875rem 1rem; /* Más padding para dedos en móvil */
             color: var(--text-main);
             outline: none;
-            font-size: 0.875rem;
+            font-size: 1rem; /* Evita el zoom automático en iOS inputs */
             transition: all 0.2s;
         }
         .input-scientific:focus {
             border-color: var(--color-brand-primary);
             box-shadow: 0 0 0 1px var(--color-brand-primary);
-        }
-        /* Ajuste para que el input disabled (si hubiera) se vea bien */
-        .input-scientific:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
       `}</style>
     </div>
