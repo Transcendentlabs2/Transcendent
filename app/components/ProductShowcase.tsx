@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ArrowRight, ScanLine, Info } from "lucide-react"; 
+import { Plus, ArrowRight, ScanLine, Info } from "lucide-react";
 
 // --- 1. IMPORTACIÓN MANUAL DE IMÁGENES ---
 import imggh from '../img/gh.webp';
@@ -66,14 +66,16 @@ const LabContainer = ({ image, name }: { image: any, name: string }) => {
   return (
     <div className="relative w-48 h-64 mx-auto flex items-center justify-center transform-gpu">
       
-      {/* 1. FONDO HUD ROTATORIO (Optimizado Safari) */}
+      {/* 1. FONDO HUD ROTATORIO (Optimizado Visibilidad Light Mode) */}
       <motion.div 
-        className="absolute inset-0 z-0 flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity duration-500"
+        // CAMBIO: opacity-40 base para Light Mode (más visible), dark:opacity-20 para Dark Mode (sutil)
+        className="absolute inset-0 z-0 flex items-center justify-center opacity-40 dark:opacity-20 group-hover:opacity-60 dark:group-hover:opacity-40 transition-opacity duration-500"
         animate={{ rotate: 360 }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         style={{ willChange: "transform" }}
       >
-        <svg viewBox="0 0 200 200" className="w-full h-full fill-none stroke-[var(--text-muted)] stroke-[0.5]">
+        {/* CAMBIO: Stroke más oscuro en Light Mode (slate-300) y sutil en Dark Mode */}
+        <svg viewBox="0 0 200 200" className="w-full h-full fill-none stroke-slate-300 dark:stroke-[var(--text-muted)] stroke-[1] dark:stroke-[0.5]">
           <circle cx="100" cy="100" r="90" strokeDasharray="4 4" />
           <circle cx="100" cy="100" r="70" strokeOpacity="0.5" />
           <path d="M100 20 L100 0 M200 100 L180 100 M100 180 L100 200 M20 100 L0 100" strokeWidth="1" />
@@ -165,9 +167,9 @@ export default function ProductShowcase() {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
               key={product.id}
-              // --- CAMBIO DE COLOR AQUÍ ---
-              // Light Mode: bg-white puro + borde gris muy suave + sombra difusa
-              // Dark Mode: bg-white/5 (efecto vidrio oscuro) + borde sutil
+              // --- COLORES FORZADOS Y EXPLÍCITOS ---
+              // Light: bg-white (blanco puro)
+              // Dark: dark:bg-white/5 (vidrio oscuro)
               className="group relative bg-white dark:bg-white/5 rounded-[2.5rem] p-5 flex flex-col items-center text-center transition-all duration-300 
                          border border-gray-100 dark:border-white/10
                          hover:border-[var(--color-brand-primary)]/30 dark:hover:border-[var(--color-brand-primary)]/30
@@ -215,13 +217,12 @@ export default function ProductShowcase() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        {/* 1. BOTÓN MORE INFO (Estilo secundario limpio) */}
+                        {/* 1. BOTÓN MORE INFO */}
                         <button className="flex items-center justify-center gap-1.5 border border-gray-200 dark:border-white/20 text-[var(--text-muted)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-white/10 hover:text-[var(--text-main)] transition-colors">
                            <Info className="w-3.5 h-3.5" /> Info
                         </button>
                         
-                        {/* 2. BOTÓN ADD TO CART (Estilo primario fuerte) */}
-                        {/* Aumenté el área de click y el contraste */}
+                        {/* 2. BOTÓN ADD TO CART */}
                         <button className="flex items-center justify-center gap-1.5 bg-[var(--text-main)] text-[var(--bg-page)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg shadow-black/5 active:scale-95">
                            Add <Plus className="w-3.5 h-3.5" />
                         </button>
