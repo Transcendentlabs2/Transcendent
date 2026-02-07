@@ -53,18 +53,16 @@ export default function CatalogModal({ products, onClose }: { products: Product[
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      // SAFARI FIX 1: h-[100dvh] evita que la barra de direcciones tape el contenido
-      // SAFARI FIX 2: transform-gpu acelera el renderizado del blur
       className="fixed inset-0 z-[9999] bg-[var(--bg-page)]/95 backdrop-blur-3xl overflow-hidden flex flex-col h-[100dvh] w-screen transform-gpu"
     >
-        {/* Background FX (Con will-change para avisar al navegador) */}
+        {/* Background FX */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ willChange: 'transform' }}>
             <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[var(--color-brand-primary)]/10 rounded-full blur-[120px] animate-pulse-slow" />
             <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
         </div>
 
-        {/* Header (Sticky para que no se pierda al hacer scroll) */}
+        {/* Header */}
         <div className="relative z-10 flex items-center justify-between p-5 md:p-10 border-b border-[var(--glass-border)] shrink-0 bg-[var(--bg-page)]/50 backdrop-blur-md">
             <div className="flex items-center gap-4">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-[var(--text-main)] text-[var(--bg-page)] flex items-center justify-center shrink-0 shadow-lg">
@@ -96,13 +94,13 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                     placeholder="Search compound..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    // SAFARI FIX 3: text-[16px] evita que el iPhone haga zoom in al escribir
                     className="w-full bg-[var(--glass-border)]/30 border border-[var(--glass-border)] rounded-2xl py-3.5 pl-12 pr-4 text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--color-brand-primary)] transition-all text-[16px] md:text-sm"
                 />
             </div>
 
-            {/* Chips (Scroll horizontal suave) */}
-            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+            {/* Chips (Scroll FIXED) */}
+            {/* CORRECCIÓN AQUI: Agregado overflow-y-hidden, py-1, items-center y ocultar scrollbar manualmente */}
+            <div className="flex gap-2 overflow-x-auto overflow-y-hidden pb-2 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0 items-center py-1 [&::-webkit-scrollbar]:hidden scrollbar-hide">
                 {CATEGORIES.map(cat => (
                     <button
                         key={cat}
@@ -120,7 +118,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
         </div>
 
         {/* Scrollable Grid */}
-        {/* SAFARI FIX 4: overscroll-contain evita que 'rebote' la página de atrás */}
         <div className="flex-1 overflow-y-auto px-5 md:px-10 pb-32 md:pb-20 relative z-10 custom-scrollbar overscroll-contain">
             <motion.div 
                 layout 
