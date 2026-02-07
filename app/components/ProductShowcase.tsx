@@ -66,23 +66,23 @@ const LabContainer = ({ image, name }: { image: any, name: string }) => {
   return (
     <div className="relative w-48 h-64 mx-auto flex items-center justify-center transform-gpu">
       
-      {/* 1. FONDO HUD ROTATORIO (Optimizado Visibilidad Light Mode) */}
+      {/* 1. FONDO HUD ROTATORIO (MEJORADO PARA LIGHT MODE) */}
       <motion.div 
-        // CAMBIO: opacity-40 base para Light Mode (más visible), dark:opacity-20 para Dark Mode (sutil)
-        className="absolute inset-0 z-0 flex items-center justify-center opacity-40 dark:opacity-20 group-hover:opacity-60 dark:group-hover:opacity-40 transition-opacity duration-500"
+        // CAMBIO: Opacidad subida a 0.7 en light mode para mayor visibilidad
+        className="absolute inset-0 z-0 flex items-center justify-center opacity-70 dark:opacity-30 group-hover:opacity-100 transition-opacity duration-500"
         animate={{ rotate: 360 }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         style={{ willChange: "transform" }}
       >
-        {/* CAMBIO: Stroke más oscuro en Light Mode (slate-300) y sutil en Dark Mode */}
-        <svg viewBox="0 0 200 200" className="w-full h-full fill-none stroke-slate-300 dark:stroke-[var(--text-muted)] stroke-[1] dark:stroke-[0.5]">
+        {/* CAMBIO: Stroke más oscuro y azulado en Light Mode (indigo-900/20) para contraste técnico */}
+        <svg viewBox="0 0 200 200" className="w-full h-full fill-none stroke-indigo-900/20 dark:stroke-[var(--text-muted)] stroke-[1.5] dark:stroke-[0.5]">
           <circle cx="100" cy="100" r="90" strokeDasharray="4 4" />
           <circle cx="100" cy="100" r="70" strokeOpacity="0.5" />
           <path d="M100 20 L100 0 M200 100 L180 100 M100 180 L100 200 M20 100 L0 100" strokeWidth="1" />
         </svg>
       </motion.div>
 
-      {/* 2. IMAGEN WEBP (FULL COLOR) */}
+      {/* 2. IMAGEN WEBP */}
       <motion.div
         className="relative z-10 w-32 h-auto"
         animate={{ y: [0, -10, 0] }}
@@ -95,14 +95,14 @@ const LabContainer = ({ image, name }: { image: any, name: string }) => {
           className="w-full h-full object-contain drop-shadow-xl filter contrast-105 saturate-100 transition-all duration-500"
         />
         
-        {/* Reflejo inferior sutil */}
+        {/* Reflejo inferior */}
         <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-t from-black/5 to-transparent blur-md opacity-20 rounded-full scale-x-75" />
       </motion.div>
 
       {/* 3. EFECTO SCANNER */}
       <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-xl">
         <motion.div
-          className="w-full h-[2px] bg-[var(--color-brand-primary)] shadow-[0_0_15px_var(--color-brand-primary)] opacity-0 group-hover:opacity-30"
+          className="w-full h-[2px] bg-[var(--color-brand-primary)] shadow-[0_0_15px_var(--color-brand-primary)] opacity-0 group-hover:opacity-40"
           initial={{ top: "0%" }}
           animate={{ top: ["0%", "100%", "0%"] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
@@ -167,10 +167,10 @@ export default function ProductShowcase() {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
               key={product.id}
-              // --- COLORES FORZADOS Y EXPLÍCITOS ---
-              // Light: bg-white (blanco puro)
-              // Dark: dark:bg-white/5 (vidrio oscuro)
-              className="group relative bg-white dark:bg-white/5 rounded-[2.5rem] p-5 flex flex-col items-center text-center transition-all duration-300 
+              // --- CORRECCIÓN DE COLOR ---
+              // 1. Light Mode: bg-white (sólido)
+              // 2. Dark Mode: bg-[#080808] (Negro sólido rico, NO transparente). Esto soluciona el problema en móviles.
+              className="group relative bg-white dark:bg-[#080808] rounded-[2.5rem] p-5 flex flex-col items-center text-center transition-all duration-300 
                          border border-gray-100 dark:border-white/10
                          hover:border-[var(--color-brand-primary)]/30 dark:hover:border-[var(--color-brand-primary)]/30
                          shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl hover:shadow-[var(--color-brand-primary)]/10"
@@ -182,7 +182,7 @@ export default function ProductShowcase() {
                  </span>
               )}
 
-              {/* FONDO ILUMINADO (Glow sutil al hacer hover) */}
+              {/* FONDO ILUMINADO (Glow sutil) */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--color-brand-primary)] rounded-full blur-[90px] opacity-0 group-hover:opacity-15 transition-opacity duration-700 pointer-events-none" />
 
               {/* IMAGEN */}
@@ -192,7 +192,7 @@ export default function ProductShowcase() {
 
               {/* INFO DEL PRODUCTO */}
               <div className="w-full px-1 relative z-10 mt-auto">
-                 {/* Lote (Scanline style) */}
+                 {/* Lote */}
                  <div className="flex items-center justify-center gap-2 mb-3 opacity-50 group-hover:opacity-100 transition-opacity">
                     <ScanLine className="w-3 h-3 text-[var(--color-brand-primary)]" />
                     <p className="text-[10px] uppercase tracking-widest font-mono text-[var(--text-muted)]">{product.lot}</p>
@@ -203,7 +203,7 @@ export default function ProductShowcase() {
                  </h3>
                  <p className="text-xs text-[var(--text-muted)] font-mono mb-6">{product.dose} • {product.category}</p>
                  
-                 {/* ZONA DE ACCIÓN: PRECIO Y BOTONES */}
+                 {/* ZONA DE ACCIÓN */}
                  <div className="border-t border-gray-100 dark:border-white/10 pt-5 w-full">
                     <div className="flex justify-between items-center mb-4">
                         <span className="text-xl font-bold text-[var(--text-main)] font-mono">
@@ -217,12 +217,11 @@ export default function ProductShowcase() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        {/* 1. BOTÓN MORE INFO */}
+                        {/* Botones */}
                         <button className="flex items-center justify-center gap-1.5 border border-gray-200 dark:border-white/20 text-[var(--text-muted)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-white/10 hover:text-[var(--text-main)] transition-colors">
                            <Info className="w-3.5 h-3.5" /> Info
                         </button>
                         
-                        {/* 2. BOTÓN ADD TO CART */}
                         <button className="flex items-center justify-center gap-1.5 bg-[var(--text-main)] text-[var(--bg-page)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg shadow-black/5 active:scale-95">
                            Add <Plus className="w-3.5 h-3.5" />
                         </button>
