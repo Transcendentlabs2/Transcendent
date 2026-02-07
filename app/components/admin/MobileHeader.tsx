@@ -1,18 +1,23 @@
 "use client";
+import Link from "next/link";
+import Image from "next/image";
 import { useAdmin } from "../../context/AdminContext";
-import { Menu, FlaskConical } from "lucide-react";
+import { Menu } from "lucide-react";
+import logo from "../../assets/logo.webp"; 
 
 export default function MobileHeader() {
   const { toggleSidebar } = useAdmin();
 
   return (
     <header className="lg:hidden h-16 border-b border-[var(--glass-border)] bg-[var(--bg-page)]/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-30">
-        <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-lg bg-[var(--color-brand-primary)]/20 flex items-center justify-center text-[var(--color-brand-primary)]">
-                <FlaskConical className="w-5 h-5" />
+        <Link href="/" className="flex items-center gap-3">
+             <div className="w-8 h-8 relative">
+                <Image src={logo} alt="Logo" fill className="object-contain" />
              </div>
-             <span className="font-display font-bold text-sm tracking-tight">TRANSCENDENT</span>
-        </div>
+             <span className="font-display font-bold text-sm tracking-tight text-[var(--text-main)]">
+                TRANSCENDENT <span className="text-[var(--text-muted)]">LABS</span>
+             </span>
+        </Link>
         
         <button 
           onClick={toggleSidebar}

@@ -54,15 +54,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = async () => {
-    // Aquí deberíamos llamar a una API de logout para borrar la cookie, 
-    // pero por ahora limpiamos el estado visual.
+const logout = async () => {
+    try {
+      // 1. Avisar al Backend para matar la cookie
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+
+    // 2. Limpieza Visual (Frontend)
     setUser(null);
     localStorage.removeItem("user_data");
     
-    // Borrar cookie visualmente (hack rápido)
-    document.cookie = "auth_token=; Max-Age=0; path=/;";
-    
+    // 3. Redirigir
     router.push("/");
     router.refresh();
   };
