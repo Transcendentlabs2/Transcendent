@@ -9,6 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enum para manejar roles (útil para tu panel administrativo)
+enum Role {
+  ADMIN
+  RESEARCHER
+}
+
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -19,8 +26,24 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-// Enum para manejar roles (útil para tu panel administrativo)
-enum Role {
-  ADMIN
-  RESEARCHER
+
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique // Para la URL: /product/nombre-producto
+  description String   @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  category    String
+  images      String   // URL de Cloudinary (podemos usar JSON si son varias, por ahora String simple)
+  
+  // Campos para la Landing Page / Ciencia
+  purity      String?  // Ej: "99.8% HPLC"
+  sequence    String?  // Ej: "Gly-Hys-Lys..."
+  benefits    String?  @db.Text // Lista de beneficios separados por comas
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
