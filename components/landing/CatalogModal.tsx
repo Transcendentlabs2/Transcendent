@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { X, Search, FlaskConical, Atom, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link"; // <--- IMPORTADO
 
 interface Product {
     id: string;
@@ -13,6 +14,7 @@ interface Product {
     stock: number;
     images: string;
     purity?: string;
+    slug: string; // <--- CORRECCIÓN: AGREGADO SLUG AL TIPO
     description?: string;
 }
 
@@ -98,8 +100,7 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                 />
             </div>
 
-            {/* Chips (Scroll FIXED) */}
-            {/* CORRECCIÓN AQUI: Agregado overflow-y-hidden, py-1, items-center y ocultar scrollbar manualmente */}
+            {/* Chips */}
             <div className="flex gap-2 overflow-x-auto overflow-y-hidden pb-2 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0 items-center py-1 [&::-webkit-scrollbar]:hidden scrollbar-hide">
                 {CATEGORIES.map(cat => (
                     <button
@@ -131,48 +132,54 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                         exit={{ opacity: 0, scale: 0.9 }}
                         transition={{ duration: 0.2 }}
                         key={product.id}
-                        className="group relative bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-4 flex gap-4 hover:bg-[var(--glass-border)]/50 transition-colors cursor-pointer active:scale-[0.98]"
+                        className="group relative bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl transition-colors active:scale-[0.98]"
                     >
-                        {/* Mini Imagen */}
-                        <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0 bg-[var(--bg-page)]/50 rounded-xl border border-[var(--glass-border)] flex items-center justify-center overflow-hidden">
-                            <Image 
-                                src={product.images} 
-                                alt={product.name} 
-                                fill 
-                                sizes="(max-width: 768px) 100px, 200px"
-                                className="object-contain p-1.5 group-hover:scale-110 transition-transform duration-500" 
-                            />
-                        </div>
+                        {/* ENLACE CLICABLE COMPLETO */}
+                        <Link 
+                            href={`/product/${product.slug}`}
+                            className="flex gap-4 p-4 w-full h-full"
+                        >
+                            {/* Mini Imagen */}
+                            <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0 bg-[var(--bg-page)]/50 rounded-xl border border-[var(--glass-border)] flex items-center justify-center overflow-hidden">
+                                <Image 
+                                    src={product.images} 
+                                    alt={product.name} 
+                                    fill 
+                                    sizes="(max-width: 768px) 100px, 200px"
+                                    className="object-contain p-1.5 group-hover:scale-110 transition-transform duration-500" 
+                                />
+                            </div>
 
-                        {/* Info */}
-                        <div className="flex flex-col flex-1 justify-center min-w-0">
-                             <div className="flex justify-between items-start">
-                                 <h4 className="font-bold text-[var(--text-main)] truncate text-sm md:text-base pr-2">{product.name}</h4>
-                                 <ArrowRight className="w-4 h-4 text-[var(--text-muted)] -rotate-45 group-hover:rotate-0 group-hover:text-[var(--color-brand-primary)] transition-all shrink-0" />
-                             </div>
-                             
-                             <p className="text-[9px] text-[var(--text-muted)] font-mono uppercase tracking-widest mb-1 truncate">
-                                {product.category}
-                             </p>
-                             
-                             <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-[var(--glass-border)] text-[var(--text-muted)] text-[9px] px-1.5 py-0.5 rounded-md font-bold truncate max-w-[120px]">
-                                    {product.purity || "99% Purity"}
-                                </span>
-                             </div>
-
-                             <div className="mt-auto flex justify-between items-end">
-                                 <span className="text-base md:text-lg font-bold text-[var(--color-brand-primary)] font-mono">
-                                     ${Number(product.price).toFixed(2)}
-                                 </span>
-                                 <div className="flex items-center gap-1">
-                                    <div className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
-                                    <span className="text-[9px] text-[var(--text-muted)]">
-                                        {product.stock > 0 ? "In Stock" : "Sold Out"}
+                            {/* Info */}
+                            <div className="flex flex-col flex-1 justify-center min-w-0">
+                                <div className="flex justify-between items-start">
+                                    <h4 className="font-bold text-[var(--text-main)] truncate text-sm md:text-base pr-2">{product.name}</h4>
+                                    <ArrowRight className="w-4 h-4 text-[var(--text-muted)] -rotate-45 group-hover:rotate-0 group-hover:text-[var(--color-brand-primary)] transition-all shrink-0" />
+                                </div>
+                                
+                                <p className="text-[9px] text-[var(--text-muted)] font-mono uppercase tracking-widest mb-1 truncate">
+                                    {product.category}
+                                </p>
+                                
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="bg-[var(--glass-border)] text-[var(--text-muted)] text-[9px] px-1.5 py-0.5 rounded-md font-bold truncate max-w-[120px]">
+                                        {product.purity || "99% Purity"}
                                     </span>
-                                 </div>
-                             </div>
-                        </div>
+                                </div>
+
+                                <div className="mt-auto flex justify-between items-end">
+                                    <span className="text-base md:text-lg font-bold text-[var(--color-brand-primary)] font-mono">
+                                        ${Number(product.price).toFixed(2)}
+                                    </span>
+                                    <div className="flex items-center gap-1">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
+                                        <span className="text-[9px] text-[var(--text-muted)]">
+                                            {product.stock > 0 ? "In Stock" : "Sold Out"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
                     </motion.div>
                 ))}
             </motion.div>

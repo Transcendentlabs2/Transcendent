@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, ArrowRight, ScanLine, Info, FlaskConical } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link"; // <--- IMPORTADO
 import CatalogModal from "./CatalogModal";
 
 interface Product {
@@ -13,14 +14,12 @@ interface Product {
   stock: number;
   images: string;
   purity?: string;
-  slug: string;
+  slug: string; // <--- CORRECCIÓN: AGREGADO SLUG AL TIPO
   description?: string;
 }
 
-// 1. DEFINIMOS LAS CATEGORÍAS VISUALES
 const CATEGORIES = ["All", "Research Peptides", "Nootropics", "Supplements", "SARMs"];
 
-// 2. CREAMOS EL MAPA DE TRADUCCIÓN (Visual -> Base de Datos)
 const CATEGORY_MAP: Record<string, string> = {
   "Research Peptides": "peptides",
   "Nootropics": "nootropics",
@@ -74,7 +73,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [isCatalogOpen, setCatalogOpen] = useState(false);
 
-  // 3. LÓGICA DE FILTRADO CORREGIDA
   const filteredProducts = activeCategory === "All" 
     ? products 
     : products.filter(p => p.category === CATEGORY_MAP[activeCategory]);
@@ -126,64 +124,69 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
                 key={product.id}
-                className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] p-5 flex flex-col items-center text-center transition-all duration-300 
+                // NOTA: Movimos las clases de layout internas al componente LINK
+                className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] transition-all duration-300 
                            bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-xl shadow-sm
                            hover:border-[var(--color-brand-primary)]/50 hover:shadow-[0_0_30px_var(--accent-glow)]"
               >
-                
-                {product.stock < 50 && (
-                   <span className="absolute top-5 right-5 z-30 bg-[var(--text-main)] text-[var(--bg-page)] text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
-                       HIGH DEMAND
-                   </span>
-                )}
+                {/* ENLACE CLICABLE COMPLETO */}
+                <Link 
+                    href={`/product/${product.slug}`}
+                    className="flex flex-col items-center text-center p-5 w-full h-full"
+                >
+                    {product.stock < 50 && (
+                    <span className="absolute top-5 right-5 z-30 bg-[var(--text-main)] text-[var(--bg-page)] text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
+                        HIGH DEMAND
+                    </span>
+                    )}
 
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--accent-glow)] rounded-full blur-[90px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--accent-glow)] rounded-full blur-[90px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-                <div className="relative z-10 w-full mb-2">
-                   <LabContainer image={product.images} name={product.name} />
-                </div>
+                    <div className="relative z-10 w-full mb-2">
+                        <LabContainer image={product.images} name={product.name} />
+                    </div>
 
-                <div className="w-full px-1 relative z-10 mt-auto">
-                   <div className="flex items-center justify-center gap-2 mb-3 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <ScanLine className="w-3 h-3 text-[var(--color-brand-primary)]" />
-                      <p className="text-[10px] uppercase tracking-widest font-mono text-[var(--text-muted)] truncate max-w-[100px]">
-                        REF: {product.slug.slice(0,8)}
-                      </p>
-                   </div>
-                   
-                   <h3 className="text-xl font-bold font-display text-[var(--text-main)] mb-1 leading-tight">
-                      {product.name}
-                   </h3>
-                   
-                   <p className="text-xs text-[var(--text-muted)] font-mono mb-6 flex items-center justify-center gap-2">
-                      <FlaskConical className="w-3 h-3" />
-                      {product.purity || "Premium Grade"} 
-                   </p>
-                   
-                   <div className="border-t border-[var(--glass-border)] pt-5 w-full">
-                      <div className="flex justify-between items-center mb-4">
-                          <span className="text-xl font-bold text-[var(--text-main)] font-mono">
-                             ${Number(product.price).toFixed(2)}
-                          </span>
-                          
-                          <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                              <span className="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400">In Stock</span>
-                          </div>
-                      </div>
+                    <div className="w-full px-1 relative z-10 mt-auto">
+                        <div className="flex items-center justify-center gap-2 mb-3 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <ScanLine className="w-3 h-3 text-[var(--color-brand-primary)]" />
+                            <p className="text-[10px] uppercase tracking-widest font-mono text-[var(--text-muted)] truncate max-w-[100px]">
+                                REF: {product.slug.slice(0,8)}
+                            </p>
+                        </div>
+                        
+                        <h3 className="text-xl font-bold font-display text-[var(--text-main)] mb-1 leading-tight">
+                            {product.name}
+                        </h3>
+                        
+                        <p className="text-xs text-[var(--text-muted)] font-mono mb-6 flex items-center justify-center gap-2">
+                            <FlaskConical className="w-3 h-3" />
+                            {product.purity || "Premium Grade"} 
+                        </p>
+                        
+                        <div className="border-t border-[var(--glass-border)] pt-5 w-full">
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="text-xl font-bold text-[var(--text-main)] font-mono">
+                                    ${Number(product.price).toFixed(2)}
+                                </span>
+                                
+                                <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <span className="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400">In Stock</span>
+                                </div>
+                            </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                          <button className="flex items-center justify-center gap-1.5 border border-[var(--glass-border)] text-[var(--text-muted)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--glass-border)] hover:text-[var(--text-main)] transition-colors">
-                             <Info className="w-3.5 h-3.5" /> Details
-                          </button>
-                          
-                          <button className="flex items-center justify-center gap-1.5 bg-[var(--text-main)] text-[var(--bg-page)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg active:scale-95">
-                             Add <Plus className="w-3.5 h-3.5" />
-                          </button>
-                      </div>
-                   </div>
-                </div>
-
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex items-center justify-center gap-1.5 border border-[var(--glass-border)] text-[var(--text-muted)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--glass-border)] hover:text-[var(--text-main)] transition-colors">
+                                    <Info className="w-3.5 h-3.5" /> Details
+                                </div>
+                                
+                                <div className="flex items-center justify-center gap-1.5 bg-[var(--text-main)] text-[var(--bg-page)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg active:scale-95">
+                                    Add <Plus className="w-3.5 h-3.5" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Link>
               </motion.div>
             ))
           ) : (
