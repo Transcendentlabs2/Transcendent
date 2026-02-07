@@ -21,6 +21,7 @@ export default function ProductManager({ products }: { products: any[] }) {
 
   return (
     <>
+      {/* Header de la sección */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
          <h2 className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-2">
             Database Entries
@@ -38,13 +39,19 @@ export default function ProductManager({ products }: { products: any[] }) {
 
       <ProductList products={products} onEdit={handleEdit} />
 
+      {/* --- MODAL SYSTEM --- */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:p-6">
+          
+          {/* Backdrop (Fondo oscuro) */}
           <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={() => setModalOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-4xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+          
+          {/* Contenedor del Formulario */}
+          {/* En mobile: w-full h-full (ocupa todo). En desktop: max-w-4xl redondeado. */}
+          <div className="relative z-10 w-full h-full sm:h-auto sm:max-w-4xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
              <ProductForm 
                 onClose={() => setModalOpen(false)} 
                 initialData={editingProduct} 
