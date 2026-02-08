@@ -47,7 +47,7 @@ export default function CartDrawer() {
             </div>
 
             {/* Lista de Productos */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
                   <ShoppingBag className="w-16 h-16 mb-4 text-[var(--text-muted)]" />
@@ -58,22 +58,39 @@ export default function CartDrawer() {
                   <motion.div 
                     layout
                     key={item.id} 
-                    className="flex gap-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-3 rounded-xl relative group"
+                    className="flex gap-3 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-3 rounded-xl relative group overflow-hidden"
                   >
                     {/* Imagen del Producto */}
-                    <div className="relative w-20 h-20 bg-[var(--bg-page)] rounded-lg overflow-hidden border border-[var(--glass-border)] shrink-0">
+                    <div className="relative w-20 h-24 bg-[var(--bg-page)] rounded-lg overflow-hidden border border-[var(--glass-border)] shrink-0">
                       <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
                     </div>
 
-                    {/* Información y Controles */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h4 className="font-bold text-sm text-[var(--text-main)] leading-tight mb-1">{item.name}</h4>
-                        <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{item.category}</p>
+                    {/* Contenedor de Info + Controles */}
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
+                      
+                      {/* Fila Superior: Nombre + Botón Eliminar (Flex para evitar solapamiento) */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="min-w-0">
+                            <h4 className="font-bold text-sm text-[var(--text-main)] leading-tight mb-1 line-clamp-2">
+                                {item.name}
+                            </h4>
+                            <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider truncate">
+                                {item.category}
+                            </p>
+                        </div>
+                        
+                        {/* Botón Eliminar (Ya no es absoluto, respeta el espacio) */}
+                        <button 
+                          onClick={() => removeItem(item.id)}
+                          className="text-red-400/60 hover:text-red-500 hover:bg-red-500/10 p-1.5 rounded-md transition-all shrink-0"
+                          aria-label="Remove item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                       
-                      {/* Control de Cantidad y Precio */}
-                      <div className="flex items-center justify-between">
+                      {/* Fila Inferior: Controles de Cantidad + Precio */}
+                      <div className="flex items-end justify-between mt-2">
                         <div className="flex items-center gap-3 bg-[var(--bg-page)] rounded-lg border border-[var(--glass-border)] px-2 py-1">
                           <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-[var(--text-muted)] hover:text-[var(--text-main)]">
                             <Minus className="w-3 h-3" />
@@ -88,14 +105,6 @@ export default function CartDrawer() {
                         </span>
                       </div>
                     </div>
-
-                    {/* Botón Eliminar (Visible en Hover) */}
-                    <button 
-                      onClick={() => removeItem(item.id)}
-                      className="absolute top-2 right-2 p-1.5 text-red-400 hover:bg-red-500/10 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
                   </motion.div>
                 ))
               )}
