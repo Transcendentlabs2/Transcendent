@@ -10,20 +10,17 @@ import { useEffect } from "react";
 export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartTotal } = useCart();
 
-  // ✅ FIX: Bloquear el scroll del body cuando el carrito está abierto
-  // Esto elimina el "doble scroll" o scroll fantasma de fondo
+  // 🔒 BLOQUEO DE SCROLL DEL BODY
   useEffect(() => {
     if (isCartOpen) {
+      // Al abrir: Bloqueamos el scroll del body
       document.body.style.overflow = "hidden";
-      // Opcional: Prevenir el 'bounce' en iOS
-      document.body.style.touchAction = "none";
     } else {
+      // Al cerrar: Restauramos
       document.body.style.overflow = "";
-      document.body.style.touchAction = "";
     }
     return () => {
       document.body.style.overflow = "";
-      document.body.style.touchAction = "";
     };
   }, [isCartOpen]);
 
@@ -31,22 +28,22 @@ export default function CartDrawer() {
     <AnimatePresence>
       {isCartOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop Oscuro */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleCart}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            // ✅ FIX 1: touch-none evita que gestos en el fondo muevan la página
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] touch-none"
           />
 
-          {/* Panel */}
+          {/* Panel Lateral */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            // ✅ FIX: h-[100dvh] asegura que la altura sea EXACTA a la pantalla visible del móvil
             className="fixed top-0 right-0 h-[100dvh] w-full max-w-md bg-[var(--bg-page)]/95 backdrop-blur-xl border-l border-[var(--glass-border)] shadow-2xl z-[101] flex flex-col"
           >
             {/* Header */}
@@ -65,15 +62,14 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            {/* Content */}
-            {/* ✅ FIX: min-h-0 permite que el flex container haga scroll correctamente si se desborda */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
+            {/* Content List */}
+            {/* ✅ FIX 2: 'overscroll-y-contain' es la magia que evita que se mueva la página de atrás al llegar al final del scroll */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0 overscroll-y-contain">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
                   <ShoppingBag className="w-16 h-16 text-[var(--text-muted)]" />
                   <p className="text-sm font-mono uppercase tracking-widest">Cart Empty</p>
                   
-                  {/* Botón para ir al Catálogo si está vacío */}
                   <Link href="/#catalog" onClick={toggleCart}>
                     <button className="px-6 py-2 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-full text-xs font-bold uppercase tracking-wider hover:bg-[var(--text-main)] hover:text-[var(--bg-page)] transition-colors">
                         Browse Protocols
@@ -92,7 +88,7 @@ export default function CartDrawer() {
                       <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
                     </div>
 
-                    {/* Info */}
+                    {/* Info + Controles */}
                     <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div className="flex justify-between items-start gap-2">
                         <div className="min-w-0">
@@ -135,7 +131,6 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="p-6 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/50 space-y-4 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                 
-                {/* Total */}
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold uppercase text-[var(--text-muted)] tracking-widest">Total Estimated</span>
                   <span className="text-2xl font-mono font-bold text-[var(--text-main)]">
@@ -143,13 +138,11 @@ export default function CartDrawer() {
                   </span>
                 </div>
 
-                {/* Secure Badge */}
                 <div className="flex items-center justify-center gap-2 text-[10px] text-[var(--text-muted)] bg-emerald-500/5 py-2 rounded border border-emerald-500/10">
                    <ShieldCheck className="w-3 h-3 text-emerald-500" />
                    <span>Secure Encrypted Checkout</span>
                 </div>
 
-                {/* Botones de Acción */}
                 <div className="grid gap-3">
                     <Link href="/checkout" onClick={toggleCart}>
                         <button className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-2 group">
@@ -158,7 +151,6 @@ export default function CartDrawer() {
                         </button>
                     </Link>
                     
-                    {/* Botón "Seguir Comprando" */}
                     <Link href="/#catalog" onClick={toggleCart} className="w-full">
                         <button className="w-full py-3 rounded-xl font-bold uppercase tracking-widest text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--glass-border)] transition-colors flex items-center justify-center gap-2">
                             <ChevronLeft className="w-3 h-3" />
