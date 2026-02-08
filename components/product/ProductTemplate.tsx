@@ -55,12 +55,14 @@ export default function ProductTemplate({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const { scrollYProgress } = useScroll();
   
-  // Parallax suave para la imagen
-  const yImage = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  // Parallax suave para la imagen (solo en desktop se notará más el efecto sticky, pero aquí añade dinamismo)
+  const yImage = useTransform(scrollYProgress, [0, 1], [0, 50]);
 
   return (
     <>
       <Navbar />
+      
+      {/* 1. BARRA DE URGENCIA (Debajo del Navbar fijo) */}
       <div className="pt-20"><UrgencyBanner /></div>
 
       <div className="relative min-h-screen w-full overflow-hidden bg-[var(--bg-page)] text-[var(--text-main)]">
@@ -83,7 +85,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                     <BioScannerRing />
                 </div>
 
-                {/* Imagen Producto */}
+                {/* Imagen Producto con Parallax */}
                 <motion.div 
                   style={{ y: yImage }}
                   initial={{ scale: 0.8, opacity: 0, filter: "blur(10px)" }}
@@ -145,7 +147,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                    </span>
                 </div>
 
-                {/* Specs Component */}
+                {/* Scientific Specs Component */}
                 <div className="mb-10">
                    <ScientificSpecs purity={product.purity || "99% HPLC"} category={product.category} />
                 </div>
@@ -156,7 +158,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                       <Info className="w-3 h-3" /> Technical Abstract
                    </h3>
                    
-                   {/* CAMBIO: Columnas para look de revista */}
+                   {/* Layout de Revista: Columnas + Letra Capital */}
                    <div className="prose prose-sm prose-invert max-w-none text-[var(--text-muted)] leading-relaxed columns-1 md:columns-2 gap-8 [column-rule:1px_solid_var(--glass-border)]">
                       <p className="first-letter:text-3xl first-letter:font-bold first-letter:text-[var(--text-main)] first-letter:float-left first-letter:mr-2">
                          {product.description}
@@ -170,15 +172,18 @@ export default function ProductTemplate({ product }: { product: Product }) {
                 {/* Purchase Interface (Panel Flotante Desktop / Integrado Móvil) */}
                 <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] p-6 rounded-2xl shadow-xl lg:sticky lg:bottom-10 z-30 backdrop-blur-md">
                    
+                   {/* Stock Meter */}
                    <StockMeter stock={product.stock} />
                    
                    <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                      {/* Selector Cantidad */}
                       <div className="flex items-center justify-between sm:justify-start bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-lg px-4 h-14 sm:w-40">
                          <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">-</button>
                          <span className="font-mono font-bold text-lg">{qty}</span>
                          <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">+</button>
                       </div>
                       
+                      {/* Botón CTA */}
                       <button className="flex-1 bg-[var(--text-main)] text-[var(--bg-page)] h-14 rounded-lg font-bold uppercase tracking-wider text-sm hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group">
                          <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
                          <span>Acquire Sample</span>
@@ -200,6 +205,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
           </div>
         </main>
 
+        {/* Sección de Reviews */}
         <section className="relative z-10 max-w-7xl mx-auto px-6 py-24 border-t border-[var(--glass-border)] bg-[var(--bg-page)]">
            <div className="flex items-center justify-center gap-4 mb-12">
               <div className="h-px w-10 bg-[var(--glass-border)]" />
@@ -211,6 +217,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
 
       </div>
       
+      {/* Sticky Mobile CTA (Solo visible en móviles) */}
       <StickyPurchase product={product} qty={qty} />
       <Footer />
     </>
