@@ -5,9 +5,27 @@ import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, ChevronLe
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartTotal } = useCart();
+
+  // ✅ FIX: Bloquear el scroll del body cuando el carrito está abierto
+  // Esto elimina el "doble scroll" o scroll fantasma de fondo
+  useEffect(() => {
+    if (isCartOpen) {
+      document.body.style.overflow = "hidden";
+      // Opcional: Prevenir el 'bounce' en iOS
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [isCartOpen]);
 
   return (
     <AnimatePresence>
@@ -28,10 +46,11 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-[var(--bg-page)]/95 backdrop-blur-xl border-l border-[var(--glass-border)] shadow-2xl z-[101] flex flex-col"
+            // ✅ FIX: h-[100dvh] asegura que la altura sea EXACTA a la pantalla visible del móvil
+            className="fixed top-0 right-0 h-[100dvh] w-full max-w-md bg-[var(--bg-page)]/95 backdrop-blur-xl border-l border-[var(--glass-border)] shadow-2xl z-[101] flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[var(--glass-border)]">
+            <div className="flex items-center justify-between p-6 border-b border-[var(--glass-border)] shrink-0">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg text-[var(--color-brand-primary)]">
                     <ShoppingBag className="w-5 h-5" />
@@ -47,7 +66,8 @@ export default function CartDrawer() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* ✅ FIX: min-h-0 permite que el flex container haga scroll correctamente si se desborda */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
                   <ShoppingBag className="w-16 h-16 text-[var(--text-muted)]" />
@@ -113,7 +133,7 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="p-6 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/50 space-y-4">
+              <div className="p-6 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/50 space-y-4 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                 
                 {/* Total */}
                 <div className="flex justify-between items-center">
