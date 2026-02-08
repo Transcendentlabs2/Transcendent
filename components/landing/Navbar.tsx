@@ -4,15 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import logo from "@/app/assets/logo.webp"; // Asegúrate de que la ruta sea correcta
-import { useCart } from "@/context/CartContext"; // ✅ IMPORTANTE: Hook del carrito
+import Link from "next/link"; // ✅ 1. IMPORTAMOS LINK
+import logo from "@/app/assets/logo.webp"; 
+import { useCart } from "@/context/CartContext"; 
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
-  // ✅ USAR HOOK DEL CARRITO
   const { toggleCart, cartCount } = useCart();
   
   const lastScrollY = useRef(0);
@@ -32,7 +32,7 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  // 2. Lógica de Scroll (Ocultar al bajar, mostrar al subir)
+  // 2. Lógica de Scroll
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -54,22 +54,27 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Función para scroll suave en anchors de la misma página
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    const targetId = href.replace("#", "");
-    const element = document.getElementById(targetId);
-    if (element) {
-      setMobileOpen(false);
-      element.scrollIntoView({ behavior: "smooth" });
+    // Si es solo un hash (#), intentamos hacer scroll
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const targetId = href.replace("#", "");
+      const element = document.getElementById(targetId);
+      if (element) {
+        setMobileOpen(false);
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
+    // Si no (ej: rutas externas), dejamos que Link actúe normal
   };
 
   const navLinks = [
-    { name: "Catalog", href: "#catalog" },
-    { name: "Verify Batch", href: "#verification" },
-    { name: "Calculator", href: "#calculator" },
-    { name: "Science", href: "#science" },
-    { name: "FAQ", href: "#faq" },
+    { name: "Catalog", href: "/#catalog" }, // ✅ Ajustado para funcionar desde /product/
+    { name: "Verify Batch", href: "/#verification" },
+    { name: "Calculator", href: "/#calculator" },
+    { name: "Science", href: "/#science" },
+    { name: "FAQ", href: "/#faq" },
   ];
 
   const showNavbar = isVisible || mobileOpen;
@@ -88,11 +93,11 @@ export default function Navbar() {
         
         {/* --- LEFT: BRANDING --- */}
         <div className="flex items-center gap-4">
-            <a 
-                href="#"
-                onClick={(e) => handleScrollTo(e, "#hero")}
+            
+            {/* ✅ LOGO: LINK A HOME */}
+            <Link 
+                href="/" 
                 className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 cursor-pointer hover:scale-105 transition-transform"
-                style={{ WebkitTapHighlightColor: "transparent" }}
             >
                 <Image 
                     src={logo} 
@@ -101,12 +106,13 @@ export default function Navbar() {
                     className="object-contain"
                     priority
                 />
-            </a>
+            </Link>
 
             <div className={`hidden md:block h-8 w-[1px] bg-[var(--text-muted)] opacity-20`} />
 
-            <div className="flex flex-col justify-center">
-                <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-[var(--text-main)] mb-1.5 transition-colors">
+            {/* ✅ TEXTO: LINK A HOME */}
+            <Link href="/" className="flex flex-col justify-center cursor-pointer group">
+                <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-[var(--text-main)] mb-1.5 transition-colors group-hover:text-[var(--color-brand-primary)]">
                     TRANSCENDENT
                 </span>
                 
@@ -115,21 +121,22 @@ export default function Navbar() {
                         Labs & Research
                     </span>
                 </div>
-            </div>
+            </Link>
         </div>
 
         {/* --- CENTER: NAVIGATION (Desktop) --- */}
         <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.name}
               href={link.href}
-              onClick={(e) => handleScrollTo(e, link.href)}
+              // Si estamos en home, hacemos scroll suave, si no, navega
+              onClick={(e) => handleScrollTo(e as any, link.href)}
               className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors py-2 relative group cursor-pointer"
             >
               {link.name}
               <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-brand-primary)] transition-all duration-300 group-hover:w-full" />
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -140,13 +147,11 @@ export default function Navbar() {
                  <Search className="w-5 h-5" />
               </button>
               
-              {/* BOTÓN CARRITO DESKTOP CONECTADO */}
               <button 
                 onClick={toggleCart} 
                 className="relative p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors group cursor-pointer"
               >
                  <ShoppingCart className="w-5 h-5 group-hover:text-[var(--color-brand-primary)] transition-colors" />
-                 {/* Badge Contador */}
                  {cartCount > 0 && (
                     <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-[var(--bg-page)] animate-bounce">
                         {cartCount}
@@ -178,14 +183,14 @@ export default function Navbar() {
           >
             <div className="p-6 flex flex-col gap-4 pb-20"> 
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.name}
                   href={link.href}
                   className="text-lg font-bold text-[var(--text-main)] py-4 border-b border-[var(--glass-border)] last:border-0 active:text-[var(--color-brand-primary)] transition-colors"
-                  onClick={(e) => handleScrollTo(e, link.href)}
+                  onClick={(e) => handleScrollTo(e as any, link.href)}
                 >
                   {link.name}
-                </a>
+                </Link>
               ))}
               
               <div className="flex items-center gap-4 mt-4 pt-6 border-t border-[var(--glass-border)]">
@@ -193,11 +198,10 @@ export default function Navbar() {
                     <Search className="w-5 h-5" /> Search
                  </button>
                  
-                 {/* BOTÓN CARRITO MÓVIL CONECTADO */}
                  <button 
                     onClick={() => {
-                        setMobileOpen(false); // Cierra menú
-                        toggleCart(); // Abre carrito
+                        setMobileOpen(false);
+                        toggleCart();
                     }}
                     className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] rounded-lg font-bold text-sm active:scale-95 transition-transform relative"
                  >

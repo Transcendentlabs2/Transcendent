@@ -13,7 +13,7 @@ export default function CartDrawer() {
     <AnimatePresence>
       {isCartOpen && (
         <>
-          {/* Backdrop Oscuro */}
+          {/* Backdrop Oscuro (Cierra al hacer click fuera) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -22,7 +22,7 @@ export default function CartDrawer() {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
           />
 
-          {/* Panel Lateral */}
+          {/* Panel Lateral Deslizante */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -30,7 +30,7 @@ export default function CartDrawer() {
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed top-0 right-0 h-full w-full max-w-md bg-[var(--bg-page)]/95 backdrop-blur-xl border-l border-[var(--glass-border)] shadow-2xl z-[101] flex flex-col"
           >
-            {/* Header */}
+            {/* Header del Carrito */}
             <div className="flex items-center justify-between p-6 border-b border-[var(--glass-border)]">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg text-[var(--color-brand-primary)]">
@@ -60,18 +60,19 @@ export default function CartDrawer() {
                     key={item.id} 
                     className="flex gap-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-3 rounded-xl relative group"
                   >
-                    {/* Imagen */}
+                    {/* Imagen del Producto */}
                     <div className="relative w-20 h-20 bg-[var(--bg-page)] rounded-lg overflow-hidden border border-[var(--glass-border)] shrink-0">
                       <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
                     </div>
 
-                    {/* Info */}
+                    {/* Información y Controles */}
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <h4 className="font-bold text-sm text-[var(--text-main)] leading-tight mb-1">{item.name}</h4>
                         <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{item.category}</p>
                       </div>
                       
+                      {/* Control de Cantidad y Precio */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3 bg-[var(--bg-page)] rounded-lg border border-[var(--glass-border)] px-2 py-1">
                           <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-[var(--text-muted)] hover:text-[var(--text-main)]">
@@ -88,7 +89,7 @@ export default function CartDrawer() {
                       </div>
                     </div>
 
-                    {/* Eliminar */}
+                    {/* Botón Eliminar (Visible en Hover) */}
                     <button 
                       onClick={() => removeItem(item.id)}
                       className="absolute top-2 right-2 p-1.5 text-red-400 hover:bg-red-500/10 rounded-md transition-colors opacity-0 group-hover:opacity-100"

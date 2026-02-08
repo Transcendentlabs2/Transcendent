@@ -3,16 +3,12 @@ import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Inicializamos estado sin valor para evitar errores de hidratación
   const [theme, setTheme] = useState<string | null>(null);
 
   useEffect(() => {
-    // CAMBIO AQUÍ: Si no hay nada guardado, usa "light" en vez de "dark"
     const savedTheme = localStorage.getItem("theme") || "light"; 
-    
     setTheme(savedTheme);
     
-    // Aplicar la configuración inicial
     const root = document.documentElement;
     root.setAttribute("data-theme", savedTheme);
     
@@ -24,14 +20,12 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   }, []);
 
   const toggleTheme = () => {
-    // Si todavía no se ha cargado el tema (null), no hagas nada
     if (!theme) return;
 
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
 
-    // Aplicar el cambio al DOM
     const root = document.documentElement;
     root.setAttribute("data-theme", newTheme);
     
@@ -42,12 +36,15 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     }
   };
 
-  // Evitar renderizado hasta que esté montado para prevenir Flash of Unstyled Content
   if (!theme) return <>{children}</>;
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-[100]">
+      {/* CAMBIO: Agregado ID y clases de transición */}
+      <div 
+        id="theme-toggle-btn"
+        className="fixed bottom-6 right-6 z-[100] transition-transform duration-500 ease-in-out will-change-transform"
+      >
         <button 
            onClick={toggleTheme} 
            className="p-4 rounded-full border border-[var(--glass-border)] bg-[var(--bg-page)]/80 backdrop-blur-md shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-110 hover:border-[var(--color-brand-primary)] transition-all duration-300 cursor-pointer text-[var(--text-main)] group"

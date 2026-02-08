@@ -29,7 +29,10 @@ export default function ScientificSpecs({ purity, category }: { purity: string, 
             <span className="text-[9px] font-mono uppercase tracking-widest text-[var(--text-muted)]">0{i + 1}</span>
           </div>
           <h4 className="text-[10px] uppercase text-[var(--text-muted)] tracking-wider mb-1">{spec.label}</h4>
-          <p className="text-sm font-bold font-mono text-[var(--text-main)] truncate">{spec.value}</p>
+          {/* CAMBIO: Quitado 'truncate', agregado 'break-words text-left' para que baje de línea si es largo */}
+          <p className="text-sm font-bold font-mono text-[var(--text-main)] break-words text-left leading-tight">
+            {spec.value}
+          </p>
         </motion.div>
       ))}
     </div>

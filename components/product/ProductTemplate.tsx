@@ -27,40 +27,79 @@ interface Product {
   images: string;
   purity?: string;
   description: string;
-  slug: string; // ✅ CORRECCIÓN: Agregado slug para evitar error de TS
+  slug: string; 
 }
 
-// --- SVG ANIMADO: BIO-SCANNER HUD ---
+// --- SVG ANIMADO MEJORADO: REACTOR CORE HUD ---
+// Mas complejo, con filtros de brillo y múltiples capas de rotación
 const BioScannerRing = () => (
   <svg className="absolute inset-0 w-full h-full pointer-events-none text-[var(--color-brand-primary)] overflow-visible" viewBox="0 0 600 600">
     <defs>
+      {/* Filtro de Resplandor (Glow) */}
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+      
+      {/* Gradiente del Escáner */}
       <linearGradient id="scanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
-        <stop offset="50%" stopColor="currentColor" stopOpacity="0.3" />
+        <stop offset="50%" stopColor="currentColor" stopOpacity="0.5" />
         <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
       </linearGradient>
     </defs>
-    {/* Anillos y Efectos */}
-    <motion.circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.1" strokeDasharray="40 10" strokeLinecap="round" animate={{ rotate: 360 }} transition={{ duration: 120, repeat: Infinity, ease: "linear" }} />
-    <motion.circle cx="300" cy="300" r="230" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.2" strokeDasharray="10 30" animate={{ rotate: -360 }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }} />
-    <motion.path d="M 300 80 A 220 220 0 0 1 520 300" stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity="0.3" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.3 }} transition={{ duration: 2, ease: "easeInOut" }} />
-    <motion.path d="M 300 520 A 220 220 0 0 1 80 300" stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity="0.3" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.3 }} transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }} />
+
+    {/* 1. ESTRUCTURA ESTÁTICA (Miras y Guías) */}
+    <circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.1" strokeDasharray="4 4" />
     <line x1="300" y1="20" x2="300" y2="50" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
     <line x1="300" y1="550" x2="300" y2="580" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
     <line x1="20" y1="300" x2="50" y2="300" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
     <line x1="550" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
-    <motion.rect x="150" y="0" width="300" height="40" fill="url(#scanGradient)" initial={{ y: 100, opacity: 0 }} animate={{ y: [100, 500, 100], opacity: [0, 0.5, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }} />
+
+    {/* 2. ANILLO EXTERNO LENTO (Contención) */}
+    <motion.g animate={{ rotate: 360 }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }} style={{ originX: "300px", originY: "300px" }}>
+      <circle cx="300" cy="300" r="260" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.2" strokeDasharray="40 140" strokeLinecap="round" />
+    </motion.g>
+
+    {/* 3. ANILLO INTERNO RÁPIDO (Giroscopio) */}
+    <motion.g animate={{ rotate: -360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} style={{ originX: "300px", originY: "300px" }}>
+      <circle cx="300" cy="300" r="230" stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity="0.3" strokeDasharray="10 30 50 30" />
+    </motion.g>
+
+    {/* 4. SOPORTES CENTRALES (Pulsan y Brillan) */}
+    <motion.g 
+        animate={{ scale: [1, 1.02, 1], opacity: [0.6, 1, 0.6] }} 
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} 
+        style={{ originX: "300px", originY: "300px" }}
+    >
+        {/* Esquinas con Glow */}
+        <path d="M 200 200 L 180 200 L 180 180" stroke="currentColor" strokeWidth="3" fill="none" filter="url(#glow)" />
+        <path d="M 400 200 L 420 200 L 420 180" stroke="currentColor" strokeWidth="3" fill="none" filter="url(#glow)" />
+        <path d="M 200 400 L 180 400 L 180 420" stroke="currentColor" strokeWidth="3" fill="none" filter="url(#glow)" />
+        <path d="M 400 400 L 420 400 L 420 420" stroke="currentColor" strokeWidth="3" fill="none" filter="url(#glow)" />
+        
+        {/* Arcos internos */}
+        <path d="M 300 100 A 200 200 0 0 1 500 300" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.3" strokeDasharray="5 5" />
+        <path d="M 300 500 A 200 200 0 0 1 100 300" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.3" strokeDasharray="5 5" />
+    </motion.g>
+
+    {/* 5. ESCÁNER LÁSER VERTICAL (Barrido) */}
+    <motion.rect
+      x="0" y="0" width="600" height="60"
+      fill="url(#scanGradient)"
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: [0, 540, 0], opacity: [0, 0.6, 0] }}
+      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+    />
   </svg>
 );
 
-// ✅ FUNCIÓN CORRECTORA DE TEXTO: Convierte **texto** en Negrita y limpia el formato
+// FUNCIÓN CORRECTORA DE TEXTO
 const formatDescription = (text: string) => {
   if (!text) return null;
-  // Divide el texto encontrando los **bloques**
   const parts = text.split(/(\*\*.*?\*\*)/g);
   return parts.map((part, index) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      // Retorna el texto sin asteriscos y con clase bold
       return <strong key={index} className="text-[var(--text-main)] font-bold">{part.slice(2, -2)}</strong>;
     }
     return <span key={index}>{part}</span>;
@@ -122,7 +161,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                    )}
                 </div>
 
-                {/* Título Corregido: leading-tight para evitar cortes */}
+                {/* Título Corregido */}
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black leading-tight tracking-tighter mb-4 lg:mb-6 text-transparent bg-clip-text bg-gradient-to-br from-[var(--text-main)] to-[var(--text-muted)] pb-2">
                    {product.name}
                 </h1>
@@ -137,7 +176,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                    <ScientificSpecs purity={product.purity || "99% HPLC"} category={product.category} />
                 </div>
 
-                {/* Descripción Mejorada: Justificada y Formateada */}
+                {/* Descripción */}
                 <div className="mb-12">
                    <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] mb-4 flex items-center gap-2">
                       <Info className="w-3 h-3" /> Technical Abstract
@@ -182,7 +221,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
           </div>
         </main>
 
-        {/* Reviews sin Scrollbar */}
+        {/* Reviews */}
         <section className="relative z-10 max-w-7xl mx-auto px-6 py-24 border-t border-[var(--glass-border)] bg-[var(--bg-page)]">
            <div className="flex items-center justify-center gap-4 mb-12">
               <div className="h-px w-10 bg-[var(--glass-border)]" />
