@@ -10,17 +10,27 @@ import { useEffect } from "react";
 export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartTotal } = useCart();
 
-  // 🔒 BLOQUEO DE SCROLL DEL BODY
+  // 🔒 BLOQUEO DE SCROLL TOTAL (BODY + HTML)
   useEffect(() => {
     if (isCartOpen) {
-      // Al abrir: Bloqueamos el scroll del body
+      // 1. Bloquear scroll en ambas etiquetas (Crucial para móviles)
       document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden"; 
+      
+      // 2. Prevenir gestos táctiles fuera del drawer
+      document.body.style.touchAction = "none";
     } else {
-      // Al cerrar: Restauramos
+      // Restaurar todo
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.touchAction = "";
     }
+
+    // Limpieza al desmontar
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.touchAction = "";
     };
   }, [isCartOpen]);
 
@@ -34,7 +44,7 @@ export default function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleCart}
-            // ✅ FIX 1: touch-none evita que gestos en el fondo muevan la página
+            // touch-none: Evita que el dedo "atraviese" el fondo oscuro y mueva la página
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] touch-none"
           />
 
@@ -44,6 +54,7 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            // h-[100dvh]: Altura dinámica exacta para móviles
             className="fixed top-0 right-0 h-[100dvh] w-full max-w-md bg-[var(--bg-page)]/95 backdrop-blur-xl border-l border-[var(--glass-border)] shadow-2xl z-[101] flex flex-col"
           >
             {/* Header */}
@@ -63,7 +74,7 @@ export default function CartDrawer() {
             </div>
 
             {/* Content List */}
-            {/* ✅ FIX 2: 'overscroll-y-contain' es la magia que evita que se mueva la página de atrás al llegar al final del scroll */}
+            {/* overscroll-y-contain: Evita el "Scroll Chaining" al llegar al final de la lista */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0 overscroll-y-contain">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
