@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ShoppingCart, ArrowRight, Microscope, Info, AlertTriangle, Activity, Database } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ShoppingCart, ArrowRight, Microscope, Info } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -26,267 +26,167 @@ interface Product {
   images: string;
   purity?: string;
   description: string;
-  slug: string;
+  slug: string; // ✅ CORRECCIÓN: Agregado slug para evitar error de TS
 }
 
-// --- 1. SVGs ANIMADOS DISRUPTIVOS (CUSTOM LAB ASSETS) ---
-
-const RotatingMolecule = () => (
-  <svg viewBox="0 0 200 200" className="w-full h-full text-[var(--color-brand-primary)] opacity-20">
-    <motion.g animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }}>
-      <circle cx="100" cy="100" r="40" stroke="currentColor" strokeWidth="1" fill="none" strokeDasharray="5 5" />
-      <circle cx="100" cy="100" r="70" stroke="currentColor" strokeWidth="1" fill="none" opacity="0.5" />
-      <motion.circle cx="100" cy="30" r="5" fill="currentColor" animate={{ r: [5, 8, 5] }} transition={{ duration: 2, repeat: Infinity }} />
-      <motion.circle cx="100" cy="170" r="5" fill="currentColor" animate={{ r: [5, 8, 5] }} transition={{ duration: 2, repeat: Infinity, delay: 1 }} />
-      <motion.circle cx="30" cy="100" r="5" fill="currentColor" animate={{ r: [5, 8, 5] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }} />
-      <motion.circle cx="170" cy="100" r="5" fill="currentColor" animate={{ r: [5, 8, 5] }} transition={{ duration: 2, repeat: Infinity, delay: 1.5 }} />
-      <line x1="100" y1="30" x2="100" y2="170" stroke="currentColor" strokeWidth="1" />
-      <line x1="30" y1="100" x2="170" y2="100" stroke="currentColor" strokeWidth="1" />
-    </motion.g>
+// --- SVG ANIMADO: BIO-SCANNER HUD ---
+const BioScannerRing = () => (
+  <svg className="absolute inset-0 w-full h-full pointer-events-none text-[var(--color-brand-primary)] overflow-visible" viewBox="0 0 600 600">
+    <defs>
+      <linearGradient id="scanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
+        <stop offset="50%" stopColor="currentColor" stopOpacity="0.3" />
+        <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    {/* Anillos y Efectos */}
+    <motion.circle cx="300" cy="300" r="280" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.1" strokeDasharray="40 10" strokeLinecap="round" animate={{ rotate: 360 }} transition={{ duration: 120, repeat: Infinity, ease: "linear" }} />
+    <motion.circle cx="300" cy="300" r="230" stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.2" strokeDasharray="10 30" animate={{ rotate: -360 }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }} />
+    <motion.path d="M 300 80 A 220 220 0 0 1 520 300" stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity="0.3" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.3 }} transition={{ duration: 2, ease: "easeInOut" }} />
+    <motion.path d="M 300 520 A 220 220 0 0 1 80 300" stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity="0.3" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.3 }} transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }} />
+    <line x1="300" y1="20" x2="300" y2="50" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+    <line x1="300" y1="550" x2="300" y2="580" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+    <line x1="20" y1="300" x2="50" y2="300" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+    <line x1="550" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+    <motion.rect x="150" y="0" width="300" height="40" fill="url(#scanGradient)" initial={{ y: 100, opacity: 0 }} animate={{ y: [100, 500, 100], opacity: [0, 0.5, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }} />
   </svg>
 );
 
-const TechGridBackground = () => (
-  <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.05]" 
-       style={{ 
-         backgroundImage: 'linear-gradient(var(--text-main) 1px, transparent 1px), linear-gradient(90deg, var(--text-main) 1px, transparent 1px)', 
-         backgroundSize: '4rem 4rem' 
-       }} 
-  />
-);
-
-const CornerBrackets = () => (
-  <>
-    <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[var(--text-main)] z-20" />
-    <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[var(--text-main)] z-20" />
-    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[var(--text-main)] z-20" />
-    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[var(--text-main)] z-20" />
-  </>
-);
-
-// --- 2. LOGICA DE FORMATEO ---
-
+// ✅ FUNCIÓN CORRECTORA DE TEXTO: Convierte **texto** en Negrita y limpia el formato
 const formatDescription = (text: string) => {
   if (!text) return null;
+  // Divide el texto encontrando los **bloques**
   const parts = text.split(/(\*\*.*?\*\*)/g);
   return parts.map((part, index) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={index} className="text-[var(--color-brand-primary)] font-bold tracking-tight">{part.slice(2, -2)}</strong>;
+      // Retorna el texto sin asteriscos y con clase bold
+      return <strong key={index} className="text-[var(--text-main)] font-bold">{part.slice(2, -2)}</strong>;
     }
     return <span key={index}>{part}</span>;
   });
 };
 
-// --- 3. COMPONENTE PRINCIPAL ---
-
 export default function ProductTemplate({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const { scrollYProgress } = useScroll();
-  const yParallax = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const rotateParallax = useTransform(scrollYProgress, [0, 1], [0, 15]);
+  const yImage = useTransform(scrollYProgress, [0, 1], [0, 50]);
 
   return (
-    <div className="bg-[var(--bg-page)] text-[var(--text-main)] min-h-screen selection:bg-[var(--color-brand-primary)] selection:text-white">
+    <>
       <Navbar />
-      
-      <div className="pt-24 lg:pt-28">
-        <UrgencyBanner />
-      </div>
+      <div className="pt-20"><UrgencyBanner /></div>
 
-      <main className="relative max-w-[1800px] mx-auto border-x border-[var(--glass-border)] bg-[var(--bg-page)] shadow-2xl overflow-hidden">
+      <div className="relative min-h-screen w-full overflow-hidden bg-[var(--bg-page)] text-[var(--text-main)]">
         
-        {/* Fondo Global */}
-        <TechGridBackground />
+        {/* Fondo Sutil */}
+        <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(var(--text-main) 1px, transparent 1px), linear-gradient(90deg, var(--text-main) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-        {/* --- GRID MAESTRA (Layout Brutalista) --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-screen">
-
-          {/* === SECCIÓN IZQUIERDA: VISUALIZADOR DE MUESTRA (7 cols) === */}
-          <section className="relative lg:col-span-7 border-b lg:border-b-0 lg:border-r border-[var(--glass-border)] h-[60vh] lg:h-auto lg:min-h-screen flex flex-col justify-between p-6 lg:p-12 overflow-hidden group">
-            
-            {/* Elementos Decorativos de Fondo */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] pointer-events-none">
-               <RotatingMolecule />
-            </div>
-
-            {/* Header del Visualizador */}
-            <div className="relative z-20 flex justify-between items-start font-mono text-xs tracking-widest uppercase opacity-70">
-              <div className="flex flex-col gap-1">
-                 <span className="bg-[var(--text-main)] text-[var(--bg-page)] px-2 py-0.5 font-bold">Fig. 01</span>
-                 <span>Visual_Reference</span>
-              </div>
-              <div className="text-right">
-                <span className="block text-[var(--color-brand-primary)]">Scanner: Active</span>
-                <span className="block">{product.slug.toUpperCase()}</span>
-              </div>
-            </div>
-
-            {/* IMAGEN PRINCIPAL */}
-            <div className="relative z-10 flex-1 flex items-center justify-center py-10">
-              <motion.div 
-                style={{ y: yParallax, rotate: rotateParallax }}
-                className="relative w-[80%] lg:w-[65%] aspect-square"
-              >
-                <div className="absolute inset-0 bg-[var(--color-brand-primary)] rounded-full blur-[100px] opacity-20 animate-pulse" />
-                <Image 
-                  src={product.images} 
-                  alt={product.name} 
-                  fill 
-                  className="object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.5)] z-20 relative" 
-                  priority 
-                />
-                
-                {/* Scanner Overlay Line */}
-                <motion.div 
-                   className="absolute left-0 right-0 h-[2px] bg-[var(--color-brand-primary)] shadow-[0_0_15px_var(--color-brand-primary)] z-30 opacity-70"
-                   animate={{ top: ["0%", "100%", "0%"] }}
-                   transition={{ duration: 5, ease: "linear", repeat: Infinity }}
-                />
-              </motion.div>
-            </div>
-
-            {/* Data HUD Footer */}
-            <div className="relative z-20 bg-[var(--glass-bg)] backdrop-blur-md border border-[var(--glass-border)] p-4 flex items-center justify-between font-mono text-xs">
-              <div className="flex items-center gap-4">
-                <Microscope className="w-5 h-5 text-[var(--color-brand-primary)]" />
-                <div>
-                  <p className="text-[var(--text-muted)]">MAGNIFICATION</p>
-                  <p className="font-bold">2000x ELECTRON</p>
+        <main className="relative z-10 max-w-[1600px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+             
+             {/* --- COLUMNA VISUAL --- */}
+             <div className="relative h-[50vh] lg:h-[calc(100vh-120px)] lg:sticky lg:top-[120px] w-full flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-[var(--glass-border)] bg-[var(--bg-page)]/50 backdrop-blur-sm group">
+                <div className="absolute w-[95%] lg:w-[80%] aspect-square opacity-60 pointer-events-none">
+                    <BioScannerRing />
                 </div>
-              </div>
-              <div className="h-8 w-px bg-[var(--glass-border)]" />
-              <div className="flex items-center gap-4">
-                <Activity className="w-5 h-5 text-[var(--color-brand-primary)]" />
-                <div>
-                  <p className="text-[var(--text-muted)]">STATUS</p>
-                  <p className="font-bold">STABLE</p>
+                <motion.div style={{ y: yImage }} initial={{ scale: 0.8, opacity: 0, filter: "blur(10px)" }} animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }} transition={{ duration: 1, ease: "easeOut" }} className="relative w-[55%] lg:w-[55%] h-[55%] lg:h-[55%] z-20">
+                   <Image src={product.images} alt={product.name} fill className="object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.6)]" priority />
+                </motion.div>
+                <div className="absolute top-6 left-6 flex flex-col gap-1">
+                    <span className="text-[9px] uppercase tracking-widest text-[var(--text-muted)]">Compound_ID</span>
+                    <span className="font-mono text-sm font-bold text-[var(--color-brand-primary)] tracking-widest">{product.slug.slice(0,8).toUpperCase()}</span>
                 </div>
-              </div>
-            </div>
-
-            <CornerBrackets />
-          </section>
-
-          {/* === SECCIÓN DERECHA: DATOS DEL PROTOCOLO (5 cols) === */}
-          <section className="relative lg:col-span-5 flex flex-col bg-[var(--bg-page)]">
-            
-            {/* Scroll Container Interior */}
-            <div className="flex-1 p-6 lg:p-12 overflow-y-auto">
-              
-              {/* Breadcrumbs & ID */}
-              <div className="flex items-center gap-2 mb-6 text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
-                 <span>Catalog</span> <ArrowRight className="w-3 h-3" /> <span>{product.category}</span>
-              </div>
-
-              {/* TITULO MASIVO */}
-              <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[0.9] mb-6 uppercase break-words hyphens-auto">
-                {product.name}
-              </h1>
-
-              {/* Precio y Stock */}
-              <div className="flex items-end justify-between border-b-2 border-[var(--text-main)] pb-6 mb-8">
-                 <div className="flex flex-col">
-                    <span className="text-sm font-mono text-[var(--text-muted)] mb-1">UNIT COST (USD)</span>
-                    <span className="text-4xl font-bold font-mono tracking-tight">${product.price.toFixed(2)}</span>
-                 </div>
-                 <div className="text-right">
-                    {product.stock < 50 && (
-                      <div className="flex items-center gap-2 text-red-500 font-bold text-xs uppercase animate-pulse mb-1">
-                        <AlertTriangle className="w-3 h-3" /> Critical Stock
-                      </div>
-                    )}
-                    <span className="text-sm font-mono">{product.stock} Units Available</span>
-                 </div>
-              </div>
-
-              {/* Descripción Técnica (JUSTIFICACIÓN CORREGIDA) */}
-              <div className="mb-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <Database className="w-4 h-4 text-[var(--color-brand-primary)]" />
-                  <h3 className="font-bold uppercase tracking-widest text-sm">Technical Abstract</h3>
+                <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center gap-2 bg-[var(--bg-page)]/80 backdrop-blur border border-[var(--glass-border)] px-3 py-1.5 rounded-full shadow-lg">
+                    <Microscope className="w-3 h-3 text-[var(--color-brand-primary)]" />
+                    <span className="text-[10px] uppercase tracking-wider font-bold">Research Only</span>
                 </div>
-                
-                {/* AQUÍ ESTÁ LA CORRECCIÓN CLAVE:
-                   text-justify + hyphens-auto + leading-relaxed + tracking-wide
-                   Esto evita los "rios" de espacio blanco en columnas estrechas.
-                */}
-                <div className="prose prose-invert max-w-none">
-                  <p className="text-sm lg:text-base text-justify hyphens-auto leading-relaxed tracking-wide text-[var(--text-muted)]">
-                    {formatDescription(product.description)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Especificaciones */}
-              <div className="mb-12 p-4 border border-[var(--glass-border)] bg-[var(--bg-page)] relative">
-                <div className="absolute top-0 left-0 bg-[var(--text-main)] text-[var(--bg-page)] text-[10px] font-bold px-2 py-0.5">SPECS_SHEET</div>
-                <div className="mt-4">
-                  <ScientificSpecs purity={product.purity || "99.9%"} category={product.category} />
-                </div>
-              </div>
-
-              {/* Challenges & FAQ */}
-              <div className="space-y-8">
-                <ResearchChallenges />
-                <ProtocolFAQ />
-              </div>
-            </div>
-
-            {/* PANEL DE COMPRA FLOTANTE/ESTÁTICO AL PIE DE LA COLUMNA */}
-            <div className="sticky bottom-0 z-30 p-6 lg:p-8 bg-[var(--bg-page)] border-t-2 border-[var(--text-main)]">
-              
-              <StockMeter stock={product.stock} />
-              
-              <div className="flex flex-col gap-4 mt-6">
-                 {/* Controles de Cantidad Brutalistas */}
-                 <div className="flex h-14 w-full">
-                    <button 
-                      onClick={() => setQty(q => Math.max(1, q - 1))}
-                      className="w-14 bg-[var(--glass-bg)] border border-[var(--text-main)] flex items-center justify-center hover:bg-[var(--text-main)] hover:text-[var(--bg-page)] transition-colors text-xl font-mono"
-                    >-</button>
-                    <div className="flex-1 border-y border-[var(--text-main)] flex items-center justify-center font-mono font-bold text-xl bg-[var(--bg-page)]">
-                      {qty}
-                    </div>
-                    <button 
-                      onClick={() => setQty(q => Math.min(product.stock, q + 1))}
-                      className="w-14 bg-[var(--glass-bg)] border border-[var(--text-main)] flex items-center justify-center hover:bg-[var(--text-main)] hover:text-[var(--bg-page)] transition-colors text-xl font-mono"
-                    >+</button>
-                 </div>
-
-                 {/* Botón de Acción Principal */}
-                 <button className="relative w-full h-16 bg-[var(--color-brand-primary)] text-white font-bold uppercase tracking-[0.2em] text-sm overflow-hidden group">
-                    <span className="absolute inset-0 w-full h-full bg-[var(--text-main)] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                    <span className="relative z-10 flex items-center justify-center gap-3">
-                      <ShoppingCart className="w-5 h-5" />
-                      Initiate Acquisition
-                    </span>
-                 </button>
-                 
-                 <div className="pt-2">
-                   <SecureBadges />
-                 </div>
-              </div>
-            </div>
-
-          </section>
-        </div>
-
-        {/* --- SECCION DE REVIEWS (FUERA DE LA GRID PRINCIPAL) --- */}
-        <section className="border-t border-[var(--glass-border)] bg-[var(--glass-bg)] py-20 px-6 relative overflow-hidden">
-           <div className="max-w-7xl mx-auto">
-             <div className="flex items-center gap-4 mb-12">
-               <div className="w-4 h-4 bg-[var(--color-brand-primary)] animate-pulse" />
-               <h3 className="text-2xl font-mono font-bold uppercase tracking-widest">Field Data / Peer Reviews</h3>
-               <div className="h-px flex-1 bg-[var(--text-main)] opacity-20" />
              </div>
-             <ProductReviews />
+
+             {/* --- COLUMNA CONTENIDO --- */}
+             <div className="relative px-6 py-10 lg:px-24 lg:py-24">
+                
+                {/* Header */}
+                <div className="flex flex-wrap items-center gap-3 mb-6 lg:mb-8">
+                   <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)]">
+                      <span>Catalog</span>
+                      <ArrowRight className="w-3 h-3" />
+                      <span className="text-[var(--color-brand-primary)]">{product.category}</span>
+                   </div>
+                   <div className="h-px w-8 bg-[var(--glass-border)] hidden sm:block" />
+                   {product.stock < 50 && (
+                      <span className="text-[9px] font-bold text-red-500 uppercase tracking-widest border border-red-500/20 px-2 py-0.5 rounded bg-red-500/5 animate-pulse">Low Batch Vol.</span>
+                   )}
+                </div>
+
+                {/* Título Corregido: leading-tight para evitar cortes */}
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black leading-tight tracking-tighter mb-4 lg:mb-6 text-transparent bg-clip-text bg-gradient-to-br from-[var(--text-main)] to-[var(--text-muted)] pb-2">
+                   {product.name}
+                </h1>
+                
+                <div className="flex items-baseline gap-4 mb-8 border-b border-[var(--glass-border)] pb-6">
+                   <span className="text-3xl lg:text-4xl font-mono font-bold text-[var(--color-brand-primary)]">${product.price.toFixed(2)}</span>
+                   <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">USD / Lyophilized Vial</span>
+                </div>
+
+                {/* Specs */}
+                <div className="mb-10">
+                   <ScientificSpecs purity={product.purity || "99% HPLC"} category={product.category} />
+                </div>
+
+                {/* Descripción Mejorada: Justificada y Formateada */}
+                <div className="mb-12">
+                   <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] mb-4 flex items-center gap-2">
+                      <Info className="w-3 h-3" /> Technical Abstract
+                   </h3>
+                   
+                   <div className="prose prose-sm prose-invert max-w-none text-[var(--text-muted)] leading-relaxed columns-1 md:columns-2 gap-8 [column-rule:1px_solid_var(--glass-border)] mb-8 text-justify hyphens-auto break-words">
+                      <p>
+                         {formatDescription(product.description)}
+                      </p>
+                   </div>
+
+                   <ResearchChallenges />
+                </div>
+
+                {/* FAQ */}
+                <div className="mb-8">
+                    <ProtocolFAQ />
+                </div>
+
+                {/* Panel de Compra */}
+                <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] p-6 rounded-2xl shadow-xl lg:sticky lg:bottom-10 z-30 backdrop-blur-md">
+                   <StockMeter stock={product.stock} />
+                   <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                      <div className="flex items-center justify-between sm:justify-start bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-lg px-4 h-14 sm:w-40">
+                         <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">-</button>
+                         <span className="font-mono font-bold text-lg">{qty}</span>
+                         <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">+</button>
+                      </div>
+                      <button className="flex-1 bg-[var(--text-main)] text-[var(--bg-page)] h-14 rounded-lg font-bold uppercase tracking-wider text-sm hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group">
+                         <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                         <span>Acquire Sample</span>
+                      </button>
+                   </div>
+                   <SecureBadges />
+                </div>
+             </div>
+          </div>
+        </main>
+
+        {/* Reviews sin Scrollbar */}
+        <section className="relative z-10 max-w-7xl mx-auto px-6 py-24 border-t border-[var(--glass-border)] bg-[var(--bg-page)]">
+           <div className="flex items-center justify-center gap-4 mb-12">
+              <div className="h-px w-10 bg-[var(--glass-border)]" />
+              <h3 className="text-2xl md:text-3xl font-display font-bold text-center">Protocol Feedback</h3>
+              <div className="h-px w-10 bg-[var(--glass-border)]" />
            </div>
+           <ProductReviews />
         </section>
 
-      </main>
-
+      </div>
+      
       <StickyPurchase product={product} qty={qty} />
       <Footer />
-    </div>
+    </>
   );
 }
