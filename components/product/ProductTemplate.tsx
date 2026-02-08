@@ -13,7 +13,6 @@ import StickyPurchase from "./StickyPurchase";
 import UrgencyBanner from "./UrgencyBanner";
 import StockMeter from "./StockMeter";
 import ScientificSpecs from "./ScientificSpecs";
-// Nuevos componentes de Venta
 import ResearchChallenges from "./ResearchChallenges";
 import ProtocolFAQ from "./ProtocolFAQ";
 import SecureBadges from "./SecureBadges";
@@ -30,29 +29,70 @@ interface Product {
   slug: string;
 }
 
-// --- SVG ANIMADO: ANILLO DE ESCÁNER ---
+// --- SVG ULTRA MEJORADO: BIO-CHAMBER HUD ---
 const BioScannerRing = () => (
-  <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 500">
-    <motion.circle 
-      cx="250" cy="250" r="240" 
-      stroke="currentColor" strokeWidth="1" fill="none" 
-      className="text-[var(--glass-border)] opacity-30"
-      strokeDasharray="10 10"
+  <svg className="absolute inset-0 w-full h-full pointer-events-none text-[var(--color-brand-primary)] overflow-visible" viewBox="0 0 600 600">
+    <defs>
+      {/* Gradiente para el efecto de escáner láser vertical */}
+      <linearGradient id="scanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
+        <stop offset="50%" stopColor="currentColor" stopOpacity="0.3" />
+        <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+
+    {/* 1. Anillo Exterior Técnico (Lento) */}
+    <motion.circle
+      cx="300" cy="300" r="280"
+      stroke="currentColor" strokeWidth="1" fill="none"
+      strokeOpacity="0.1"
+      strokeDasharray="40 10"
+      strokeLinecap="round"
       animate={{ rotate: 360 }}
+      transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+    />
+
+    {/* 2. Anillo Segmentado Medio (Rápido, Contra-reloj) */}
+    <motion.circle
+      cx="300" cy="300" r="230"
+      stroke="currentColor" strokeWidth="1" fill="none"
+      strokeOpacity="0.2"
+      strokeDasharray="10 30"
+      animate={{ rotate: -360 }}
       transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
     />
-    <motion.circle 
-      cx="250" cy="250" r="200" 
-      stroke="currentColor" strokeWidth="1" fill="none" 
-      className="text-[var(--color-brand-primary)] opacity-20"
-      strokeDasharray="4 20"
-      animate={{ rotate: -360 }}
-      transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+
+    {/* 3. Arcos de Contención (Pulsantes) */}
+    <motion.path
+      d="M 300 80 A 220 220 0 0 1 520 300"
+      stroke="currentColor" strokeWidth="2" fill="none"
+      strokeOpacity="0.3"
+      initial={{ pathLength: 0, opacity: 0 }}
+      animate={{ pathLength: 1, opacity: 0.3 }}
+      transition={{ duration: 2, ease: "easeInOut" }}
     />
     <motion.path
-       d="M 250 50 L 250 80 M 250 420 L 250 450 M 50 250 L 80 250 M 420 250 L 450 250"
-       stroke="currentColor" strokeWidth="2"
-       className="text-[var(--text-muted)] opacity-50"
+      d="M 300 520 A 220 220 0 0 1 80 300"
+      stroke="currentColor" strokeWidth="2" fill="none"
+      strokeOpacity="0.3"
+      initial={{ pathLength: 0, opacity: 0 }}
+      animate={{ pathLength: 1, opacity: 0.3 }}
+      transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
+    />
+
+    {/* 4. Crosshairs (Miras en las esquinas) */}
+    <line x1="300" y1="20" x2="300" y2="50" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+    <line x1="300" y1="550" x2="300" y2="580" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+    <line x1="20" y1="300" x2="50" y2="300" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+    <line x1="550" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="2" strokeOpacity="0.5" />
+
+    {/* 5. Escáner Láser Vertical (El efecto WOW) */}
+    <motion.rect
+      x="150" y="0" width="300" height="40"
+      fill="url(#scanGradient)"
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: [100, 500, 100], opacity: [0, 0.5, 0] }}
+      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
     />
   </svg>
 );
@@ -83,10 +123,10 @@ export default function ProductTemplate({ product }: { product: Product }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
              
              {/* --- COLUMNA VISUAL (Izquierda / Top Móvil) --- */}
-             <div className="relative h-[45vh] lg:h-[calc(100vh-120px)] lg:sticky lg:top-[120px] w-full flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-[var(--glass-border)] bg-[var(--bg-page)]/50 backdrop-blur-sm">
+             <div className="relative h-[50vh] lg:h-[calc(100vh-120px)] lg:sticky lg:top-[120px] w-full flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-[var(--glass-border)] bg-[var(--bg-page)]/50 backdrop-blur-sm group">
                 
-                {/* SVG Scanner Ring */}
-                <div className="absolute w-[90%] lg:w-[70%] aspect-square opacity-60">
+                {/* SVG Scanner Ring Mejorado */}
+                <div className="absolute w-[95%] lg:w-[80%] aspect-square opacity-60 pointer-events-none">
                     <BioScannerRing />
                 </div>
 
@@ -96,7 +136,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                   initial={{ scale: 0.8, opacity: 0, filter: "blur(10px)" }}
                   animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="relative w-[50%] lg:w-[55%] h-[50%] lg:h-[55%] z-20"
+                  className="relative w-[55%] lg:w-[55%] h-[55%] lg:h-[55%] z-20"
                 >
                    <Image 
                      src={product.images} 
@@ -107,13 +147,13 @@ export default function ProductTemplate({ product }: { product: Product }) {
                    />
                 </motion.div>
 
-                {/* Etiquetas Técnicas */}
+                {/* Etiquetas Técnicas Flotantes */}
                 <div className="absolute top-6 left-6 flex flex-col gap-1">
                     <span className="text-[9px] uppercase tracking-widest text-[var(--text-muted)]">Compound_ID</span>
-                    <span className="font-mono text-sm font-bold text-[var(--color-brand-primary)]">{product.slug.slice(0,8).toUpperCase()}</span>
+                    <span className="font-mono text-sm font-bold text-[var(--color-brand-primary)] tracking-widest">{product.slug.slice(0,8).toUpperCase()}</span>
                 </div>
                 
-                <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center gap-2 bg-[var(--bg-page)] border border-[var(--glass-border)] px-3 py-1.5 rounded-full">
+                <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center gap-2 bg-[var(--bg-page)]/80 backdrop-blur border border-[var(--glass-border)] px-3 py-1.5 rounded-full shadow-lg">
                     <Microscope className="w-3 h-3 text-[var(--color-brand-primary)]" />
                     <span className="text-[10px] uppercase tracking-wider font-bold">Research Only</span>
                 </div>
@@ -167,20 +207,20 @@ export default function ProductTemplate({ product }: { product: Product }) {
                          {product.description}
                       </p>
                       <p className="mt-4 md:mt-0">
-                         Formulated for stability and precision. This compound exhibits high solubility in bacteriostatic agents. Validated through rigorous chromatography.
+                         Formulated for stability and precision. This compound exhibits high solubility in bacteriostatic agents. Validated through rigorous chromatography to ensure absence of heavy metal byproducts.
                       </p>
                    </div>
 
-                   {/* --- INTEGRACIÓN 1: DOLORES Y SOLUCIONES --- */}
+                   {/* INTEGRACIÓN 1: DOLORES Y SOLUCIONES */}
                    <ResearchChallenges />
                 </div>
 
-                {/* --- INTEGRACIÓN 2: FAQ DE OBJECIONES --- */}
+                {/* INTEGRACIÓN 2: FAQ DE OBJECIONES */}
                 <div className="mb-8">
                     <ProtocolFAQ />
                 </div>
 
-                {/* Purchase Interface (HUD Style) */}
+                {/* Purchase Interface (HUD Style - Sticky on Desktop, Static on Mobile) */}
                 <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] p-6 rounded-2xl shadow-xl lg:sticky lg:bottom-10 z-30 backdrop-blur-md">
                    
                    <StockMeter stock={product.stock} />
@@ -198,7 +238,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                       </button>
                    </div>
 
-                   {/* --- INTEGRACIÓN 3: BADGES DE CONFIANZA --- */}
+                   {/* INTEGRACIÓN 3: BADGES DE CONFIANZA */}
                    <SecureBadges />
                 </div>
 
@@ -217,6 +257,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
 
       </div>
       
+      {/* Sticky Mobile CTA (Solo visible en móviles) */}
       <StickyPurchase product={product} qty={qty} />
       <Footer />
     </>
