@@ -6,6 +6,7 @@ import { ShoppingCart, ArrowRight, Microscope, Info } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
+import { useCart } from "@/context/CartContext"; // <--- 1. IMPORTAR HOOK CARRITO
 
 // --- COMPONENTES DEL SISTEMA DE PRODUCTO ---
 import ProductReviews from "./ProductReviews";
@@ -70,6 +71,9 @@ export default function ProductTemplate({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const { scrollYProgress } = useScroll();
   const yImage = useTransform(scrollYProgress, [0, 1], [0, 50]);
+  
+  // 2. USAR HOOK CARRITO
+  const { addItem } = useCart();
 
   return (
     <>
@@ -162,7 +166,12 @@ export default function ProductTemplate({ product }: { product: Product }) {
                          <span className="font-mono font-bold text-lg">{qty}</span>
                          <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">+</button>
                       </div>
-                      <button className="flex-1 bg-[var(--text-main)] text-[var(--bg-page)] h-14 rounded-lg font-bold uppercase tracking-wider text-sm hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group">
+                      
+                      {/* BOTÓN CONECTADO A addItem */}
+                      <button 
+                        onClick={() => addItem(product, qty)} // <--- 3. FUNCIÓN DE AGREGAR
+                        className="flex-1 bg-[var(--text-main)] text-[var(--bg-page)] h-14 rounded-lg font-bold uppercase tracking-wider text-sm hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group"
+                      >
                          <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
                          <span>Acquire Sample</span>
                       </button>

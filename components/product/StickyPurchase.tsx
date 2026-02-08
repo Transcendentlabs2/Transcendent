@@ -1,12 +1,17 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useCart } from "@/context/CartContext"; // <--- IMPORTANTE: Conexión al carrito
 
 export default function StickyPurchase({ product, qty }: { product: any, qty: number }) {
   const [isVisible, setIsVisible] = useState(false);
+  
+  // Hook del carrito
+  const { addItem } = useCart();
 
+  // Mostrar solo después de hacer scroll (para no tapar el header al inicio)
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 400) setIsVisible(true);
@@ -48,7 +53,10 @@ export default function StickyPurchase({ product, qty }: { product: any, qty: nu
                         </div>
                     </div>
 
-                    <button className="bg-[var(--text-main)] text-[var(--bg-page)] h-12 px-6 rounded-lg font-bold uppercase tracking-wider text-xs flex items-center gap-2 shadow-lg active:scale-95 transition-transform hover:bg-[var(--color-brand-primary)] hover:text-white">
+                    <button 
+                        onClick={() => addItem(product, qty)} // <--- ACCIÓN DE AGREGAR AL CARRITO
+                        className="bg-[var(--text-main)] text-[var(--bg-page)] h-12 px-6 rounded-lg font-bold uppercase tracking-wider text-xs flex items-center gap-2 shadow-lg active:scale-95 transition-transform hover:bg-[var(--color-brand-primary)] hover:text-white"
+                    >
                         <Plus className="w-4 h-4" />
                         <span>Acquire</span>
                     </button>

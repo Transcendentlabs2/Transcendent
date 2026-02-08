@@ -4,16 +4,20 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X, ShoppingCart, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import logo from "../../app/assets/logo.webp"; 
+import logo from "@/app/assets/logo.webp"; // Asegúrate de que la ruta sea correcta
+import { useCart } from "@/context/CartContext"; // ✅ IMPORTANTE: Hook del carrito
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
+  // ✅ USAR HOOK DEL CARRITO
+  const { toggleCart, cartCount } = useCart();
+  
   const lastScrollY = useRef(0);
 
-  // 1. OPTIMIZACIÓN SAFARI: Bloqueo del scroll del body
+  // 1. Bloqueo de scroll en móvil
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden"; 
@@ -28,7 +32,7 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  // 2. Lógica de Scroll
+  // 2. Lógica de Scroll (Ocultar al bajar, mostrar al subir)
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -132,25 +136,29 @@ export default function Navbar() {
         {/* --- RIGHT: ICONS --- */}
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
-             <button className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
-                <Search className="w-5 h-5" />
-             </button>
-             
-             <button className="relative p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors group cursor-pointer">
-                <ShoppingCart className="w-5 h-5 group-hover:text-[var(--color-brand-primary)] transition-colors" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 dark:bg-[var(--color-brand-secondary)] rounded-full border-2 border-[var(--bg-page)]"></span>
-             </button>
+              <button className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
+                 <Search className="w-5 h-5" />
+              </button>
+              
+              {/* BOTÓN CARRITO DESKTOP CONECTADO */}
+              <button 
+                onClick={toggleCart} 
+                className="relative p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors group cursor-pointer"
+              >
+                 <ShoppingCart className="w-5 h-5 group-hover:text-[var(--color-brand-primary)] transition-colors" />
+                 {/* Badge Contador */}
+                 {cartCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-[var(--bg-page)] animate-bounce">
+                        {cartCount}
+                    </span>
+                 )}
+              </button>
           </div>
 
-          {/* --- CORRECCIÓN AQUÍ --- */}
-          {/* 1. Agregamos 'flex items-center justify-center' a las clases.
-             2. Eliminamos 'display: flex' del style inline para que lg:hidden funcione.
-          */}
           <button
             className="lg:hidden flex items-center justify-center p-2 -mr-2 text-[var(--text-main)] active:scale-95 transition-transform"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
-            // Solo dejamos las dimensiones mínimas para el touch target, quitamos el display
             style={{ minWidth: "44px", minHeight: "44px" }} 
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -184,8 +192,17 @@ export default function Navbar() {
                  <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 rounded-lg text-[var(--text-main)] font-bold text-sm active:bg-[var(--text-muted)]/20">
                     <Search className="w-5 h-5" /> Search
                  </button>
-                 <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] rounded-lg font-bold text-sm active:scale-95 transition-transform">
-                    <ShoppingCart className="w-5 h-5" /> Cart
+                 
+                 {/* BOTÓN CARRITO MÓVIL CONECTADO */}
+                 <button 
+                    onClick={() => {
+                        setMobileOpen(false); // Cierra menú
+                        toggleCart(); // Abre carrito
+                    }}
+                    className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] rounded-lg font-bold text-sm active:scale-95 transition-transform relative"
+                 >
+                    <ShoppingCart className="w-5 h-5" /> Cart 
+                    {cartCount > 0 && <span className="ml-1 opacity-80">({cartCount})</span>}
                  </button>
               </div>
             </div>
