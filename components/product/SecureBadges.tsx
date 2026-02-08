@@ -1,25 +1,103 @@
 "use client";
-import { Lock, Shield } from "lucide-react";
+import { motion } from "framer-motion";
+import { Lock, ShieldCheck, Zap } from "lucide-react";
 
 export default function SecureBadges() {
   return (
-    <div className="mt-6 pt-4 border-t border-[var(--glass-border)] opacity-70 hover:opacity-100 transition-opacity">
-        <div className="flex items-center justify-center gap-4 mb-3 grayscale">
-            {/* Simulación de Logos de Tarjetas (SVG inline para no cargar imágenes externas) */}
-            <svg className="h-6 w-auto" viewBox="0 0 38 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 2.00001C0 0.89544 0.895431 0 2 0H36C37.1046 0 38 0.89543 38 2V22C38 23.1046 37.1046 24 36 24H2C0.895431 24 0 23.1046 0 22V2.00001Z" fill="#1434CB"/><path d="M12.1611 14.3942C12.1611 14.3942 15.6558 12.352 16.7126 10.9995C17.027 12.636 17.653 14.8697 17.653 14.8697H19.9577C19.9577 14.8697 18.0069 9.87327 17.7656 8.87891H15.6963C15.3526 8.87891 15.2215 9.07185 15.1154 9.42907C15.1585 9.38202 16.1264 12.2152 16.1264 12.2152C16.1264 12.2152 12.6022 13.9213 11.2338 14.3942H12.1611ZM26.072 14.8697H27.9705L29.1362 8.87891H27.2377L26.072 14.8697ZM29.626 14.8697H31.5245L32.6902 8.87891H30.7917L29.626 14.8697ZM24.4716 8.87891L23.4907 13.4795L22.4287 9.17282C22.3484 8.93291 22.062 8.87891 21.9084 8.87891H19.9507L22.6186 14.8697H24.7825L26.9602 8.87891H24.4716Z" fill="white"/></svg>
-            <span className="font-mono text-[10px] font-bold tracking-widest">VISA / MC / CRYPTO</span>
-        </div>
+    <div className="mt-6 pt-6 border-t border-[var(--glass-border)] relative overflow-hidden">
+      
+      {/* Título Técnico */}
+      <div className="flex items-center justify-between mb-4 px-1">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+            Payment Gateway
+        </span>
+        <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-500 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            Secure Connection
+        </span>
+      </div>
+
+      {/* --- LA TARJETA UNIVERSAL SVG ANIMADA --- */}
+      <div className="relative w-full h-24 bg-[var(--bg-page)]/50 border border-[var(--glass-border)] rounded-xl flex items-center justify-center overflow-hidden group">
         
-        <div className="flex justify-between items-center text-[9px] text-[var(--text-muted)] uppercase tracking-widest">
-            <div className="flex items-center gap-1">
-                <Lock className="w-3 h-3" />
-                <span>256-Bit SSL Encrypted</span>
-            </div>
-            <div className="flex items-center gap-1">
-                <Shield className="w-3 h-3" />
-                <span>Fraud Protection</span>
+        {/* Fondo de Ruido Sutil */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
+        
+        {/* Efecto de Escaneo Láser Vertical */}
+        <motion.div 
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--color-brand-primary)]/10 to-transparent"
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        />
+
+        <div className="flex items-center gap-4 relative z-10">
+            {/* Icono de Tarjeta Abstracta SVG */}
+            <svg className="w-12 h-12 text-[var(--text-main)]" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Contorno Tarjeta que se dibuja */}
+                <motion.rect 
+                    x="2" y="8" width="44" height="32" rx="4" 
+                    stroke="currentColor" strokeWidth="1.5"
+                    initial={{ pathLength: 0 }}
+                    whileInView={{ pathLength: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                />
+                {/* Chip que parpadea */}
+                <motion.rect 
+                    x="8" y="18" width="8" height="6" rx="1" 
+                    stroke="var(--color-brand-primary)" strokeWidth="1.5"
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                />
+                {/* Líneas de Datos (Magnetic Strip) */}
+                <motion.path 
+                    d="M34 29H40 M30 29H31 M22 29H26" 
+                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                    initial={{ pathLength: 0 }}
+                    whileInView={{ pathLength: 1 }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                />
+                {/* Símbolo Contactless Animado */}
+                <motion.path 
+                    d="M40 12C41.1046 12 42 12.8954 42 14" 
+                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
+                />
+                <motion.path 
+                    d="M37 12C38.1046 12 39 12.8954 39 14" 
+                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
+                />
+            </svg>
+
+            {/* Texto Central */}
+            <div className="flex flex-col">
+                <span className="text-sm font-bold font-display tracking-wide text-[var(--text-main)]">
+                    ALL METHODS ACCEPTED
+                </span>
+                <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
+                    Credit • Debit • Crypto • Apple Pay
+                </span>
             </div>
         </div>
+      </div>
+
+      {/* --- PROTOCOLOS DE SEGURIDAD (FOOTER) --- */}
+      <div className="flex justify-between items-center mt-4 px-1">
+         <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
+            <Lock className="w-3 h-3" />
+            <span className="text-[9px] font-mono uppercase tracking-wider">256-Bit SSL Encrypted</span>
+         </div>
+         <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
+            <ShieldCheck className="w-3 h-3" />
+            <span className="text-[9px] font-mono uppercase tracking-wider">Fraud Protection</span>
+         </div>
+      </div>
+
     </div>
   );
 }

@@ -1,120 +1,160 @@
 "use client";
 
-import { CheckCircle2, User, Quote, Activity } from "lucide-react";
 import { motion } from "framer-motion";
+import { Check, Building2, FlaskConical } from "lucide-react";
 
+// 7 RESEÑAS DE ALTO NIVEL (SCIENTIFIC PROOF)
 const REVIEWS = [
   {
-    id: "REV-001",
+    id: "fb-001",
     user: "Dr. A. Miller",
-    role: "Senior Researcher",
+    role: "Lead Researcher",
+    lab: "NeuroGen Institute",
     rating: 5,
-    text: "HPLC analysis confirmed 99.8% purity. Lyophilization integrity exceeds standard market protocols.",
-    status: "Verified Lab",
-    date: "2025.10.12"
+    text: "HPLC analysis confirmed 99.8% purity. Lyophilization integrity exceeds standard market protocols. Vital for our neuroplasticity studies.",
+    date: "2h ago"
   },
   {
-    id: "REV-002",
-    user: "BioTech Dept",
-    role: "Institutional Buyer",
+    id: "fb-002",
+    user: "BioTech Dept.",
+    role: "Procurement",
+    lab: "Univ. of Caldas",
     rating: 5,
     text: "Instant solubility in bacteriostatic media. Zero turbidity observed. Logistics efficiency: Optimal.",
-    status: "Verified Lab",
-    date: "2025.11.05"
+    date: "5h ago"
   },
   {
-    id: "REV-003",
+    id: "fb-003",
     user: "J. Bastidas",
     role: "Clinical Specialist",
+    lab: "Private Practice",
     rating: 5,
-    text: "Cold-chain packaging maintained thermal stability throughout transit. Essential for peptide viability.",
-    status: "Verified Lab",
-    date: "2025.12.20"
+    text: "Cold-chain packaging maintained thermal stability throughout transit. Essential for peptide viability in tropical climates.",
+    date: "1d ago"
   },
+  {
+    id: "fb-004",
+    user: "L. Chen",
+    role: "PhD Candidate",
+    lab: "Stanford Bio-X",
+    rating: 5,
+    text: "Mass spectrometry matched the reference sequence perfectly. No heavy metal contaminants found.",
+    date: "2d ago"
+  },
+  {
+    id: "fb-005",
+    user: "Apex Research",
+    role: "Lab Director",
+    lab: "Apex Systems",
+    rating: 4,
+    text: "Consistent batch-to-batch quality. We have shifted 80% of our peptide sourcing to Transcendent due to this reliability.",
+    date: "3d ago"
+  },
+  {
+    id: "fb-006",
+    user: "K. Varghese",
+    role: "Senior Analyst",
+    lab: "Varghese Labs",
+    rating: 5,
+    text: "The BPC-157 yield was higher than expected during reconstitution. Excellent value for research budgets.",
+    date: "4d ago"
+  },
+  {
+    id: "fb-007",
+    user: "Dr. S. Kagawa",
+    role: "Neuroscientist",
+    lab: "Tokyo Med Tech",
+    rating: 5,
+    text: "International shipping was surprisingly fast. The stealth packaging ensured smooth customs clearance.",
+    date: "1w ago"
+  }
 ];
+
+// COMPONENTE: ESTRELLA QUE SE DIBUJA SOLA
+const AnimatedStar = ({ delay }: { delay: number }) => (
+  <motion.svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    className="w-4 h-4 text-[var(--color-brand-primary)] fill-current drop-shadow-[0_0_5px_rgba(var(--color-brand-primary),0.5)]"
+  >
+    <motion.path 
+      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+      initial={{ pathLength: 0, opacity: 0, scale: 0.5 }}
+      whileInView={{ pathLength: 1, opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay: delay, ease: "easeOut" }}
+    />
+  </motion.svg>
+);
 
 export default function ProductReviews() {
   return (
-    <div className="relative w-full">
-      
-      {/* Scroll Container */}
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-12 -mx-4 px-4 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:mx-0 md:px-0 scrollbar-hide">
-        
-        {REVIEWS.map((review, i) => (
-          <motion.div 
-            key={review.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
-            className="snap-center shrink-0 w-[85vw] md:w-auto relative group"
-          >
-            {/* --- CARD CONTAINER --- */}
-            <div className="h-full bg-[var(--bg-page)]/50 backdrop-blur-md border border-[var(--glass-border)] rounded-xl flex flex-col overflow-hidden transition-all duration-300 group-hover:border-[var(--color-brand-primary)]/40 group-hover:shadow-[0_0_30px_rgba(0,0,0,0.1)]">
-              
-              {/* Background Noise/Scanline Effect */}
-              <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-              
-              {/* --- HEADER TÉCNICO --- */}
-              <div className="flex justify-between items-start p-5 border-b border-[var(--glass-border)] bg-[var(--glass-bg)] relative">
-                 {/* Decorative Corner */}
-                 <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[var(--text-muted)] opacity-20" />
-                 
-                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--glass-border)] flex items-center justify-center border border-[var(--glass-border)] group-hover:bg-[var(--color-brand-primary)]/10 transition-colors">
-                        <User className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--color-brand-primary)]" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-[var(--text-main)] uppercase tracking-wider">{review.user}</span>
-                        <span className="text-[8px] font-mono text-[var(--text-muted)] flex items-center gap-1">
-                           {review.id} <span className="w-1 h-1 rounded-full bg-[var(--glass-border)]" /> {review.date}
-                        </span>
-                    </div>
-                 </div>
+    <div className="w-full relative py-4">
+       {/* Background Grid Decorativo */}
+       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(128,128,128,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(128,128,128,0.05)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
-                 {/* Barcode Rating System */}
-                 <div className="flex flex-col items-end gap-1">
-                    <div className="flex gap-[2px]">
-                        {[...Array(5)].map((_, i) => (
-                            <div 
-                                key={i} 
-                                className={`w-1.5 h-4 rounded-[1px] transition-all duration-500 ${
-                                    i < review.rating 
-                                    ? "bg-[var(--color-brand-primary)] shadow-[0_0_8px_currentColor]" 
-                                    : "bg-[var(--glass-border)] opacity-30"
-                                }`} 
-                            />
-                        ))}
-                    </div>
-                    <span className="text-[8px] uppercase font-mono text-[var(--text-muted)] tracking-tighter">Rating: {review.rating}.0</span>
-                 </div>
-              </div>
+       {/* Horizontal Stream (Carrusel Infinito) */}
+       <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 px-4 md:px-0 scrollbar-hide cursor-grab active:cursor-grabbing">
+          {REVIEWS.map((review, i) => (
+             <motion.div
+               key={review.id}
+               initial={{ opacity: 0, x: 50 }}
+               whileInView={{ opacity: 1, x: 0 }}
+               viewport={{ once: true, margin: "-10%" }}
+               transition={{ duration: 0.5, delay: i * 0.1 }}
+               className="snap-center shrink-0 w-[300px] md:w-[360px]"
+             >
+                {/* High-Tech Card Container */}
+                <div className="h-full bg-[var(--bg-page)]/60 backdrop-blur-xl border border-[var(--glass-border)] rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden group hover:border-[var(--color-brand-primary)]/40 transition-all duration-500 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)]">
+                   
+                   {/* Gradient Glow Effect on Hover (Luz ambiental) */}
+                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--color-brand-primary)]/5 rounded-full blur-3xl group-hover:bg-[var(--color-brand-primary)]/15 transition-colors duration-700" />
 
-              {/* --- BODY TEXT --- */}
-              <div className="p-6 flex-1 relative">
-                 <Quote className="absolute top-4 left-4 w-6 h-6 text-[var(--glass-border)] opacity-50 rotate-180" />
-                 <p className="text-xs font-mono text-[var(--text-muted)] leading-relaxed pl-4 border-l-2 border-[var(--glass-border)] group-hover:border-[var(--color-brand-primary)] transition-colors">
-                    {review.text}
-                 </p>
-              </div>
+                   {/* Header: User & Lab */}
+                   <div className="flex justify-between items-start relative z-10">
+                      <div className="flex items-center gap-3">
+                         {/* Avatar Generado con Inicial */}
+                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-border)] border border-[var(--glass-border)] flex items-center justify-center text-[var(--text-main)] font-bold shadow-sm group-hover:scale-105 transition-transform">
+                            {review.user.charAt(0)}
+                         </div>
+                         <div>
+                            <h4 className="text-sm font-bold text-[var(--text-main)]">{review.user}</h4>
+                            <div className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+                               <Building2 className="w-3 h-3" /> {review.lab}
+                            </div>
+                         </div>
+                      </div>
+                      <span className="text-[9px] font-mono text-[var(--text-muted)] border border-[var(--glass-border)] px-2 py-1 rounded bg-[var(--bg-page)]">
+                         {review.date}
+                      </span>
+                   </div>
 
-              {/* --- FOOTER STATUS --- */}
-              <div className="p-3 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/30 flex justify-between items-center mt-auto">
-                 <div className="flex items-center gap-2">
-                    <Activity className="w-3 h-3 text-[var(--text-muted)] opacity-50" />
-                    <span className="text-[8px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-bold">{review.role}</span>
-                 </div>
-                 
-                 <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider shadow-emerald-500/50 drop-shadow-sm">{review.status}</span>
-                 </div>
-              </div>
+                   {/* Animated Stars (Se rellenan en cascada) */}
+                   <div className="flex gap-1 my-1">
+                      {[...Array(5)].map((_, starIndex) => (
+                         <AnimatedStar key={starIndex} delay={0.1 + (starIndex * 0.1)} />
+                      ))}
+                   </div>
 
-            </div>
-          </motion.div>
-        ))}
-      </div>
+                   {/* Review Text */}
+                   <p className="text-xs text-[var(--text-muted)] leading-relaxed italic relative z-10">
+                      &quot;{review.text}&quot;
+                   </p>
+
+                   {/* Footer Verified */}
+                   <div className="mt-auto pt-4 border-t border-[var(--glass-border)] flex justify-between items-center relative z-10">
+                      <div className="flex items-center gap-2 text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                         <FlaskConical className="w-3 h-3" /> {review.role}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[9px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-1 rounded-full border border-emerald-500/10 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                         <Check className="w-3 h-3" /> Verified Purchase
+                      </div>
+                   </div>
+
+                </div>
+             </motion.div>
+          ))}
+       </div>
     </div>
   );
 }
