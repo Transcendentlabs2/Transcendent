@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { 
-  Search, Package, CheckCircle2, Clock, XCircle, Truck, 
-  Trash2, Eye, MoreHorizontal, AlertTriangle, X
+  Search, Package, Eye, Trash2, X, MoreHorizontal, AlertTriangle 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateOrderStatus, deleteOrder } from "@/app/actions/admin-orders";
 import Image from "next/image";
+import Swal from 'sweetalert2'; // Importamos SweetAlert
 
 // Tipos
 type OrderType = {
@@ -17,7 +17,7 @@ type OrderType = {
   createdAt: Date;
   user: { name: string | null; email: string; };
   itemsCount: number;
-  items: { // Necesitamos los items para el detalle
+  items: { 
     id: string;
     quantity: number;
     price: number;
@@ -29,9 +29,24 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Estado para el Modal de Detalles
   const [selectedOrder, setSelectedOrder] = useState<OrderType | null>(null);
+
+  // --- CONFIGURACIÓN DE SWEETALERT (TOAST) ---
+  // Esta es la notificación pequeña que sale en la esquina
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.onmouseenter = Swal.stopTimer;
+      toast.onmouseleave = Swal.resumeTimer;
+    },
+    customClass: {
+      popup: 'colored-toast' // Clase opcional si quieres CSS custom
+    }
+  });
 
   // Lógica de Filtrado
   const filteredOrders = initialOrders.filter((order) => {
@@ -42,18 +57,65 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
     return matchesStatus && matchesSearch;
   });
 
+  // --- 1. CAMBIO DE ESTADO CON TOAST ---
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setIsLoading(true);
-    await updateOrderStatus(orderId, newStatus as any);
+    const result = await updateOrderStatus(orderId, newStatus as any);
     setIsLoading(false);
+
+    if (result.ok) {
+      Toast.fire({
+        icon: "success",
+        title: `Order updated to ${newStatus}`
+      });
+    } else {
+      Toast.fire({
+        icon: "error",
+        title: "Failed to update status"
+      });
+    }
   };
 
+  // --- 2. ELIMINAR CON MODAL SWEETALERT ---
   const handleDelete = async (orderId: string) => {
-    if(!confirm("¿Estás seguro de eliminar esta orden permanentemente?")) return;
-    setIsLoading(true);
-    await deleteOrder(orderId);
-    setIsLoading(false);
-    setSelectedOrder(null); // Cerrar modal si estaba abierto
+    // Reemplazamos el confirm() nativo por Swal.fire
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this action!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#10b981", // Emerald-500 (Tu color de marca)
+      cancelButtonColor: "#ef4444", // Red-500
+      confirmButtonText: "Yes, delete it!",
+      background: "#18181b", // Zinc-900 (Fondo oscuro para combinar con tu tema)
+      color: "#fff" // Texto blanco
+    });
+
+    if (result.isConfirmed) {
+      setIsLoading(true);
+      const deleteResult = await deleteOrder(orderId);
+      setIsLoading(false);
+      setSelectedOrder(null);
+
+      if (deleteResult.ok) {
+        Swal.fire({
+          title: "Deleted!",
+          text: "The order has been removed.",
+          icon: "success",
+          confirmButtonColor: "#10b981",
+          background: "#18181b",
+          color: "#fff"
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: "Could not delete the order.",
+          icon: "error",
+          background: "#18181b",
+          color: "#fff"
+        });
+      }
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -69,7 +131,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
   return (
     <div className="space-y-6 relative">
       
-      {/* Loading Overlay Global */}
+      {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-black/20 z-50 flex items-center justify-center backdrop-blur-[1px]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-brand-primary)]"></div>
@@ -121,7 +183,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
         </div>
       </div>
 
-      {/* LISTA DE ÓRDENES (Unified Card Layout for Better UX) */}
+      {/* LISTA DE ÓRDENES */}
       <div className="space-y-3">
         <AnimatePresence>
             {filteredOrders.map((order) => (
@@ -135,7 +197,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                 >
                     <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                         
-                        {/* Info Principal */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="font-mono text-xs text-[var(--text-muted)]">#{order.id.slice(0, 8)}</span>
@@ -146,7 +207,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             <p className="text-xs text-[var(--text-muted)] truncate">{order.user.name || "Guest User"}</p>
                         </div>
 
-                        {/* Estado y Total */}
                         <div className="flex items-center gap-4 md:gap-8 justify-between md:justify-end">
                             <div className={`px-3 py-1 rounded-full text-[10px] font-bold border flex items-center gap-2 ${getStatusColor(order.status)}`}>
                                 <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
@@ -158,7 +218,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             </div>
                         </div>
 
-                        {/* Acciones */}
                         <div className="flex items-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-[var(--glass-border)]">
                             <button 
                                 onClick={() => setSelectedOrder(order)}
@@ -167,7 +226,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                                 <Eye className="w-3 h-3" /> Details
                             </button>
                             
-                            {/* Selector de Estado Rápido */}
                             <select 
                                 value={order.status}
                                 onChange={(e) => handleStatusChange(order.id, e.target.value)}
@@ -213,7 +271,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                     initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
                     className="relative bg-[var(--bg-page)] border border-[var(--glass-border)] w-full max-w-lg max-h-[80vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
                 >
-                    {/* Header Modal */}
                     <div className="p-4 border-b border-[var(--glass-border)] flex justify-between items-center bg-[var(--glass-bg)]">
                         <div>
                             <h3 className="font-bold text-lg">Order Details</h3>
@@ -224,7 +281,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                         </button>
                     </div>
 
-                    {/* Body Modal (Scrollable) */}
                     <div className="p-4 overflow-y-auto flex-1 space-y-4">
                         {selectedOrder.items.map((item) => (
                             <div key={item.id} className="flex gap-4 p-3 bg-[var(--glass-bg)]/30 rounded-xl border border-[var(--glass-border)]">
