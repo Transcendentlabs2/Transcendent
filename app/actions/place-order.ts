@@ -2,48 +2,49 @@
 
 import { prisma } from '@/lib/prisma';
 
-// Definimos la estructura básica del item que viene del carrito (frontend)
+// 1. Estructura de datos para USA
+type ShippingData = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;      // US State
+  postalCode: string; // Zip Code (Obligatorio)
+};
+
 type CartItem = {
   productId: string;
   quantity: number;
 };
 
-export const placeOrder = async (cartItems: CartItem[], userId: number) => {
+export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData) => {
   try {
-    if (!userId) {
-      return { ok: false, message: "No hay sesión de usuario activa" };
+    // A. Validaciones
+    if (cartItems.length === 0) {
+      return { ok: false, message: "Cart is empty" };
     }
     
-    if (cartItems.length === 0) {
-      return { ok: false, message: "El carrito está vacío" };
+    // Validación estricta de campos para USA
+    if (!shippingData.email || !shippingData.address || !shippingData.name || !shippingData.city || !shippingData.state || !shippingData.postalCode) {
+      return { ok: false, message: "Missing required shipping fields (Zip Code/State)" };
     }
 
-    // Obtener productos reales de la Base de Datos
+    // B. Obtener productos reales
     const productIds = cartItems.map((item) => item.productId);
-    
     const dbProducts = await prisma.product.findMany({
-      where: {
-        id: { in: productIds },
-        isActive: true 
-      },
+      where: { id: { in: productIds }, isActive: true },
     });
 
     let totalAmount = 0;
-    
-    // CORRECCIÓN AQUÍ: Tipado explícito del array
-    const orderItemsData: { productId: string; quantity: number; price: number }[] = [];
+    const orderItemsData = [];
 
     for (const item of cartItems) {
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
-
-      if (!dbProduct) {
-        throw new Error(`Producto no disponible o inactivo: ${item.productId}`);
-      }
+      if (!dbProduct) throw new Error(`Product not found: ${item.productId}`);
 
       const price = Number(dbProduct.price);
-      const subtotal = price * item.quantity;
-      
-      totalAmount += subtotal;
+      totalAmount += price * item.quantity;
 
       orderItemsData.push({
         productId: dbProduct.id,
@@ -52,36 +53,37 @@ export const placeOrder = async (cartItems: CartItem[], userId: number) => {
       });
     }
 
-    // Transacción
+    // C. Crear Orden (Guest Checkout)
     const order = await prisma.$transaction(async (tx) => {
-      
-      // Si "tx.order" sigue en rojo, es porque falta el "npx prisma generate"
-      const newOrder = await tx.order.create({
+      return await tx.order.create({
         data: {
-          userId: userId,
+          userId: null, // Sin usuario registrado
+          
+          customerName: shippingData.name,
+          customerEmail: shippingData.email,
+          customerPhone: shippingData.phone,
+          
+          addressLine1: shippingData.address,
+          city: shippingData.city,
+          state: shippingData.state,
+          postalCode: shippingData.postalCode, 
+          country: "United States",            
+          
           total: totalAmount,
           status: 'PENDING',
           isPaid: false,
+          
           items: {
             create: orderItemsData,
           },
         },
       });
-
-      return newOrder;
     });
 
-    return { 
-      ok: true, 
-      order: order, 
-      message: "Orden generada correctamente" 
-    };
+    return { ok: true, order: order, message: "Order placed successfully" };
 
   } catch (error: any) {
-    console.error("Error al crear orden:", error);
-    return { 
-      ok: false, 
-      message: error.message || "Error interno al procesar la orden" 
-    };
+    console.error("Order Error:", error);
+    return { ok: false, message: "Internal server error processing order" };
   }
 };

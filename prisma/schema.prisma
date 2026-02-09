@@ -79,9 +79,8 @@ model Order {
   addressLine1    String      // Calle / Carrera #...
   addressLine2    String?     // Apto, Bloque, Unidad (Opcional)
   city            String      // Ej: Manizales
-  state           String?     // Departamento / Estado
-  postalCode      String?     // Código Postal
-  country         String      @default("Colombia")
+postalCode      String      // AHORA ES OBLIGATORIO (Quitamos el ?) o lo validamos por código
+  country         String      @default("United States") // Default USA
   
   // 4. Información Financiera
   total           Decimal     @db.Decimal(10, 2)

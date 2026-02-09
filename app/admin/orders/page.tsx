@@ -12,13 +12,7 @@ export default async function OrdersPage() {
       createdAt: 'desc' // Las más recientes primero
     },
     include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-        }
-      },
-      // MODIFICACIÓN CLAVE: Traemos los items Y los datos del producto dentro
+      // Traemos los items y los datos del producto
       items: {
         include: {
           product: {
@@ -35,20 +29,30 @@ export default async function OrdersPage() {
   // 2. Serialización (Limpieza de datos)
   const serializedOrders = orders.map((order) => ({
     id: order.id,
-    total: Number(order.total), // Conversión clave: Decimal -> Number
+    total: Number(order.total),
     status: order.status,
     createdAt: order.createdAt,
-    user: {
-      name: order.user.name,
-      email: order.user.email,
+    
+    // AQUÍ ESTÁ EL CAMBIO:
+    // Mapeamos los datos planos de la BD a un objeto 'customer' ordenado
+    customer: {
+      name: order.customerName,
+      email: order.customerEmail,
+      phone: order.customerPhone,
+      address: order.addressLine1,
+      city: order.city,
+      state: order.state || "",
+      postalCode: order.postalCode,
+      country: order.country
     },
+    
     itemsCount: order.items.length,
     
-    // NUEVO: Mapeamos los items para que el Modal de Detalles funcione
+    // Mapeamos los items
     items: order.items.map((item) => ({
       id: item.id,
       quantity: item.quantity,
-      price: Number(item.price), // Decimal -> Number
+      price: Number(item.price), 
       product: {
         name: item.product.name,
         images: item.product.images
