@@ -125,12 +125,12 @@ export default async function AdminDashboard() {
         <div className="border border-[var(--glass-border)] rounded-2xl p-6 bg-[var(--bg-page)]/20">
             <h3 className="font-bold text-sm mb-4 text-[var(--text-main)]">Quick Actions</h3>
             <div className="space-y-2">
-                <Link href="/admin/products/new">
+                {/* <Link href="/admin/products/new">
                     <button className="w-full text-left px-4 py-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--glass-border)] transition-colors text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] hover:text-[var(--text-main)] flex items-center justify-between group">
                         Add New Product
                         <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
-                </Link>
+                </Link> */}
                 <Link href="/admin/orders">
                     <button className="w-full text-left px-4 py-3 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] hover:bg-[var(--glass-border)] transition-colors text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] hover:text-[var(--text-main)] flex items-center justify-between group">
                         View All Orders

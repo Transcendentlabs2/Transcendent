@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import OrdersClient from "@/components/admin/orders/OrdersClient"; // Importa el componente que acabamos de crear
+import OrdersClient from "@/components/admin/orders/OrdersClient"; 
 
 // Esto fuerza a que la página NO se guarde en caché (siempre muestra datos frescos)
 export const dynamic = 'force-dynamic';
@@ -18,13 +18,21 @@ export default async function OrdersPage() {
           email: true,
         }
       },
-      items: true // Traemos los items para contarlos
+      // MODIFICACIÓN CLAVE: Traemos los items Y los datos del producto dentro
+      items: {
+        include: {
+          product: {
+            select: {
+              name: true,
+              images: true
+            }
+          }
+        }
+      }
     }
   });
 
   // 2. Serialización (Limpieza de datos)
-  // Next.js no puede enviar objetos "Decimal" (de la BD) al cliente. 
-  // Debemos convertirlos a Numbers o Strings.
   const serializedOrders = orders.map((order) => ({
     id: order.id,
     total: Number(order.total), // Conversión clave: Decimal -> Number
@@ -34,7 +42,18 @@ export default async function OrdersPage() {
       name: order.user.name,
       email: order.user.email,
     },
-    itemsCount: order.items.length
+    itemsCount: order.items.length,
+    
+    // NUEVO: Mapeamos los items para que el Modal de Detalles funcione
+    items: order.items.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      price: Number(item.price), // Decimal -> Number
+      product: {
+        name: item.product.name,
+        images: item.product.images
+      }
+    }))
   }));
 
   return (
@@ -50,7 +69,6 @@ export default async function OrdersPage() {
               Global overview of research transactions.
             </p>
         </div>
-        {/* Aquí podrías poner un botón de "Exportar a Excel" en el futuro */}
       </div>
 
       {/* Renderizamos el Cliente con los datos preparados */}
