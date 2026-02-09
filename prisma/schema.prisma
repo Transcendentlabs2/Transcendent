@@ -9,36 +9,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enums para roles y estados
 enum Role {
   ADMIN
   RESEARCHER
 }
 
 enum OrderStatus {
-  PENDING   // Creada, esperando pago
-  PAID      // Pagada exitosamente
-  SHIPPED   // Enviada / Despachada
-  DELIVERED // Entregada
-  CANCELLED // Cancelada
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
 
-// MODELO DE USUARIO (Opcional para compras, pero útil para Admin)
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   name      String?
   role      Role     @default(RESEARCHER)
-  
-  // Relación: Un usuario puede tener muchas órdenes (o ninguna)
   orders    Order[]
-  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// MODELO DE PRODUCTO
 model Product {
   id          String   @id @default(uuid())
   name        String
@@ -47,68 +41,58 @@ model Product {
   price       Decimal  @db.Decimal(10, 2)
   stock       Int      @default(0)
   category    String
-  images      String   // URL de la imagen principal
-  
-  // Campos científicos específicos de tu nicho
-  purity      String?  // Ej: "99.8% HPLC"
-  sequence    String?  // Ej: "Gly-Hys-Lys..."
+  images      String   
+  purity      String?  
+  sequence    String?  
   benefits    String?  @db.Text 
-  
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relación: Un producto está en muchos items de orden
   orderItems  OrderItem[]
 }
 
-// MODELO DE ORDEN (Optimizado para Guest Checkout y Logística)
 model Order {
   id              String      @id @default(uuid())
   
-  // 1. Relación con Usuario (OPCIONAL para permitir compra como invitado)
+  // 1. Relación con Usuario (Opcional)
   userId          Int?        
   user            User?       @relation(fields: [userId], references: [id])
   
-  // 2. Datos del Comprador (Se guardan en cada orden por seguridad)
-  customerName    String      // Vital para el envío
-  customerEmail   String      // Vital para notificaciones
-  customerPhone   String      // Vital para la transportadora
+  // 2. Datos del Comprador
+  customerName    String      
+  customerEmail   String      
+  customerPhone   String      
   
-  // 3. Dirección de Envío Estructurada
-  addressLine1    String      // Calle / Carrera #...
-  addressLine2    String?     // Apto, Bloque, Unidad (Opcional)
-  city            String      // Ej: Manizales
-postalCode      String      // AHORA ES OBLIGATORIO (Quitamos el ?) o lo validamos por código
-  country         String      @default("United States") // Default USA
+  // 3. Dirección de Envío
+  addressLine1    String      
+  addressLine2    String?     
+  city            String      
+  state           String      // <--- ¡AGREGADO! Faltaba este campo
+  postalCode      String      
+  country         String      @default("United States")
   
   // 4. Información Financiera
   total           Decimal     @db.Decimal(10, 2)
   status          OrderStatus @default(PENDING)
   isPaid          Boolean     @default(false)
   paidAt          DateTime?
-  stripePaymentId String?     // ID de transacción de Stripe
+  stripePaymentId String?     
   
-  // 5. Logística Interna (Para uso del Admin)
-  trackingNumber  String?     // Número de guía (Servientrega/FedEx)
-  courier         String?     // Nombre de la transportadora
+  // 5. Logística
+  trackingNumber  String?     
+  courier         String?     
   
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-
-  // Relación con los productos comprados
   items           OrderItem[]
 }
 
-// MODELO DE ITEM DE ORDEN (Snapshot del precio al momento de compra)
 model OrderItem {
   id        String  @id @default(uuid())
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id])
-  
   productId String
   product   Product @relation(fields: [productId], references: [id])
-  
   quantity  Int
-  price     Decimal @db.Decimal(10, 2) // Precio congelado al momento de la compra
+  price     Decimal @db.Decimal(10, 2) 
 }

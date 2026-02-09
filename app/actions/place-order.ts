@@ -9,8 +9,8 @@ type ShippingData = {
   phone: string;
   address: string;
   city: string;
-  state: string;      // US State
-  postalCode: string; // Zip Code (Obligatorio)
+  state: string;      
+  postalCode: string; 
 };
 
 type CartItem = {
@@ -25,9 +25,9 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       return { ok: false, message: "Cart is empty" };
     }
     
-    // Validación estricta de campos para USA
+    // Validación de campos obligatorios (incluyendo state)
     if (!shippingData.email || !shippingData.address || !shippingData.name || !shippingData.city || !shippingData.state || !shippingData.postalCode) {
-      return { ok: false, message: "Missing required shipping fields (Zip Code/State)" };
+      return { ok: false, message: "Missing required shipping fields" };
     }
 
     // B. Obtener productos reales
@@ -37,7 +37,9 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
     });
 
     let totalAmount = 0;
-    const orderItemsData = [];
+    
+    // CORRECCIÓN AQUÍ: Tipado explícito para evitar el error de "implicitly has an 'any[]' type"
+    const orderItemsData: { productId: string; quantity: number; price: number }[] = [];
 
     for (const item of cartItems) {
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
@@ -53,11 +55,11 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     }
 
-    // C. Crear Orden (Guest Checkout)
+    // C. Crear Orden
     const order = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
-          userId: null, // Sin usuario registrado
+          userId: null, 
           
           customerName: shippingData.name,
           customerEmail: shippingData.email,
@@ -65,7 +67,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           
           addressLine1: shippingData.address,
           city: shippingData.city,
-          state: shippingData.state,
+          state: shippingData.state,      // Ahora sí existe en el schema
           postalCode: shippingData.postalCode, 
           country: "United States",            
           
