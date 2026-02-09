@@ -9,41 +9,91 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum para manejar roles (útil para tu panel administrativo)
 enum Role {
   ADMIN
   RESEARCHER
 }
 
+enum OrderStatus {
+  PENDING   // Creada, esperando pago
+  PAID      // Pagada exitosamente
+  SHIPPED   // Enviada
+  DELIVERED // Entregada
+  CANCELLED // Cancelada
+}
 
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  password  String   // Aquí guardaremos la contraseña encriptada
+  password  String
   name      String?
   role      Role     @default(RESEARCHER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Relación: Un usuario puede tener muchas órdenes
+  orders    Order[]
 }
-
-
 
 model Product {
   id          String   @id @default(uuid())
   name        String
-  slug        String   @unique // Para la URL: /product/nombre-producto
+  slug        String   @unique
   description String   @db.Text
   price       Decimal  @db.Decimal(10, 2)
   stock       Int      @default(0)
   category    String
-  images      String   // URL de Cloudinary (podemos usar JSON si son varias, por ahora String simple)
+  images      String
   
-  // Campos para la Landing Page / Ciencia
-  purity      String?  // Ej: "99.8% HPLC"
-  sequence    String?  // Ej: "Gly-Hys-Lys..."
-  benefits    String?  @db.Text // Lista de beneficios separados por comas
+  // Campos científicos
+  purity      String?
+  sequence    String?
+  benefits    String?  @db.Text
   
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relación: Un producto puede estar en muchas líneas de orden
+  orderItems  OrderItem[]
+}
+
+// NUEVOS MODELOS
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id])
+  
+  // Información financiera
+  total           Decimal     @db.Decimal(10, 2)
+  status          OrderStatus @default(PENDING)
+  isPaid          Boolean     @default(false)
+  paidAt          DateTime?
+  
+  // Preparación para Stripe
+  stripePaymentId String?     // Aquí guardaremos el ID que nos devuelva Stripe después
+  
+  // Información de envío (Simplificado por ahora, puede expandirse)
+  shippingAddress String?     @db.Text // Podríamos guardar un JSON o String con la dirección
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relación con los items
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  // IMPORTANTE: Guardamos el precio y cantidad al momento de la compra
+  // para no depender del precio actual del producto si este cambia.
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2) 
 }

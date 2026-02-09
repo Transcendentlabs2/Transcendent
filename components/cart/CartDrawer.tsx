@@ -1,38 +1,79 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, ChevronLeft } from "lucide-react";
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, ChevronLeft, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/context/CartContext"; // Asegúrate que esta ruta sea correcta
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { placeOrder } from "@/app/actions/place-order"; // Importamos la Server Action
 
 export default function CartDrawer() {
-  const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartTotal } = useCart();
+  const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartTotal, clearCart } = useCart();
+  const router = useRouter();
+  
+  // Estado para controlar la carga de la transacción
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
-  // 🔒 BLOQUEO DE SCROLL TOTAL (BODY + HTML)
+  // 🔒 BLOQUEO DE SCROLL TOTAL (Mantenemos tu lógica intacta)
   useEffect(() => {
     if (isCartOpen) {
-      // 1. Bloquear scroll en ambas etiquetas (Crucial para móviles)
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden"; 
-      
-      // 2. Prevenir gestos táctiles fuera del drawer
       document.body.style.touchAction = "none";
     } else {
-      // Restaurar todo
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
       document.body.style.touchAction = "";
     }
-
-    // Limpieza al desmontar
     return () => {
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
       document.body.style.touchAction = "";
     };
   }, [isCartOpen]);
+
+  // 🛒 LÓGICA PARA CREAR LA ORDEN
+  const handleCheckout = async () => {
+    setIsCheckoutLoading(true);
+
+    try {
+        // 1. Preparamos los datos para la Server Action
+        // Nota: Mapeamos 'id' del carrito a 'productId' que espera la base de datos
+        const orderProducts = items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity
+        }));
+
+        // TODO: MÁS ADELANTE AQUÍ OBTENDREMOS EL ID REAL DE LA SESIÓN (NextAuth / Clerk)
+        // Por ahora usamos el ID 1 para probar la base de datos.
+        const userId = 1; 
+
+        // 2. Llamamos a la Server Action
+        const response = await placeOrder(orderProducts, userId);
+
+        // 3. Respuesta
+        if (response.ok && response.order) {
+            // Éxito: Limpiamos carrito (si tu contexto tiene esa función, sino puedes omitirlo)
+            if (clearCart) clearCart(); 
+            
+            toggleCart(); // Cerramos el drawer
+            
+            // Redirigimos a la página de la orden (que crearemos en el siguiente paso)
+            router.push(`/orders/${response.order.id}`);
+        } else {
+            // Error
+            alert(response.message || "Error al crear la orden");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Ocurrió un error inesperado");
+    } finally {
+        setIsCheckoutLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -44,7 +85,6 @@ export default function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleCart}
-            // touch-none: Evita que el dedo "atraviese" el fondo oscuro y mueva la página
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] touch-none"
           />
 
@@ -54,7 +94,6 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            // h-[100dvh]: Altura dinámica exacta para móviles
             className="fixed top-0 right-0 h-[100dvh] w-full max-w-md bg-[var(--bg-page)]/95 backdrop-blur-xl border-l border-[var(--glass-border)] shadow-2xl z-[101] flex flex-col"
           >
             {/* Header */}
@@ -74,7 +113,6 @@ export default function CartDrawer() {
             </div>
 
             {/* Content List */}
-            {/* overscroll-y-contain: Evita el "Scroll Chaining" al llegar al final de la lista */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0 overscroll-y-contain">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
@@ -96,6 +134,7 @@ export default function CartDrawer() {
                   >
                     {/* Imagen */}
                     <div className="relative w-20 h-24 bg-[var(--bg-page)] rounded-lg overflow-hidden border border-[var(--glass-border)] shrink-0">
+                      {/* Nota: Asegúrate de que item.image sea una URL válida */}
                       <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
                     </div>
 
@@ -155,12 +194,24 @@ export default function CartDrawer() {
                 </div>
 
                 <div className="grid gap-3">
-                    <Link href="/checkout" onClick={toggleCart}>
-                        <button className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-2 group">
-                            Proceed to Checkout
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </button>
-                    </Link>
+                    {/* BOTÓN DE CHECKOUT MODIFICADO */}
+                    <button 
+                        onClick={handleCheckout}
+                        disabled={isCheckoutLoading}
+                        className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isCheckoutLoading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Processing...
+                            </>
+                        ) : (
+                            <>
+                                Proceed to Checkout
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
+                    </button>
                     
                     <Link href="/#catalog" onClick={toggleCart} className="w-full">
                         <button className="w-full py-3 rounded-xl font-bold uppercase tracking-widest text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--glass-border)] transition-colors flex items-center justify-center gap-2">
