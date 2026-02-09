@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, Clock, Package, ShieldCheck, ArrowRight, MapPin, CreditCard } from "lucide-react";
 
-// Función para formatear dinero (COP o USD según tu config)
+// Función para formatear dinero
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -29,8 +29,18 @@ async function getOrder(id: string) {
   return order;
 }
 
-export default async function OrderPage({ params }: { params: { id: string } }) {
-  const order = await getOrder(params.id);
+// --- CORRECCIÓN AQUÍ ---
+// 1. Definimos el tipo como una Promesa
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function OrderPage({ params }: Props) {
+  // 2. Esperamos (await) a que se resuelvan los params antes de usarlos
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
+
+  const order = await getOrder(id);
 
   if (!order) {
     notFound();
@@ -42,7 +52,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
   return (
     <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] font-sans selection:bg-[var(--color-brand-primary)] selection:text-white pb-20">
       
-      {/* Navbar Placeholder (Si ya tienes un Navbar global, esto se ajustará debajo) */}
+      {/* Navbar Placeholder */}
       <div className="h-20" /> 
 
       <main className="container mx-auto px-4 max-w-5xl">
@@ -82,7 +92,6 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
                   <div key={item.id} className="p-4 flex gap-4 hover:bg-[var(--glass-border)]/30 transition-colors">
                     {/* Imagen del producto */}
                     <div className="relative w-20 h-20 bg-[var(--bg-page)] rounded-lg overflow-hidden border border-[var(--glass-border)] shrink-0">
-                      {/* Placeholder por si la imagen falla o es string vacio */}
                       {item.product.images ? (
                          <Image 
                            src={item.product.images} 
@@ -164,7 +173,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
                  </p>
               </div>
 
-              {/* BOTÓN DE ACCIÓN (Futura Integración Stripe) */}
+              {/* BOTÓN DE ACCIÓN */}
               <button 
                 disabled 
                 className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
