@@ -2,20 +2,27 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, Package, ShieldCheck, CreditCard, AlertCircle, Edit, MapPin } from "lucide-react";
+import { 
+  Clock, Package, ShieldCheck, ArrowRight, CreditCard, Lock, AlertCircle, Edit
+} from "lucide-react";
 
 // Función para formatear dinero
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
 };
 
-// Obtenemos la orden
+// Fetch de datos
 async function getOrder(id: string) {
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
       items: {
-        include: { product: true },
+        include: {
+          product: true,
+        },
       },
     },
   });
@@ -23,20 +30,25 @@ async function getOrder(id: string) {
   return order;
 }
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
 export default async function OrderPage({ params }: Props) {
   const resolvedParams = await params;
   const { id } = resolvedParams;
+
   const order = await getOrder(id);
 
   if (!order) notFound();
 
   return (
+    // CAMBIO CLAVE: min-h-[100dvh] para móviles y padding-top seguro
     <div className="min-h-[100dvh] bg-[var(--bg-page)] text-[var(--text-main)] font-sans pb-10 pt-24 md:pt-32">
+      
       <main className="container mx-auto px-4 max-w-5xl">
         
-        {/* Progress Bar (Ahora estamos en el paso 2: Payment) */}
+        {/* BARRA DE PROGRESO */}
         <div className="flex justify-center mb-8 md:mb-12">
             <div className="flex items-center gap-2 md:gap-4 text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-80">
                 <span className="flex items-center gap-2 text-emerald-500">
@@ -56,12 +68,12 @@ export default async function OrderPage({ params }: Props) {
             </div>
         </div>
 
+        {/* LAYOUT RESPONSIVO: Flex-col-reverse en móvil pone el pago primero */}
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-6 md:gap-8 items-start">
           
-          {/* DETALLES DE LA ORDEN (Lo que compró y a dónde va) */}
+          {/* DETALLES DE LA ORDEN (Abajo en móvil, Izquierda en PC) */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6 w-full">
             
-            {/* Productos */}
             <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl overflow-hidden shadow-sm">
               <div className="p-4 md:p-6 border-b border-[var(--glass-border)] flex justify-between items-center bg-[var(--bg-page)]/50">
                 <h2 className="font-bold flex items-center gap-2 text-xs md:text-sm uppercase tracking-wider text-[var(--text-muted)]">
@@ -93,30 +105,18 @@ export default async function OrderPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Dirección de Envío (Datos que vienen de la orden) */}
-            <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-6">
-                <h3 className="font-bold text-xs uppercase tracking-widest text-[var(--text-muted)] mb-4 flex items-center gap-2">
-                    <MapPin className="w-4 h-4" /> Shipping Destination
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                    <div>
-                        <p className="text-[var(--text-muted)] text-xs mb-1">Customer</p>
-                        <p className="font-bold">{order.customerName}</p>
-                        <p>{order.customerEmail}</p>
-                        <p className="text-[var(--text-muted)] text-xs mt-1">{order.customerPhone}</p>
-                    </div>
-                    <div>
-                        <p className="text-[var(--text-muted)] text-xs mb-1">Address</p>
-                        <p>{order.addressLine1}</p>
-                        <p>{order.city}, {order.state} {order.postalCode}</p>
-                        <p className="font-bold">{order.country}</p>
-                    </div>
-                </div>
+            <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4 flex gap-3 items-start">
+              <ShieldCheck className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                <strong className="text-blue-400 block mb-1">Scientific Grade Guarantee</strong>
+                Items reserved. Purity certificates included.
+              </p>
             </div>
           </div>
 
-          {/* TARJETA DE PAGO */}
+          {/* PAGO (Arriba en móvil, Derecha en PC) */}
           <div className="lg:col-span-1 w-full lg:sticky lg:top-24 space-y-4 md:space-y-6">
+            
             <div className="bg-[var(--bg-page)] border border-amber-500/30 ring-1 ring-amber-500/10 rounded-2xl p-5 md:p-6 space-y-6 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/5 blur-3xl -z-10 rounded-full translate-x-10 -translate-y-10" />
 
@@ -134,20 +134,29 @@ export default async function OrderPage({ params }: Props) {
                   </span>
               </div>
 
-              <button disabled className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-3.5 rounded-xl font-bold uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 opacity-80 cursor-not-allowed text-sm md:text-base">
-                <CreditCard className="w-4 h-4" /> Pay Now
+              <button 
+                disabled 
+                className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-3.5 rounded-xl font-bold uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 opacity-80 cursor-not-allowed text-sm md:text-base"
+              >
+                <CreditCard className="w-4 h-4" />
+                Pay Now
               </button>
               
               <div className="bg-amber-100 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-2 rounded text-[10px] text-center text-amber-700 dark:text-amber-400">
-                <AlertCircle className="w-3 h-3 inline mr-1 mb-0.5" /> Stripe Integration Pending
+                <AlertCircle className="w-3 h-3 inline mr-1 mb-0.5" />
+                Stripe Integration Pending
               </div>
             </div>
 
+            {/* Link Modify Order */}
             <div className="text-center">
+                <p className="text-[10px] text-[var(--text-muted)] mb-2">Need to add more items?</p>
                 <Link href="/#catalog" className="inline-flex items-center gap-2 text-xs font-bold text-[var(--text-main)] hover:underline">
-                    <Edit className="w-3 h-3" /> Start New Order
+                    <Edit className="w-3 h-3" />
+                    Start New Order
                 </Link>
             </div>
+
           </div>
         </div>
       </main>

@@ -1,22 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, memo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ShoppingCart, ArrowRight, Microscope, Info } from "lucide-react";
+import { ShoppingCart, ArrowRight, Minus, Plus, Activity, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
-import { useCart } from "@/context/CartContext"; 
+import { useCart } from "@/context/CartContext";
 
-// --- COMPONENTES DEL SISTEMA DE PRODUCTO ---
+// --- SECCIONES SECUNDARIAS (Mantenemos tu lógica existente) ---
 import ProductReviews from "./ProductReviews";
 import StickyPurchase from "./StickyPurchase";
-import UrgencyBanner from "./UrgencyBanner";
-import StockMeter from "./StockMeter";
-import ScientificSpecs from "./ScientificSpecs";
 import ResearchChallenges from "./ResearchChallenges";
 import ProtocolFAQ from "./ProtocolFAQ";
-import SecureBadges from "./SecureBadges";
+
+// --- CONFIGURACIÓN VISUAL ---
+const getAccentColor = (category: string) => {
+  // Ajusta estos colores a tu marca Transcendent Labs
+  switch (category?.toLowerCase()) {
+    case "peptides": return "#3b82f6"; // Azul científico
+    case "nootropics": return "#8b5cf6"; // Violeta mente
+    case "metabolic": return "#f97316"; // Naranja energía
+    case "longevity": return "#10b981"; // Verde vida
+    default: return "#ffffff";
+  }
+};
+
+// --- TEXTURA STATIC NOISE (Del diseño de referencia) ---
+const StaticNoise = memo(() => (
+  <div 
+    className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay z-0"
+    style={{
+      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+      backgroundSize: '100px 100px'
+    }}
+  />
+));
+StaticNoise.displayName = "StaticNoise";
 
 interface Product {
   id: string;
@@ -27,203 +47,231 @@ interface Product {
   images: string;
   purity?: string;
   description: string;
-  slug: string; 
+  slug: string;
 }
-
-// --- SVG ANIMADO: QUANTUM FIELD HUD (Más Disruptivo) ---
-const BioScannerRing = () => (
-  <svg className="absolute inset-0 w-full h-full pointer-events-none text-[var(--color-brand-primary)] overflow-visible" viewBox="0 0 600 600">
-    <defs>
-      <filter id="glow-intense" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="4" result="blur" />
-        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-      </filter>
-      <linearGradient id="beam-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
-        <stop offset="50%" stopColor="currentColor" stopOpacity="0.8" />
-        <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-      </linearGradient>
-    </defs>
-
-    {/* 1. EJE Z (Profundidad) - Elipse Rotando Lento */}
-    <motion.ellipse 
-        cx="300" cy="300" rx="280" ry="100" 
-        stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.2" 
-        animate={{ rotate: 360 }} 
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }} 
-    />
-    
-    {/* 2. EJE Y - Elipse Inversa */}
-    <motion.ellipse 
-        cx="300" cy="300" rx="100" ry="280" 
-        stroke="currentColor" strokeWidth="1" fill="none" strokeOpacity="0.2" 
-        animate={{ rotate: -360 }} 
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }} 
-    />
-
-    {/* 3. NÚCLEO PULSANTE (Target Lock) */}
-    <motion.circle 
-        cx="300" cy="300" r="180" 
-        stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity="0.1" strokeDasharray="20 10"
-        animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3], rotate: 180 }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-    />
-
-    {/* 4. MARCADORES DE ESQUINA (HUD Táctico) */}
-    <motion.path 
-        d="M 100 100 L 150 100 L 100 150 M 500 100 L 450 100 L 500 150 M 100 500 L 150 500 L 100 450 M 500 500 L 450 500 L 500 450"
-        stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity="0.5" filter="url(#glow-intense)"
-        initial={{ opacity: 0, scale: 1.2 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-    />
-
-    {/* 5. ESCÁNER DE BARRIDO (Luz Vertical Rápida) */}
-    <motion.rect
-      x="0" y="280" width="600" height="40"
-      fill="url(#beam-grad)"
-      initial={{ opacity: 0 }}
-      animate={{ y: [-300, 300], opacity: [0, 0.8, 0] }}
-      transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
-    />
-  </svg>
-);
-
-// FUNCIÓN TEXTO: Solo Negritas, sin lógica rara
-const formatDescription = (text: string) => {
-  if (!text) return null;
-  const parts = text.split(/(\*\*.*?\*\*)/g);
-  return parts.map((part, index) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={index} className="text-[var(--text-main)] font-bold">{part.slice(2, -2)}</strong>;
-    }
-    return <span key={index}>{part}</span>;
-  });
-};
 
 export default function ProductTemplate({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
-  const { scrollYProgress } = useScroll();
-  const yImage = useTransform(scrollYProgress, [0, 1], [0, 50]);
   const { addItem } = useCart();
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Color dinámico basado en categoría
+  const accentColor = getAccentColor(product.category);
+
+  // Parallax Logic
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+
+  const textParallax = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const opacityFade = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <>
+    <div className="bg-[#050505] min-h-screen text-white selection:bg-[var(--color-brand-primary)] selection:text-white overflow-hidden">
       <Navbar />
-      <div className="pt-20"><UrgencyBanner /></div>
 
-      <div className="relative min-h-screen w-full overflow-hidden bg-[var(--bg-page)] text-[var(--text-main)]">
+      {/* --- HERO SECTION (Estilo Bioseta) --- */}
+      <section ref={containerRef} className="relative min-h-[100dvh] w-full flex flex-col items-center justify-center pt-24 pb-12 md:py-0 overflow-hidden">
         
-        {/* Fondo Sutil */}
-        <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(var(--text-main) 1px, transparent 1px), linear-gradient(90deg, var(--text-main) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        {/* 1. FONDO AMBIENTAL */}
+        <div 
+          className="absolute inset-0 opacity-20 pointer-events-none"
+          style={{ background: `radial-gradient(circle at center, ${accentColor} 0%, transparent 70%)` }}
+        />
+        <StaticNoise />
+        
+        {/* 2. TEXTO GIGANTE DE FONDO (Parallax) */}
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0">
+          <motion.h2
+            style={{ 
+                y: textParallax,
+                opacity: opacityFade,
+                WebkitTextStroke: "1px rgba(255,255,255,0.08)",
+            }}
+            className="text-[18vw] md:text-[22vw] font-sans font-black uppercase text-transparent leading-none whitespace-nowrap select-none"
+          >
+            {product.slug?.split("-")[0] || product.name?.split(" ")[0]}
+          </motion.h2>
+        </div>
 
-        <main className="relative z-10 max-w-[1600px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-             
-             {/* --- COLUMNA VISUAL --- */}
-             <div className="relative h-[50vh] lg:h-[calc(100vh-120px)] lg:sticky lg:top-[120px] w-full flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-[var(--glass-border)] bg-[var(--bg-page)]/50 backdrop-blur-sm group">
-                {/* SVG DISRUPTIVO */}
-                <div className="absolute w-[100%] h-[100%] opacity-40 pointer-events-none flex items-center justify-center">
-                    <BioScannerRing />
-                </div>
-                
-                <motion.div style={{ y: yImage }} initial={{ scale: 0.8, opacity: 0, filter: "blur(10px)" }} animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }} transition={{ duration: 1, ease: "easeOut" }} className="relative w-[55%] lg:w-[55%] h-[55%] lg:h-[55%] z-20">
-                   <Image src={product.images} alt={product.name} fill className="object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.6)]" priority />
-                </motion.div>
-                
-                <div className="absolute top-6 left-6 flex flex-col gap-1">
-                    <span className="text-[9px] uppercase tracking-widest text-[var(--text-muted)]">Compound_ID</span>
-                    <span className="font-mono text-sm font-bold text-[var(--color-brand-primary)] tracking-widest">{product.slug.slice(0,8).toUpperCase()}</span>
-                </div>
-                
-                <div className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 flex items-center gap-2 bg-[var(--bg-page)]/80 backdrop-blur border border-[var(--glass-border)] px-3 py-1.5 rounded-full shadow-lg">
-                    <Microscope className="w-3 h-3 text-[var(--color-brand-primary)]" />
-                    <span className="text-[10px] uppercase tracking-wider font-bold">Research Only</span>
-                </div>
-             </div>
+        {/* 3. CONTENIDO PRINCIPAL (Grid 3 Columnas) */}
+        <div className="relative w-full max-w-[1800px] px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-12 items-center z-10">
 
-             {/* --- COLUMNA CONTENIDO --- */}
-             <div className="relative px-6 py-10 lg:px-24 lg:py-24">
-                
-                <div className="flex flex-wrap items-center gap-3 mb-6 lg:mb-8">
-                   <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)]">
-                      <span>Catalog</span>
-                      <ArrowRight className="w-3 h-3" />
-                      <span className="text-[var(--color-brand-primary)]">{product.category}</span>
-                   </div>
-                   <div className="h-px w-8 bg-[var(--glass-border)] hidden sm:block" />
-                   {product.stock < 50 && (
-                      <span className="text-[9px] font-bold text-red-500 uppercase tracking-widest border border-red-500/20 px-2 py-0.5 rounded bg-red-500/5 animate-pulse">Low Batch Vol.</span>
-                   )}
-                </div>
+          {/* COLUMNA IZQUIERDA: Info & Compra (4 cols) */}
+          <div className="md:col-span-4 flex flex-col gap-6 order-2 md:order-1">
+            
+            {/* Header Pequeño */}
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-mono text-white/30">ID_{product.id.slice(-4).toUpperCase()}</span>
+              <span className="h-[1px] w-8 bg-white/10" />
+              <span 
+                className="text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-1 bg-white/5 border border-white/10 rounded-sm"
+                style={{ color: accentColor, borderColor: `${accentColor}30` }}
+              >
+                {product.category}
+              </span>
+            </div>
 
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black leading-tight tracking-tighter mb-4 lg:mb-6 text-transparent bg-clip-text bg-gradient-to-br from-[var(--text-main)] to-[var(--text-muted)] pb-2">
-                   {product.name}
-                </h1>
-                
-                <div className="flex items-baseline gap-4 mb-8 border-b border-[var(--glass-border)] pb-6">
-                   <span className="text-3xl lg:text-4xl font-mono font-bold text-[var(--color-brand-primary)]">${product.price.toFixed(2)}</span>
-                   <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">USD / Lyophilized Vial</span>
-                </div>
+            {/* Título Principal */}
+            <div>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-sans font-black text-white leading-[0.9] tracking-tighter mb-4">
+                {product.name}
+              </h1>
+              <p className="text-sm md:text-base text-stone-400 font-mono leading-relaxed max-w-sm">
+                {product.description}
+              </p>
+            </div>
 
-                <div className="mb-10">
-                   <ScientificSpecs purity={product.purity || "99% HPLC"} category={product.category} />
-                </div>
+            {/* Precio */}
+            <div className="flex items-baseline gap-3 py-4">
+               <span className="text-4xl font-sans font-black text-white tracking-tighter">
+                 ${product.price.toLocaleString()}
+               </span>
+               <span className="text-[10px] text-white/40 font-mono uppercase tracking-widest">
+                 USD / Vial
+               </span>
+            </div>
 
-                <div className="mb-12">
-                   <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] mb-4 flex items-center gap-2">
-                      <Info className="w-3 h-3" /> Technical Abstract
+            {/* Controles de Compra */}
+            <div className="flex flex-col gap-4 max-w-sm">
+              {/* Selector Cantidad */}
+              <div className="flex items-center justify-between border border-white/10 bg-white/5 px-4 h-12 rounded-sm backdrop-blur-sm">
+                  <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-white/50 hover:text-white transition-colors">
+                    <Minus size={14} />
+                  </button>
+                  <span className="font-mono font-bold">{qty}</span>
+                  <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-white/50 hover:text-white transition-colors">
+                    <Plus size={14} />
+                  </button>
+              </div>
+
+              {/* Botón Principal */}
+              <button
+                onClick={() => addItem(product, qty)}
+                className="group relative overflow-hidden w-full bg-white text-black h-14 rounded-sm transition-all active:scale-95 hover:shadow-[0_0_30px_rgba(255,255,255,0.15)]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-stone-200/60 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+                <div className="flex items-center justify-between px-6 relative z-10 h-full">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em]">Add to Research Cart</span>
+                  <ShoppingCart className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* COLUMNA CENTRAL: Imagen & Anillos (4 cols) */}
+          <div className="md:col-span-4 h-[50vh] md:h-[70vh] flex items-center justify-center relative order-1 md:order-2">
+            
+            {/* ANILLOS ANIMADOS (Estilo Referencia) */}
+            <div 
+              className="absolute w-[280px] h-[280px] md:w-[450px] md:h-[450px] border border-white/5 rounded-full animate-[spin_15s_linear_infinite]"
+              style={{ borderTopColor: accentColor }} // Solo un borde de color sutil
+            />
+            <div className="absolute w-[220px] h-[220px] md:w-[350px] md:h-[350px] border border-dashed border-white/10 rounded-full animate-[spin_25s_linear_infinite_reverse]" />
+            
+            {/* Imagen del Producto */}
+            <motion.div 
+              style={{ scale: imageScale }}
+              className="relative w-[80%] h-[80%] flex items-center justify-center z-20"
+            >
+              <Image
+                src={product.images}
+                alt={product.name}
+                fill
+                className="object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.7)]"
+                priority
+              />
+            </motion.div>
+
+            {/* Indicador Flotante Pequeño */}
+            <div className="absolute bottom-10 flex items-center gap-2 px-3 py-1 bg-black/50 border border-white/10 rounded-full backdrop-blur-md">
+                <Activity size={12} color={accentColor} />
+                <span className="text-[9px] uppercase tracking-widest text-white/70">HPLC Verified</span>
+            </div>
+          </div>
+
+          {/* COLUMNA DERECHA: Specs Técnicas (4 cols) */}
+          <div className="md:col-span-4 flex flex-col items-start md:items-end gap-8 order-3 opacity-80 md:text-right">
+            
+            {/* Pureza */}
+            <div className="flex flex-col md:items-end gap-1">
+              <span className="text-[9px] text-white/30 uppercase tracking-[0.2em] mb-1">Purity Grade</span>
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-sans font-bold text-white">{product.purity || "99.8%"}</span>
+                <CheckCircle2 size={16} color={accentColor} />
+              </div>
+            </div>
+
+            {/* Stock */}
+            <div className="flex flex-col md:items-end gap-2">
+               <span className="text-[9px] text-white/30 uppercase tracking-[0.2em]">Batch Status</span>
+               <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded border border-white/5">
+                 <div className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
+                 <span className="text-xs font-mono text-white/80">
+                   {product.stock > 0 ? `In Stock (${product.stock} units)` : "Out of Stock"}
+                 </span>
+               </div>
+            </div>
+
+            {/* Features / Benefits List (Como en la referencia) */}
+            <div className="flex flex-col md:items-end gap-3 pt-6 border-t border-white/5 w-full md:w-auto">
+               <span 
+                 className="text-[9px] uppercase tracking-widest font-mono pb-1 mb-2"
+                 style={{ color: accentColor }}
+               >
+                 Active Principles
+               </span>
+               {["Lyophilized Powder", "Sterile Vial", "Lab Research Only"].map((feat, i) => (
+                 <span key={i} className="text-sm font-sans font-bold text-white uppercase tracking-wider">
+                   {feat}
+                 </span>
+               ))}
+            </div>
+
+          </div>
+        </div>
+
+        {/* Scroll Indicator / Línea decorativa inferior */}
+        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </section>
+
+      {/* --- SECCIÓN DE DETALLES (Contenido adicional fuera del Hero) --- */}
+      <section className="relative z-10 bg-[#080808] border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6 py-24">
+            
+            {/* abstract y challenges */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
+                <div>
+                   <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-white/40 mb-8 flex items-center gap-2">
+                     <ArrowRight size={14} color={accentColor} /> Technical Abstract
                    </h3>
-                   
-                   {/* CORRECCIÓN DE TEXTO: text-left y hyphens-none */}
-                   <div className="prose prose-sm prose-invert max-w-none text-[var(--text-muted)] leading-relaxed columns-1 md:columns-2 gap-8 [column-rule:1px_solid_var(--glass-border)] mb-8 text-left hyphens-none break-words">
-                      <p>
-                         {formatDescription(product.description)}
-                      </p>
+                   <div className="prose prose-invert prose-p:text-stone-400 prose-strong:text-white prose-sm max-w-none">
+                     <p>{product.description}</p>
+                     {/* Aquí podrías poner texto largo si lo tienes */}
                    </div>
-
+                </div>
+                <div>
                    <ResearchChallenges />
                 </div>
+            </div>
 
-                <div className="mb-8">
-                    <ProtocolFAQ />
-                </div>
+            {/* FAQ */}
+            <div className="mb-24">
+                <ProtocolFAQ />
+            </div>
 
-                <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] p-6 rounded-2xl shadow-xl lg:sticky lg:bottom-10 z-30 backdrop-blur-md">
-                   <StockMeter stock={product.stock} />
-                   <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                      <div className="flex items-center justify-between sm:justify-start bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-lg px-4 h-14 sm:w-40">
-                         <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">-</button>
-                         <span className="font-mono font-bold text-lg">{qty}</span>
-                         <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">+</button>
-                      </div>
-                      <button 
-                        onClick={() => addItem(product, qty)} 
-                        className="flex-1 bg-[var(--text-main)] text-[var(--bg-page)] h-14 rounded-lg font-bold uppercase tracking-wider text-sm hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-3 group"
-                      >
-                         <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                         <span>Acquire Sample</span>
-                      </button>
-                   </div>
-                   <SecureBadges />
-                </div>
-             </div>
-          </div>
-        </main>
+            {/* Reviews */}
+            <div className="pt-12 border-t border-white/5">
+                <h3 className="text-center text-2xl font-display font-bold mb-12">Protocol Feedback</h3>
+                <ProductReviews />
+            </div>
+        </div>
+      </section>
 
-        <section className="relative z-10 max-w-7xl mx-auto px-6 py-24 border-t border-[var(--glass-border)] bg-[var(--bg-page)]">
-           <div className="flex items-center justify-center gap-4 mb-12">
-              <div className="h-px w-10 bg-[var(--glass-border)]" />
-              <h3 className="text-2xl md:text-3xl font-display font-bold text-center">Protocol Feedback</h3>
-              <div className="h-px w-10 bg-[var(--glass-border)]" />
-           </div>
-           <ProductReviews />
-        </section>
-
-      </div>
-      
       <StickyPurchase product={product} qty={qty} />
       <Footer />
-    </>
+    </div>
   );
 }
