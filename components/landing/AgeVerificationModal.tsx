@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 // ✅ IMPORTA TU LOGO AQUÍ
 // Ajusta el nombre del archivo (logo.svg, logo.png, etc.) según lo tengas en la carpeta
-import Logo from '@/app/assets/logo/logo.svg'; 
+import Logo from '@/app/assets/logo.webp'; 
 
 export default function AgeVerificationModal() {
   const [showModal, setShowModal] = useState(true);
