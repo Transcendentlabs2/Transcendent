@@ -7,7 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext"; 
 import CartDrawer from "@/components/cart/CartDrawer"; 
 // ✅ NUEVA IMPORTACIÓN
-import AgeVerificationModal from "@/components/AgeVerificationModal"; 
+import AgeVerificationModal from "../components/landing/AgeVerificationModal"; 
 
 const poppins = Poppins({
   subsets: ["latin"],
