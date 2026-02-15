@@ -1,12 +1,16 @@
 'use client';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+
+// ✅ IMPORTA TU LOGO AQUÍ
+// Ajusta el nombre del archivo (logo.svg, logo.png, etc.) según lo tengas en la carpeta
+import Logo from '@/app/assets/logo/logo.svg'; 
 
 export default function AgeVerificationModal() {
-  // El modal se muestra por defecto siempre que el componente se monta
   const [showModal, setShowModal] = useState(true);
 
   const handleConfirm = () => {
-    // Simplemente cerramos el estado local
     setShowModal(false);
   };
 
@@ -17,44 +21,68 @@ export default function AgeVerificationModal() {
   if (!showModal) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-500">
-      <div className="bg-[#050505] border border-cyan-500/20 p-10 rounded-2xl shadow-[0_0_60px_rgba(6,182,212,0.15)] text-center max-w-md mx-4">
-        
-        <div className="inline-block px-3 py-1 mb-4 border border-cyan-500/30 rounded-full text-[10px] text-cyan-400 tracking-[0.2em] uppercase">
-          Security Protocol
-        </div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+    >
+      <motion.div 
+        initial={{ scale: 0.95, y: 10 }}
+        animate={{ scale: 1, y: 0 }}
+        className="relative bg-[var(--bg-page)] border border-[var(--glass-border)] p-8 md:p-12 rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden"
+      >
+        {/* Rejilla de fondo (Grid) para match con el Hero */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-        <h2 className="text-3xl font-bold mb-4 text-white tracking-tighter uppercase italic">
-          Age Verification
-        </h2>
-        
-        <p className="mb-8 text-gray-400 text-sm leading-relaxed">
-          Access to <span className="text-white font-medium">Transcendent Labs</span> is restricted to individuals of legal age.
-          <span className="block mt-2 text-cyan-500/80">
-            Confirm you are 18 or older to proceed.
-          </span>
-        </p>
-
-        <div className="flex flex-col gap-4">
-          <button 
-            onClick={handleConfirm}
-            className="w-full bg-cyan-600 hover:bg-cyan-400 text-white font-bold py-4 rounded-lg transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(8,145,178,0.3)]"
-          >
-            I AM 18+ | ENTER
-          </button>
+        <div className="relative z-10 flex flex-col items-center text-center">
           
-          <button 
-            onClick={handleReject}
-            className="w-full text-gray-600 hover:text-red-400 py-2 text-xs transition-colors uppercase tracking-widest"
-          >
-            Exit Site
-          </button>
-        </div>
+          {/* Contenedor del Logo */}
+          <div className="mb-8 relative">
+            <div className="absolute inset-0 bg-[var(--color-brand-primary)]/20 blur-2xl rounded-full"></div>
+            <Image 
+              src={Logo} 
+              alt="Transcendent Logo" 
+              width={80} 
+              height={80} 
+              className="relative z-10 drop-shadow-2xl"
+              priority
+            />
+          </div>
 
-        <p className="mt-8 text-[9px] text-gray-700 uppercase tracking-[0.3em]">
-          Bio-Active Research | 2026
-        </p>
-      </div>
-    </div>
+          <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tighter uppercase mb-4">
+            Age Verification
+          </h2>
+          
+          <p className="mb-10 text-[var(--text-muted)] text-sm leading-relaxed">
+            The compounds in <span className="text-[var(--text-main)] font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] uppercase">Transcendent Labs</span> are for research by adults only.
+            <span className="block mt-3 font-medium text-[var(--text-main)]">
+              Confirm you are 18 or older to access.
+            </span>
+          </p>
+
+          <div className="flex flex-col gap-4 w-full">
+            <button 
+              onClick={handleConfirm}
+              className="w-full py-4 bg-[var(--text-main)] text-[var(--bg-page)] font-bold rounded-xl transition-all hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(var(--color-brand-primary-rgb),0.3)] active:scale-95 uppercase tracking-widest"
+            >
+              Enter Site
+            </button>
+            
+            <button 
+              onClick={handleReject}
+              className="w-full py-2 text-xs text-[var(--text-muted)] hover:text-red-400 transition-colors uppercase tracking-[0.2em]"
+            >
+              I am under 18 (Exit)
+            </button>
+          </div>
+
+          <div className="mt-10 pt-6 border-t border-[var(--glass-border)] w-full">
+             <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-[0.4em] opacity-50">
+               Bio-Active Engineering &copy; 2026
+             </p>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
