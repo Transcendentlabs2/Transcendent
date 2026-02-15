@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Poppins, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-// ✅ CORRECCIÓN: Importación por defecto (sin llaves)
+
 import ThemeProvider from "@/components/landing/ThemeProvider"; 
 import { AuthProvider } from "@/context/AuthContext";
-import { CartProvider } from "@/context/CartContext"; // Integración Carrito
-import CartDrawer from "@/components/cart/CartDrawer"; // Panel Visual Carrito
+import { CartProvider } from "@/context/CartContext"; 
+import CartDrawer from "@/components/cart/CartDrawer"; 
+// ✅ NUEVA IMPORTACIÓN
+import AgeVerificationModal from "@/components/AgeVerificationModal"; 
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -40,9 +42,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${poppins.variable} ${inter.variable} ${jetbrains.variable}`}>
       <body className="antialiased bg-[var(--bg-page)] text-[var(--text-main)] selection:bg-cyan-500/30 selection:text-cyan-600 dark:selection:text-cyan-200">
         <ThemeProvider>
+          {/* ✅ EL MODAL DEBE ESTAR AQUÍ: Bloquea todo desde el nivel más alto */}
+          <AgeVerificationModal />
+
           <AuthProvider>
             <CartProvider>
-              {/* El Drawer debe estar aquí para flotar sobre toda la app */}
               <CartDrawer />
               {children}
             </CartProvider>
