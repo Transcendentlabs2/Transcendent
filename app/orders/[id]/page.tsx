@@ -178,10 +178,10 @@ export default async function OrderPage({ params }: Props) {
                         </div>
                     </div>
 
-                    <Link href="/" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-main)] py-3.5 rounded-xl font-bold uppercase tracking-widest shadow-sm flex items-center justify-center gap-2 hover:bg-[var(--glass-border)] transition-colors text-sm md:text-base">
-                        <Receipt className="w-4 h-4" />
-                        Return to Catalog
-                    </Link>
+                    <Link href="/#catalog" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-main)] py-3.5 rounded-xl font-bold uppercase tracking-widest shadow-sm flex items-center justify-center gap-2 hover:bg-[var(--glass-border)] transition-colors text-sm md:text-base">
+    <Package className="w-4 h-4" />
+    Continue Shopping
+</Link>
                 </div>
             ) : (
                 // --- VISTA DE ERROR O PENDIENTE ---
