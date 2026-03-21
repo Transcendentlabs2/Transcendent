@@ -33,7 +33,8 @@ export default function CheckoutPage() {
   const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID as string;
   const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID as string;
 
-  if (items.length === 0) {
+  // AJUSTE 1: Prevenir que muestre "empty" si estamos procesando la redirección exitosa
+  if (items.length === 0 && !isLoading) {
       return (
           <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--bg-page)] text-[var(--text-muted)]">
               <p>Your cart is empty.</p>
@@ -164,7 +165,7 @@ export default function CheckoutPage() {
                     <PaymentForm
                         applicationId={appId}
                         locationId={locationId}
-                       cardTokenizeResponseReceived={async (token: any) => {
+                        cardTokenizeResponseReceived={async (token: any) => {
                             // 1. Validamos que el usuario llenó sus datos antes de pagar
                             if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
                                 alert("Please fill in all contact and shipping information before completing the payment.");
@@ -173,6 +174,7 @@ export default function CheckoutPage() {
 
                             setIsLoading(true);
 
+                            // AJUSTE 2: Removido el finally. Solo apagamos isLoading si hay error.
                             try {
                                 const cartPayload = items.map(item => ({
                                     productId: item.id,
@@ -185,15 +187,16 @@ export default function CheckoutPage() {
                                 if (response.ok && response.order) {
                                     clearCart(); 
                                     router.push(`/orders/${response.order.id}`); 
+                                    // NO apagamos isLoading aquí, dejamos que la transición ocurra con el spinner girando
                                 } else {
                                     alert(response.message || "Error processing order");
+                                    setIsLoading(false);
                                 }
                             } catch (error) {
                                 console.error(error);
                                 alert("Unexpected error. Please try again.");
-                            } finally {
                                 setIsLoading(false);
-                            }
+                            } 
                         }}
                     >
                         <CreditCard />
