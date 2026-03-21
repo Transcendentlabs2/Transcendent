@@ -4,9 +4,6 @@ import { prisma } from '@/lib/prisma';
 import crypto from 'node:crypto';
 import { Resend } from 'resend';
 
-// Inicializamos Resend con tu API Key
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 type ShippingData = {
   name: string;
   email: string;
@@ -23,6 +20,9 @@ type CartItem = {
 };
 
 export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, paymentToken: string) => {
+  // Inicializamos Resend AQUÍ ADENTRO para asegurar que lea la variable de entorno de Vercel
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
     if (cartItems.length === 0) return { ok: false, message: "Cart is empty" };
     if (!shippingData.email || !shippingData.address || !shippingData.name || !shippingData.city || !shippingData.state || !shippingData.postalCode) {
