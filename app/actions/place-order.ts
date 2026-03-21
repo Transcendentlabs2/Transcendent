@@ -1,18 +1,8 @@
 'use server';
 
-'use server';
-
 import { prisma } from '@/lib/prisma';
 import crypto from 'node:crypto';
 
-// Usamos require para saltarnos el bloqueo estricto de TypeScript
-const { Client } = require('square');
-
-// Inicializamos el cliente de Square para el Backend
-const square = new Client({
-  environment: 'sandbox', // Cambia a 'production' cuando lances en vivo
-  accessToken: process.env.SQUARE_ACCESS_TOKEN,
-});
 type ShippingData = {
   name: string;
   email: string;
@@ -28,7 +18,6 @@ type CartItem = {
   quantity: number;
 };
 
-// AÑADIMOS paymentToken a los parámetros
 export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, paymentToken: string) => {
   try {
     if (cartItems.length === 0) {
@@ -65,27 +54,47 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     }
 
-    // --- INTEGRACIÓN SQUARE: Procesar el pago antes de guardar en DB ---
-    // Square requiere el monto en centavos (ej: $15.50 = 1550)
-    const amountInCents = BigInt(Math.round(totalAmount * 100));
+    // --- INTEGRACIÓN SQUARE: Procesar el pago vía REST API (A prueba de Vercel) ---
+    // Multiplicamos por 100 porque Square pide el monto en centavos y en número entero
+    const amountInCents = Math.round(totalAmount * 100);
 
     try {
-        await square.paymentsApi.createPayment({
-            sourceId: paymentToken,
-            idempotencyKey: crypto.randomUUID(), // Evita cobros dobles por error de red
-            amountMoney: {
-                amount: amountInCents,
-                currency: 'USD',
+        // NOTA: Cuando pases a producción, quita la palabra "sandbox" de esta URL
+        const squareEndpoint = 'https://connect.squareupsandbox.com/v2/payments';
+
+        const squareResponse = await fetch(squareEndpoint, {
+            method: 'POST',
+            headers: {
+                'Square-Version': '2024-01-18', 
+                'Authorization': `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json'
             },
-            locationId: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID as string,
+            body: JSON.stringify({
+                source_id: paymentToken,
+                idempotency_key: crypto.randomUUID(),
+                amount_money: {
+                    amount: amountInCents,
+                    currency: 'USD'
+                },
+                location_id: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID
+            })
         });
+
+        const paymentData = await squareResponse.json();
+
+        // Si la tarjeta es declinada o hay un error de fondos, Square lo reporta en .errors
+        if (!squareResponse.ok || paymentData.errors) {
+            console.error("Square Payment API Error:", paymentData.errors);
+            return { ok: false, message: "Payment declined by provider." };
+        }
+
     } catch (paymentError) {
-        console.error("Square Payment Error:", paymentError);
-        return { ok: false, message: "Payment declined by provider." };
+        console.error("Square Connection Error:", paymentError);
+        return { ok: false, message: "Could not connect to payment provider." };
     }
     // -------------------------------------------------------------------
 
-    // Si el código llega aquí, EL PAGO FUE EXITOSO. Guardamos la orden.
+    // Si pasamos el bloque anterior, EL PAGO FUE EXITOSO. Guardamos la orden.
     const order = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
@@ -99,8 +108,8 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           postalCode: shippingData.postalCode, 
           country: "United States",            
           total: totalAmount,
-          status: 'PAID', // Cambiamos a PAID porque ya se cobró
-          isPaid: true,   // Marcamos como pagado
+          status: 'PAID', 
+          isPaid: true,   
           items: {
             create: orderItemsData,
           },
