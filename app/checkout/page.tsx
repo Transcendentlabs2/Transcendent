@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShieldCheck, Lock, Loader2, ArrowLeft, MapPin } from "lucide-react";
 import Link from "next/link";
+// IMPORTAMOS SQUARE SDK
+import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
 
 export default function CheckoutPage() {
   const { items, cartTotal, clearCart } = useCart();
@@ -27,31 +29,9 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-        const cartPayload = items.map(item => ({
-            productId: item.id,
-            quantity: item.quantity
-        }));
-
-        const response = await placeOrder(cartPayload, formData);
-
-        if (response.ok && response.order) {
-            clearCart(); 
-            router.push(`/orders/${response.order.id}`); // AQUÍ nos vamos al paso final
-        } else {
-            alert(response.message || "Error processing order");
-        }
-    } catch (error) {
-        console.error(error);
-        alert("Unexpected error. Please try again.");
-    } finally {
-        setIsLoading(false);
-    }
-  };
+  // Obtenemos las variables de entorno
+  const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID as string;
+  const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID as string;
 
   if (items.length === 0) {
       return (
@@ -75,7 +55,8 @@ export default function CheckoutPage() {
                 <h1 className="text-2xl font-display font-bold">Secure Checkout</h1>
             </div>
 
-            <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
+            {/* Quitamos el onSubmit del form porque Square manejará el envío */}
+            <form id="checkout-form" className="space-y-8">
                 
                 {/* Contact Info */}
                 <section className="space-y-4">
@@ -102,7 +83,7 @@ export default function CheckoutPage() {
                     </div>
                 </section>
 
-                {/* Shipping Info - US FORMAT */}
+                {/* Shipping Info */}
                 <section className="space-y-4">
                      <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">2</div>
@@ -142,7 +123,7 @@ export default function CheckoutPage() {
             </form>
         </div>
 
-        {/* RESUMEN */}
+        {/* RESUMEN Y PAGO SQUARE */}
         <div className="lg:sticky lg:top-24 h-fit space-y-6">
             <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-6 shadow-xl">
                 <h3 className="font-bold text-lg mb-4">Order Summary</h3>
@@ -164,27 +145,65 @@ export default function CheckoutPage() {
                     ))}
                 </div>
 
-                <div className="border-t border-[var(--glass-border)] mt-4 pt-4 space-y-2">
+                <div className="border-t border-[var(--glass-border)] mt-4 pt-4 mb-6 space-y-2">
                     <div className="flex justify-between text-xl font-bold pt-2 text-[var(--color-brand-primary)]">
                         <span>Total</span>
                         <span>${cartTotal.toFixed(2)}</span>
                     </div>
                 </div>
 
-                <button 
-                    type="submit" 
-                    form="checkout-form"
-                    disabled={isLoading}
-                    className="w-full mt-6 bg-[var(--text-main)] text-[var(--bg-page)] py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[var(--color-brand-primary)] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-                    {isLoading ? "Processing..." : "Confirm & Pay"}
-                </button>
+                {isLoading && (
+                    <div className="flex justify-center items-center py-4">
+                        <Loader2 className="w-6 h-6 animate-spin text-[var(--color-brand-primary)]" />
+                        <span className="ml-2 font-bold">Processing...</span>
+                    </div>
+                )}
+
+                {/* CONTENEDOR DE PAGO DE SQUARE */}
+                <div className={isLoading ? "hidden" : "block"}>
+                    <PaymentForm
+                        applicationId={appId}
+                        locationId={locationId}
+                       cardTokenizeResponseReceived={async (token: any) => {
+                            // 1. Validamos que el usuario llenó sus datos antes de pagar
+                            if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
+                                alert("Please fill in all contact and shipping information before completing the payment.");
+                                return;
+                            }
+
+                            setIsLoading(true);
+
+                            try {
+                                const cartPayload = items.map(item => ({
+                                    productId: item.id,
+                                    quantity: item.quantity
+                                }));
+
+                                // 2. Enviamos todo al Server Action: Carrito, Datos de envío y TOKEN DE PAGO
+                                const response = await placeOrder(cartPayload, formData, token.token);
+
+                                if (response.ok && response.order) {
+                                    clearCart(); 
+                                    router.push(`/orders/${response.order.id}`); 
+                                } else {
+                                    alert(response.message || "Error processing order");
+                                }
+                            } catch (error) {
+                                console.error(error);
+                                alert("Unexpected error. Please try again.");
+                            } finally {
+                                setIsLoading(false);
+                            }
+                        }}
+                    >
+                        <CreditCard />
+                    </PaymentForm>
+                </div>
 
                 <div className="mt-4 flex flex-col items-center justify-center gap-1 text-center">
                    <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)]">
                        <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                       <span>SSL Secure Encrypted Payment</span>
+                       <span>SSL Secure Encrypted Payment via Square</span>
                    </div>
                    <p className="text-[10px] text-[var(--text-muted)] opacity-70">
                        Research Use Only. Not for human consumption.

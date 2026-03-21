@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
+    "@square/web-sdk": "^2.1.0",
     "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -21,7 +22,9 @@
     "next-cloudinary": "^6.17.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-square-web-payments-sdk": "^3.3.0",
     "recharts": "^3.7.0",
+    "square": "^44.0.1",
     "sweetalert2": "^11.26.18",
     "tailwind-merge": "^3.0.1"
   },
