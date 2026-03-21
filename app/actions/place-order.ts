@@ -20,16 +20,15 @@ type CartItem = {
 };
 
 export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, paymentToken: string) => {
-  // Inicializamos Resend AQUÍ ADENTRO para asegurar que lea la variable de entorno de Vercel
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
+    // 1. Validaciones iniciales
     if (cartItems.length === 0) return { ok: false, message: "Cart is empty" };
     if (!shippingData.email || !shippingData.address || !shippingData.name || !shippingData.city || !shippingData.state || !shippingData.postalCode) {
       return { ok: false, message: "Missing required shipping fields" };
     }
     if (!paymentToken) return { ok: false, message: "Payment token is missing" };
 
+    // 2. Buscar productos y calcular total
     const productIds = cartItems.map((item) => item.productId);
     const dbProducts = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
@@ -49,13 +48,12 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         productId: dbProduct.id,
         quantity: item.quantity,
         price: price,
-        name: dbProduct.name // Guardamos el nombre temporalmente para el correo
+        name: dbProduct.name 
       });
     }
 
-    // --- 1. COBRO CON SQUARE ---
+    // --- PASO 1: COBRO CON SQUARE ---
     const amountInCents = Math.round(totalAmount * 100);
-
     try {
         const squareEndpoint = 'https://connect.squareupsandbox.com/v2/payments';
         const squareResponse = await fetch(squareEndpoint, {
@@ -74,21 +72,18 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         });
 
         const paymentData = await squareResponse.json();
-
         if (!squareResponse.ok || paymentData.errors) {
-            console.error("Square Payment API Error:", paymentData.errors);
+            console.error("Square Error:", paymentData.errors);
             return { ok: false, message: "Payment declined by provider." };
         }
     } catch (paymentError) {
-        console.error("Square Connection Error:", paymentError);
         return { ok: false, message: "Could not connect to payment provider." };
     }
 
-    // --- 2. GUARDAR EN BASE DE DATOS ---
+    // --- PASO 2: GUARDAR EN PRISMA ---
     const order = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
-          userId: null, 
           customerName: shippingData.name,
           customerEmail: shippingData.email,
           customerPhone: shippingData.phone,
@@ -101,71 +96,87 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           status: 'PAID', 
           isPaid: true,   
           items: {
-            // Removemos el 'name' porque Prisma solo espera productId, quantity y price
             create: orderItemsData.map(({ name, ...rest }) => rest),
           },
         },
       });
     });
 
-    // --- 3. ENVIAR RECIBO POR CORREO CON RESEND ---
+    // --- PASO 3: ENVIAR CORREO (Solo si lo anterior fue exitoso) ---
     try {
-      // Generamos la lista de productos en HTML para el correo
-      const itemsHtml = orderItemsData.map(item => `
-        <tr>
-          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #374151;">${item.name} <br><small style="color: #6b7280;">Qty: ${item.quantity}</small></td>
-          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827; font-weight: bold;">$${(item.price * item.quantity).toFixed(2)}</td>
-        </tr>
-      `).join('');
+      const apiKey = process.env.RESEND_API_KEY;
+      
+      if (apiKey) {
+        // Inicialización interna para evitar el error de Vercel
+        const resend = new Resend(apiKey);
+        
+        const itemsHtml = orderItemsData.map(item => `
+          <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #374151;">
+              ${item.name} <br>
+              <small style="color: #6b7280;">Qty: ${item.quantity}</small>
+            </td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827; font-weight: bold;">
+              $${(item.price * item.quantity).toFixed(2)}
+            </td>
+          </tr>
+        `).join('');
 
-      await resend.emails.send({
-        from: 'Transcendent Labs <orders@transcendent-labs.com>', // Usa tu dominio verificado
-        to: shippingData.email,
-        subject: `Receipt for Order #${order.id.slice(0, 8)}`,
-        html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <h1 style="color: #111827; margin-bottom: 8px;">Transcendent Labs</h1>
-              <p style="color: #10b981; font-weight: 600; margin: 0;">Payment Successful</p>
+        await resend.emails.send({
+          from: 'Transcendent Labs <orders@transcendent-labs.com>',
+          to: shippingData.email,
+          subject: `Receipt for Order #${order.id.slice(0, 8)}`,
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+              <h1 style="color: #111827; text-align: center; font-size: 24px;">Transcendent Labs</h1>
+              <div style="text-align: center; background-color: #ecfdf5; color: #065f46; padding: 8px; border-radius: 6px; font-weight: bold; margin-bottom: 20px;">
+                Payment Successful
+              </div>
+              
+              <p>Hi <strong>${shippingData.name}</strong>,</p>
+              <p>Thank you for your purchase! We've received your payment and our team is preparing your shipment.</p>
+              
+              <h3 style="border-bottom: 2px solid #f3f4f6; padding-bottom: 8px; margin-top: 24px;">Order Details (#${order.id.slice(0, 8)})</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                ${itemsHtml}
+                <tr>
+                  <td style="padding: 16px 0; text-align: right; font-weight: bold;">Total Paid:</td>
+                  <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">
+                    $${totalAmount.toFixed(2)}
+                  </td>
+                </tr>
+              </table>
+
+              <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #f3f4f6;">
+                <h4 style="margin: 0 0 8px 0; color: #374151;">Shipping Address</h4>
+                <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                  ${shippingData.address}<br>
+                  ${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}<br>
+                  United States
+                </p>
+              </div>
+
+              <div style="text-align: center; border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 20px;">
+                <p style="color: #6b7280; font-size: 13px;">
+                  If you have any questions, please contact our team directly at:
+                </p>
+                <a href="mailto:transcendent.labs2@gmail.com" style="color: #3b82f6; font-weight: bold; text-decoration: none;">
+                  transcendent.labs2@gmail.com
+                </a>
+              </div>
             </div>
-            
-            <p style="color: #374151; line-height: 1.6;">Hi <strong>${shippingData.name}</strong>,</p>
-            <p style="color: #374151; line-height: 1.6;">Thank you for your purchase. We have received your payment and are currently processing your order.</p>
-            
-            <h3 style="color: #111827; margin-top: 32px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px;">Order Details (#${order.id.slice(0, 8)})</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-              ${itemsHtml}
-              <tr>
-                <td style="padding: 16px 0 0 0; text-align: right; color: #6b7280;">Total Paid:</td>
-                <td style="padding: 16px 0 0 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">$${totalAmount.toFixed(2)}</td>
-              </tr>
-            </table>
-
-            <div style="background-color: #f9fafb; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
-              <h4 style="margin: 0 0 8px 0; color: #374151;">Shipping Address</h4>
-              <p style="margin: 0; color: #6b7280; font-size: 14px;">
-                ${shippingData.address}<br>
-                ${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}<br>
-                United States
-              </p>
-            </div>
-
-            <p style="color: #6b7280; font-size: 13px; text-align: center; margin-top: 32px; border-top: 1px solid #e5e7eb; padding-top: 16px;">
-              If you have any questions about your order, please contact us at <br>
-              <a href="mailto:transcendent.labs2@gmail.com" style="color: #3b82f6; font-weight: bold;">transcendent.labs2@gmail.com</a>
-            </p>
-          </div>
-        `
-      });
+          `
+        });
+      }
     } catch (emailError) {
-      // Usamos un try-catch independiente. Si Resend falla, la orden igual se guarda.
-      console.error("Failed to send receipt email:", emailError);
+      // Error silencioso para no arruinar la experiencia del usuario si falla el email
+      console.error("Resend Error:", emailError);
     }
 
     return { ok: true, order: order, message: "Order placed and paid successfully" };
 
   } catch (error: any) {
-    console.error("Order Error:", error);
+    console.error("General Order Error:", error);
     return { ok: false, message: "Internal server error processing order" };
   }
 };
