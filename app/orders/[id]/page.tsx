@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  Clock, Package, ShieldCheck, ArrowRight, CreditCard, Lock, AlertCircle, Edit, CheckCircle2, Receipt
+  Clock, Package, ShieldCheck, ArrowRight, CreditCard, Lock, AlertCircle, Edit, CheckCircle2, Receipt, MapPin, User
 } from "lucide-react";
 
 // Función para formatear dinero
@@ -63,18 +63,19 @@ export default async function OrderPage({ params }: Props) {
                     Payment
                 </span>
                 <div className={`w-4 md:w-8 h-[1px] ${isPaid ? 'bg-emerald-500/50' : 'bg-[var(--glass-border)]'}`} />
-                <span className={`flex items-center gap-2 ${isPaid ? 'text-[var(--text-main)]' : 'opacity-50'}`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center ${isPaid ? 'bg-[var(--text-main)] text-[var(--bg-page)]' : 'border border-[var(--glass-border)]'}`}>3</span>
-                    Shipping
+                <span className={`flex items-center gap-2 ${isPaid ? 'text-emerald-500' : 'opacity-50'}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center ${isPaid ? 'bg-emerald-500 text-[var(--bg-page)]' : 'border border-[var(--glass-border)]'}`}>3</span>
+                    {isPaid ? 'Confirmed' : 'Shipping'}
                 </span>
             </div>
         </div>
 
         <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-6 md:gap-8 items-start">
           
-          {/* DETALLES DE LA ORDEN */}
+          {/* COLUMNA IZQUIERDA: DETALLES DE LA ORDEN Y ENVÍO */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6 w-full">
             
+            {/* PRODUCTOS */}
             <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl overflow-hidden shadow-sm">
               <div className="p-4 md:p-6 border-b border-[var(--glass-border)] flex justify-between items-center bg-[var(--bg-page)]/50">
                 <h2 className="font-bold flex items-center gap-2 text-xs md:text-sm uppercase tracking-wider text-[var(--text-muted)]">
@@ -105,6 +106,33 @@ export default async function OrderPage({ params }: Props) {
                 ))}
               </div>
             </div>
+
+            {/* DETALLES DE ENVÍO Y CONTACTO (NUEVO) */}
+            {isPaid && (
+              <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-5 md:p-6 shadow-sm">
+                <h2 className="font-bold text-sm uppercase tracking-wider text-[var(--text-muted)] mb-4 flex items-center gap-2">
+                  <MapPin className="w-4 h-4" /> Shipping & Contact Details
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1"><User className="w-3 h-3"/> Contact Info</p>
+                    <p className="text-sm font-medium">{order.customerName}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{order.customerEmail}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{order.customerPhone}</p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1"><MapPin className="w-3 h-3"/> Delivery Address</p>
+                    <p className="text-sm font-medium">{order.addressLine1}</p>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      {order.city}, {order.state} {order.postalCode}
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)]">{order.country}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4 flex gap-3 items-start">
               <ShieldCheck className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
