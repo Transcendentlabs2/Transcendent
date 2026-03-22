@@ -58,8 +58,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-[var(--bg-page)] text-[var(--text-main)] selection:bg-cyan-500/30 selection:text-cyan-600 dark:selection:text-cyan-200">
         
-        {/* ✅ CONTENEDOR DONDE APARECERÁ EL SELECTOR DE GOOGLE */}
-        <div id="google_translate_element" className="absolute top-4 right-4 z-50"></div>
+    
+        {/* ✅ CONTENEDOR DONDE APARECERÁ EL SELECTOR DE GOOGLE (AHORA OCULTO) */}
+<div id="google_translate_element" className="hidden"></div>
 
         {/* ✅ SCRIPTS DE GOOGLE TRANSLATE */}
         <Script
