@@ -12,7 +12,6 @@ export default function PeptideCalculator() {
   const [resultVol, setResultVol] = useState<number>(0); 
   
   // --- LIMITES DUROS (Hard Limits) ---
-  // Esto evita que el usuario rompa la UI con números irreales
   const MAX_VIAL_MG = 50;
   const MAX_WATER_ML = 10;
   const MAX_DOSE_MCG = 5000;
@@ -23,7 +22,6 @@ export default function PeptideCalculator() {
   const PIXELS_PER_TICK = 3; 
 
   useEffect(() => {
-    // Evitamos división por cero
     const safeWaterVol = waterVol === 0 ? 0.1 : waterVol;
     const safeVialQty = vialQty === 0 ? 1 : vialQty;
 
@@ -37,8 +35,6 @@ export default function PeptideCalculator() {
 
     setResultVol(volumeToInject);
     
-    // Limitamos visualmente a 100 IU para que no se salga de la jeringa gráfica
-    // Aunque el cálculo matemático de más, la jeringa solo muestra hasta 100.
     const ticks = Math.min(volumeToInject * 100, 100);
     setResultTick(ticks);
   }, [vialQty, waterVol, dose]);
@@ -119,13 +115,15 @@ export default function PeptideCalculator() {
                     inputMode="decimal"
                     value={vialQty} 
                     onChange={(e) => handleVialChange(Number(e.target.value))} 
-                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-primary)] focus:outline-none font-mono text-lg" 
+                    /* ✅ FIX CSS: Oculta flechas y añade pr-14 para que el número no pise el texto */
+                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg py-4 pl-4 pr-14 focus:border-[var(--color-brand-primary)] focus:outline-none font-mono text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                  />
-                 <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">mg</span>
+                 {/* ✅ FIX CSS: pointer-events-none para no estorbar clics */}
+                 <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm pointer-events-none">mg</span>
               </div>
               <input 
                 type="range" min="1" max="30" step="1" 
-                value={Math.min(vialQty, 30)} // El slider llega hasta 30 visualmente, pero input permite hasta 50
+                value={Math.min(vialQty, 30)} 
                 onChange={(e) => handleVialChange(Number(e.target.value))} 
                 className="w-full accent-[var(--color-brand-primary)] h-1 bg-[var(--glass-border)] rounded-lg cursor-pointer touch-none"
               />
@@ -143,9 +141,9 @@ export default function PeptideCalculator() {
                     inputMode="decimal"
                     value={waterVol} 
                     onChange={(e) => handleWaterChange(Number(e.target.value))} 
-                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-[var(--color-brand-secondary)] focus:outline-none font-mono text-lg" 
+                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg py-4 pl-4 pr-14 focus:border-[var(--color-brand-secondary)] focus:outline-none font-mono text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                  />
-                 <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">ml</span>
+                 <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm pointer-events-none">ml</span>
               </div>
               <input 
                 type="range" min="1" max="10" step="0.5" 
@@ -167,13 +165,13 @@ export default function PeptideCalculator() {
                     inputMode="decimal"
                     value={dose} 
                     onChange={(e) => handleDoseChange(Number(e.target.value))} 
-                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg p-4 pl-4 focus:border-rose-500 focus:outline-none font-mono text-lg" 
+                    className="w-full bg-[var(--bg-page)]/50 border border-[var(--glass-border)] text-[var(--text-main)] rounded-lg py-4 pl-4 pr-16 focus:border-rose-500 focus:outline-none font-mono text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                  />
-                 <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm">mcg</span>
+                 <span className="absolute right-4 text-[var(--text-muted)] font-mono text-sm pointer-events-none">mcg</span>
               </div>
               <input 
                 type="range" min="50" max="2000" step="50" 
-                value={Math.min(dose, 2000)} // Slider visual hasta 2000
+                value={Math.min(dose, 2000)} 
                 onChange={(e) => handleDoseChange(Number(e.target.value))} 
                 className="w-full accent-rose-500 h-1 bg-[var(--glass-border)] rounded-lg cursor-pointer touch-none"
               />
@@ -199,21 +197,18 @@ export default function PeptideCalculator() {
              </div>
            </div>
 
-           {/* --- SVG JERINGA (MANTENIENDO OPTIMIZACIÓN Y CLIP-PATH) --- */}
+           {/* --- SVG JERINGA --- */}
            <div className="relative w-full max-w-[200px] h-[400px] transform-gpu">
               <svg viewBox="0 0 100 400" className="w-full h-full drop-shadow-2xl">
                  
-                 {/* MÁSCARA (CRÍTICO: Mantiene el líquido dentro) */}
                  <defs>
                    <clipPath id="syringe-body-clip">
                       <rect x="30" y={SYRINGE_TOP} width="40" height={SYRINGE_HEIGHT} rx="2" />
                    </clipPath>
                  </defs>
 
-                 {/* Cuerpo Jeringa */}
                  <rect x="30" y={SYRINGE_TOP} width="40" height={SYRINGE_HEIGHT} rx="2" fill="var(--bg-page)" stroke="var(--text-muted)" strokeWidth="2" fillOpacity="0.5" />
                  
-                 {/* LÍQUIDO AZUL */}
                  <motion.rect 
                    clipPath="url(#syringe-body-clip)" 
                    x="30" 
@@ -227,7 +222,6 @@ export default function PeptideCalculator() {
                    style={{ willChange: "height" }}
                  />
 
-                 {/* Marcas de Graduación */}
                  {[...Array(11)].map((_, i) => (
                    <g key={i} transform={`translate(0, ${SYRINGE_TOP + (i * 30)})`}>
                       <line x1="30" y1="0" x2="45" y2="0" stroke="var(--text-muted)" strokeWidth="1" />
@@ -235,7 +229,6 @@ export default function PeptideCalculator() {
                    </g>
                  ))}
 
-                 {/* ÉMBOLO (Plunger) */}
                  <motion.g 
                    initial={{ y: SYRINGE_TOP }}
                    animate={{ y: SYRINGE_TOP + (resultTick * PIXELS_PER_TICK) }}
@@ -247,11 +240,9 @@ export default function PeptideCalculator() {
                    <circle cx="50" cy="320" r="15" fill="var(--bg-page)" stroke="#ccc" strokeWidth="2" />
                  </motion.g>
 
-                 {/* Aguja */}
                  <line x1="50" y1={SYRINGE_TOP} x2="50" y2="0" stroke="var(--text-muted)" strokeWidth="2" />
               </svg>
               
-              {/* Etiqueta Flotante */}
               <motion.div 
                  className="absolute left-[140px]"
                  initial={{ top: "5%" }}
