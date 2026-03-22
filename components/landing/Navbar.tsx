@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ShoppingCart, Search, Globe } from "lucide-react"; // ✅ Añadí el icono Globe
+import { Menu, X, ShoppingCart, Search, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,13 +13,11 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
-  // ✅ Estado para el idioma actual
   const [currentLang, setCurrentLang] = useState('en');
   
   const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
 
-  // ✅ Leer la cookie de Google Translate al cargar la página
   useEffect(() => {
     if (typeof document !== 'undefined') {
       const isSpanish = document.cookie.includes('googtrans=/en/es');
@@ -27,19 +25,24 @@ export default function Navbar() {
     }
   }, []);
 
-  // ✅ Función para cambiar el idioma usando la cookie de Google
+  // ✅ LÓGICA CORREGIDA: Borrar la cookie para volver a Inglés
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
-    // Forzar la cookie de Google Translate (/en/es para español, /en/en para inglés)
-    document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
-    document.cookie = `googtrans=/en/${langCode}; path=/;`; 
+    if (langCode === 'en') {
+      // Para volver a inglés, destruimos las cookies de Google Translate
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+    } else {
+      // Para español, seteamos la cookie
+      document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
+      document.cookie = `googtrans=/en/${langCode}; path=/;`; 
+    }
     
-    // Recargar para que el script de Google aplique los cambios
     window.location.reload();
   };
 
-  // 1. Bloqueo de scroll en móvil
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden"; 
@@ -54,7 +57,6 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  // 2. Lógica de Scroll
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -110,7 +112,6 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         
-        {/* --- LEFT: BRANDING --- */}
         <div className="flex items-center gap-4">
             <Link 
                 href="/" 
@@ -140,7 +141,6 @@ export default function Navbar() {
             </Link>
         </div>
 
-        {/* --- CENTER: NAVIGATION (Desktop) --- */}
         <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
@@ -155,31 +155,30 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* --- RIGHT: ICONS --- */}
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
               
-              {/* ✅ COMPONENTE DE IDIOMA (DESKTOP) */}
-              <div className="flex items-center bg-[var(--text-muted)]/10 rounded-full p-1 mr-2 border border-[var(--glass-border)]">
+              {/* ✅ COMPONENTE DE IDIOMA (DESKTOP) CON BANDERAS Y NOTRANSLATE */}
+              <div className="flex items-center bg-[var(--text-muted)]/10 rounded-full p-1 mr-2 border border-[var(--glass-border)] notranslate">
                 <button
                   onClick={() => changeLanguage('en')}
-                  className={`px-2.5 py-1 text-[10px] font-bold rounded-full transition-colors ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full transition-colors ${
                     currentLang === 'en' 
                       ? 'bg-cyan-500 text-white shadow-sm' 
                       : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
                   }`}
                 >
-                  EN
+                  <span>🇺🇸</span> EN
                 </button>
                 <button
                   onClick={() => changeLanguage('es')}
-                  className={`px-2.5 py-1 text-[10px] font-bold rounded-full transition-colors ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full transition-colors ${
                     currentLang === 'es' 
                       ? 'bg-cyan-500 text-white shadow-sm' 
                       : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
                   }`}
                 >
-                  ES
+                  <span>🇪🇸</span> ES
                 </button>
               </div>
 
@@ -211,7 +210,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* --- MOBILE MENU --- */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -223,8 +221,8 @@ export default function Navbar() {
           >
             <div className="p-6 flex flex-col gap-4 pb-20"> 
               
-              {/* ✅ COMPONENTE DE IDIOMA (MOBILE) */}
-              <div className="flex items-center justify-between p-4 bg-[var(--text-muted)]/5 rounded-xl border border-[var(--glass-border)] mb-2">
+              {/* ✅ COMPONENTE DE IDIOMA (MOBILE) CON BANDERAS Y NOTRANSLATE */}
+              <div className="flex items-center justify-between p-4 bg-[var(--text-muted)]/5 rounded-xl border border-[var(--glass-border)] mb-2 notranslate">
                 <div className="flex items-center gap-2 text-[var(--text-main)]">
                   <Globe className="w-5 h-5" />
                   <span className="font-bold text-sm">Language</span>
@@ -232,19 +230,19 @@ export default function Navbar() {
                 <div className="flex bg-[var(--bg-page)] rounded-lg p-1 border border-[var(--glass-border)]">
                   <button
                     onClick={() => changeLanguage('en')}
-                    className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                    className={`flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
                       currentLang === 'en' ? 'bg-cyan-500 text-white shadow-sm' : 'text-[var(--text-muted)]'
                     }`}
                   >
-                    English
+                    <span>🇺🇸</span> EN
                   </button>
                   <button
                     onClick={() => changeLanguage('es')}
-                    className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                    className={`flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
                       currentLang === 'es' ? 'bg-cyan-500 text-white shadow-sm' : 'text-[var(--text-muted)]'
                     }`}
                   >
-                    Español
+                    <span>🇪🇸</span> ES
                   </button>
                 </div>
               </div>
