@@ -18,31 +18,26 @@ export default function Navbar() {
   const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
 
-  // ✅ 1. LECTURA DE ESTADO SÚPER ROBUSTA
+  // LECTURA DE ESTADO
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      // Si la cookie incluye '/es', está en español. Si es '/en/en' o no existe, es inglés.
       const isSpanish = document.cookie.includes('googtrans=/en/es') || document.cookie.includes('googtrans=/auto/es');
       setCurrentLang(isSpanish ? 'es' : 'en');
     }
   }, []);
 
-  // ✅ 2. SOBREESCRITURA DE COOKIE (LA SOLUCIÓN AL REBOTE)
+  // SOBREESCRITURA DE COOKIE
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
-    // Cambiamos la UI al instante
     setCurrentLang(langCode);
     
-    // En lugar de borrar la cookie (lo cual falla), la SOBREESCRIBIMOS.
-    // /en/es = Español | /en/en = Restaurar a Inglés
     const translateValue = langCode === 'en' ? '/en/en' : `/en/${langCode}`;
     
     document.cookie = `googtrans=${translateValue}; path=/;`;
     document.cookie = `googtrans=${translateValue}; path=/; domain=${window.location.hostname};`;
     document.cookie = `googtrans=${translateValue}; path=/; domain=.${window.location.hostname};`;
     
-    // Esperamos que termine la animación bonita antes de recargar
     setTimeout(() => {
       window.location.reload();
     }, 300);
@@ -83,6 +78,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Tipo explicitly definido para evitar errores de any
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
       e.preventDefault();
@@ -151,8 +147,8 @@ export default function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              onClick={(e) => handleScrollTo(e as any, link.href)}
-              className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors py-2 relative group cursor-pointer notranslate" 
+              onClick={(e) => handleScrollTo(e, link.href)}
+              className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors py-2 relative group cursor-pointer" 
             >
               {link.name}
               <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-brand-primary)] transition-all duration-300 group-hover:w-full" />
@@ -163,7 +159,6 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
               
-              {/* ✅ COMPONENTE DE IDIOMA PREMIUM (DESKTOP) */}
               <div 
                 className="relative flex items-center bg-[var(--text-muted)]/10 p-1 mr-2 rounded-full cursor-pointer notranslate border border-[var(--glass-border)] shadow-inner w-[90px] h-[30px]"
                 onClick={() => changeLanguage(currentLang === 'en' ? 'es' : 'en')}
@@ -224,7 +219,6 @@ export default function Navbar() {
           >
             <div className="p-6 flex flex-col gap-4 pb-20"> 
               
-              {/* ✅ COMPONENTE DE IDIOMA PREMIUM (MOBILE) */}
               <div className="flex items-center justify-between p-4 bg-[var(--text-muted)]/5 rounded-xl border border-[var(--glass-border)] mb-2 notranslate">
                 <div className="flex items-center gap-2 text-[var(--text-main)]">
                   <Globe className="w-5 h-5" />
@@ -257,8 +251,8 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-bold text-[var(--text-main)] py-4 border-b border-[var(--glass-border)] last:border-0 active:text-[var(--color-brand-primary)] transition-colors notranslate"
-                  onClick={(e) => handleScrollTo(e as any, link.href)}
+                  className="text-lg font-bold text-[var(--text-main)] py-4 border-b border-[var(--glass-border)] last:border-0 active:text-[var(--color-brand-primary)] transition-colors"
+                  onClick={(e) => handleScrollTo(e, link.href)}
                 >
                   {link.name}
                 </Link>
