@@ -18,40 +18,31 @@ export default function Navbar() {
   const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
 
-  // ✅ LECTURA DE COOKIE MÁS PRECISA
+  // ✅ 1. LECTURA DE ESTADO SÚPER ROBUSTA
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      const match = document.cookie.match(/googtrans=\/[^/]+\/([^;]+)/);
-      if (match && match[1] === 'es') {
-        setCurrentLang('es');
-      } else {
-        setCurrentLang('en');
-      }
+      // Si la cookie incluye '/es', está en español. Si es '/en/en' o no existe, es inglés.
+      const isSpanish = document.cookie.includes('googtrans=/en/es') || document.cookie.includes('googtrans=/auto/es');
+      setCurrentLang(isSpanish ? 'es' : 'en');
     }
   }, []);
 
-  // ✅ FUNCIÓN CON ANIMACIÓN OPTIMISTA Y LIMPIEZA TOTAL
+  // ✅ 2. SOBREESCRITURA DE COOKIE (LA SOLUCIÓN AL REBOTE)
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
-    // 1. Actualizamos el estado de inmediato para que el botón se mueva
+    // Cambiamos la UI al instante
     setCurrentLang(langCode);
     
-    // 2. Manejamos las cookies
-    if (langCode === 'en') {
-      // Destrucción total de la cookie para volver a inglés (incluso en localhost)
-      const domains = [window.location.hostname, `.${window.location.hostname}`, 'localhost'];
-      domains.forEach(domain => {
-        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
-      });
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    } else {
-      // Crear cookie para español
-      document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
-      document.cookie = `googtrans=/en/${langCode}; path=/;`; 
-    }
+    // En lugar de borrar la cookie (lo cual falla), la SOBREESCRIBIMOS.
+    // /en/es = Español | /en/en = Restaurar a Inglés
+    const translateValue = langCode === 'en' ? '/en/en' : `/en/${langCode}`;
     
-    // 3. Esperamos 300ms (lo que dura la animación) antes de recargar
+    document.cookie = `googtrans=${translateValue}; path=/;`;
+    document.cookie = `googtrans=${translateValue}; path=/; domain=${window.location.hostname};`;
+    document.cookie = `googtrans=${translateValue}; path=/; domain=.${window.location.hostname};`;
+    
+    // Esperamos que termine la animación bonita antes de recargar
     setTimeout(() => {
       window.location.reload();
     }, 300);

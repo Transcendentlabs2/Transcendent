@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Inter, JetBrains_Mono } from "next/font/google";
-import Script from "next/script"; // ✅ IMPORTAMOS SCRIPT DE NEXT
+import Script from "next/script";
 import "./globals.css";
 
 import ThemeProvider from "@/components/landing/ThemeProvider"; 
@@ -41,26 +41,24 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${poppins.variable} ${inter.variable} ${jetbrains.variable}`}>
       <head>
-        {/* ✅ CSS PARA LIMPIAR EL DISEÑO DEL WIDGET DE GOOGLE */}
+        {/* ✅ CSS PARA LIMPIAR EL DISEÑO DEL WIDGET DE GOOGLE AL 100% */}
         <style>{`
           .goog-te-banner-frame { display: none !important; }
           body { top: 0 !important; }
           .skiptranslate iframe { display: none !important; }
-          #google_translate_element select {
-            background-color: transparent;
-            color: var(--text-main);
-            border: 1px solid #4b5563;
-            border-radius: 0.375rem;
-            padding: 0.25rem;
-            font-size: 0.875rem;
+          #google_translate_element { display: none !important; }
+          
+          /* ✅ ESTO EVITA QUE EL TEXTO SE PONGA AMARILLO AL PASAR EL MOUSE */
+          .goog-text-highlight {
+            background-color: transparent !important;
+            box-shadow: none !important;
           }
         `}</style>
       </head>
       <body className="antialiased bg-[var(--bg-page)] text-[var(--text-main)] selection:bg-cyan-500/30 selection:text-cyan-600 dark:selection:text-cyan-200">
         
-    
         {/* ✅ CONTENEDOR DONDE APARECERÁ EL SELECTOR DE GOOGLE (AHORA OCULTO) */}
-<div id="google_translate_element" className="hidden"></div>
+        <div id="google_translate_element" className="hidden"></div>
 
         {/* ✅ SCRIPTS DE GOOGLE TRANSLATE */}
         <Script
