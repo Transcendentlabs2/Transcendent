@@ -2,7 +2,7 @@
 
 import { useState, useRef, memo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ShoppingCart, Minus, Plus, CheckCircle2, Activity } from "lucide-react";
+import { ShoppingCart, Minus, Plus, CheckCircle2, Activity, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -14,7 +14,6 @@ import StickyPurchase from "./StickyPurchase";
 import ResearchChallenges from "./ResearchChallenges";
 import ProtocolFAQ from "./ProtocolFAQ";
 
-// --- TEXTURA STATIC (Sutil) ---
 const StaticNoise = memo(() => (
   <div 
     className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay z-0"
@@ -25,11 +24,10 @@ const StaticNoise = memo(() => (
 ));
 StaticNoise.displayName = "StaticNoise";
 
-// --- COLOR ACENTO DINÁMICO ---
 const getAccentColor = (category: string) => {
   switch (category?.toLowerCase()) {
-    case "peptides": return "#00C9FF"; // Tu brand primary
-    case "nootropics": return "#92FE9D"; // Tu brand secondary
+    case "peptides": return "#00C9FF";
+    case "nootropics": return "#92FE9D";
     default: return "#00C9FF";
   }
 };
@@ -52,8 +50,8 @@ export default function ProductTemplate({ product }: { product: Product }) {
   const containerRef = useRef<HTMLDivElement>(null);
   
   const accentColor = getAccentColor(product.category);
+  const isOutOfStock = product.stock <= 0;
 
-  // Parallax Logic
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -63,16 +61,12 @@ export default function ProductTemplate({ product }: { product: Product }) {
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
 
   return (
-    // USAMOS TUS VARIABLES GLOBALES AQUÍ
     <div className="bg-[var(--bg-page)] min-h-screen text-[var(--text-main)] transition-colors duration-300 overflow-x-hidden selection:bg-[var(--color-brand-primary)] selection:text-white">
       <Navbar />
 
-      {/* --- HERO SECTION --- */}
       <section ref={containerRef} className="relative min-h-[100dvh] w-full flex flex-col justify-center pt-24 pb-12 lg:pt-0 lg:pb-0">
         
-        {/* 1. FONDO AMBIENTAL */}
         <div className="absolute inset-0 pointer-events-none">
-            {/* Glow central usando tus variables */}
             <div 
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-20"
               style={{ background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)` }}
@@ -80,12 +74,10 @@ export default function ProductTemplate({ product }: { product: Product }) {
             <StaticNoise />
         </div>
         
-        {/* 2. TEXTO GIGANTE DE FONDO (Corrección del error TypeScript) */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden opacity-10">
           <motion.h2
             style={{ 
                 y: textParallax,
-                // AQUÍ ESTA LA CORRECCIÓN: Usamos style nativo y tu variable CSS
                 WebkitTextStroke: "1px var(--text-muted)", 
                 color: "transparent"
             }}
@@ -95,14 +87,11 @@ export default function ProductTemplate({ product }: { product: Product }) {
           </motion.h2>
         </div>
 
-        {/* 3. GRID PRINCIPAL (Diseño Boutique 3 Columnas) */}
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 lg:px-12 h-full flex items-center">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
 
-                {/* --- COLUMNA 1: INFO (Izquierda - 4 cols) --- */}
                 <div className="lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1 text-center lg:text-left items-center lg:items-start">
                     
-                    {/* Header Pequeño */}
                     <div className="flex items-center gap-3 text-xs font-mono text-[var(--text-muted)]">
                         <span>ID_{product.id ? product.id.slice(-4).toUpperCase() : "001"}</span>
                         <span className="h-px w-8 bg-[var(--glass-border)]" />
@@ -111,7 +100,6 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         </span>
                     </div>
 
-                    {/* Título Principal (Font Display) */}
                     <div>
                         <h1 className="text-5xl lg:text-7xl font-display font-black leading-[0.9] tracking-tighter mb-4 text-[var(--text-main)]">
                             {product.name}
@@ -123,7 +111,6 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         </p>
                     </div>
 
-                    {/* Precio & Acciones */}
                     <div className="w-full max-w-sm flex flex-col gap-5 mt-2">
                         <div className="flex items-baseline gap-2 justify-center lg:justify-start">
                              <span className="text-4xl font-display font-black tracking-tighter text-[var(--text-main)]">
@@ -134,10 +121,8 @@ export default function ProductTemplate({ product }: { product: Product }) {
                              </span>
                         </div>
 
-                        {/* Botonera */}
                         <div className="flex gap-3 h-12">
-                            {/* Selector Cantidad */}
-                            <div className="flex items-center justify-between border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-md rounded px-3 w-32">
+                            <div className={`flex items-center justify-between border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-md rounded px-3 w-32 ${isOutOfStock ? "opacity-30 pointer-events-none" : ""}`}>
                                 <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[var(--text-muted)] hover:text-[var(--text-main)]">
                                     <Minus size={14} />
                                 </button>
@@ -147,45 +132,43 @@ export default function ProductTemplate({ product }: { product: Product }) {
                                 </button>
                             </div>
                             
-                            {/* Botón Compra */}
                             <button
-                                onClick={() => addItem(product, qty)}
-                                className="flex-1 bg-[var(--text-main)] text-[var(--bg-page)] font-bold uppercase tracking-widest text-[10px] md:text-xs rounded shadow-lg hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                                onClick={() => !isOutOfStock && addItem(product, qty)}
+                                disabled={isOutOfStock}
+                                className={`flex-1 font-bold uppercase tracking-widest text-[10px] md:text-xs rounded shadow-lg transition-all flex items-center justify-center gap-2 group
+                                    ${isOutOfStock 
+                                        ? "bg-[var(--glass-border)] text-[var(--text-muted)] cursor-not-allowed" 
+                                        : "bg-[var(--text-main)] text-[var(--bg-page)] hover:opacity-90 active:scale-95"
+                                    }`}
                             >
-                                <span>Add to Lab Cart</span>
-                                <ShoppingCart className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
+                                <span>{isOutOfStock ? "Temporarily Depleted" : "Add to Lab Cart"}</span>
+                                {!isOutOfStock && <ShoppingCart className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />}
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* --- COLUMNA 2: IMAGEN (Centro - 4 cols) --- */}
                 <div className="lg:col-span-4 order-1 lg:order-2 h-[40vh] lg:h-[60vh] flex items-center justify-center relative">
-                    
-                    {/* Anillos Decorativos (Usando border variables) */}
                     <div 
                         className="absolute w-[280px] h-[280px] lg:w-[400px] lg:h-[400px] rounded-full border border-[var(--glass-border)] animate-[spin_20s_linear_infinite]"
                         style={{ borderTopColor: accentColor }}
                     />
                     <div className="absolute w-[220px] h-[220px] lg:w-[320px] lg:h-[320px] rounded-full border border-dashed border-[var(--glass-border)] animate-[spin_30s_linear_infinite_reverse] opacity-40" />
                     
-                    {/* Imagen del Producto */}
                     <motion.div style={{ scale: imageScale }} className="relative w-[85%] h-[85%] z-20 flex items-center justify-center">
                         <Image
                             src={product.images}
                             alt={product.name}
                             fill
-                            className="object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+                            className={`object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)] ${isOutOfStock ? "grayscale opacity-50" : ""}`}
                             priority
                             sizes="(max-width: 768px) 100vw, 33vw"
                         />
                     </motion.div>
                 </div>
 
-                {/* --- COLUMNA 3: SPECS (Derecha - 4 cols) --- */}
                 <div className="lg:col-span-4 order-3 lg:order-3 flex flex-col gap-8 text-center lg:text-right items-center lg:items-end">
                     
-                    {/* Pureza */}
                     <div>
                         <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] block mb-1">
                             HPLC Purity
@@ -198,20 +181,18 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         </div>
                     </div>
 
-                    {/* Stock Meter */}
                     <div>
                         <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] block mb-2">
                             Inventory Status
                         </span>
-                        <div className="inline-flex items-center gap-3 border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-2 rounded-full backdrop-blur-sm">
-                            <div className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
-                            <span className="text-xs font-bold text-[var(--text-main)]">
-                                {product.stock > 0 ? `${product.stock} Vials` : "OOS"}
+                        <div className={`inline-flex items-center gap-3 border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-2 rounded-full backdrop-blur-sm ${isOutOfStock ? "border-red-500/30" : ""}`}>
+                            <div className={`w-1.5 h-1.5 rounded-full ${!isOutOfStock ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
+                            <span className={`text-xs font-bold ${!isOutOfStock ? "text-[var(--text-main)]" : "text-red-500"}`}>
+                                {!isOutOfStock ? `${product.stock} Vials Available` : "OUT OF STOCK"}
                             </span>
                         </div>
                     </div>
 
-                    {/* Active Principles List */}
                     <div className="w-full lg:w-auto pt-6 border-t border-[var(--glass-border)]">
                         <span style={{ color: accentColor }} className="text-[9px] uppercase tracking-widest font-mono block mb-3">
                             Specifications
@@ -230,7 +211,6 @@ export default function ProductTemplate({ product }: { product: Product }) {
         </div>
       </section>
 
-      {/* --- SECCIONES SECUNDARIAS --- */}
       <section className="border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm relative z-20">
         <div className="max-w-7xl mx-auto px-6 py-20">
              
@@ -258,7 +238,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
         </div>
       </section>
 
-      <StickyPurchase product={product} qty={qty} />
+      {!isOutOfStock && <StickyPurchase product={product} qty={qty} />}
       <Footer />
     </div>
   );

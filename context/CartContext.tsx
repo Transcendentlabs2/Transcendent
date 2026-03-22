@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-// Definimos la estructura del producto en el carrito
+// 1. DEFINICIÓN ACTUALIZADA: Ahora incluimos 'stock'
 export interface CartItem {
   id: string;
   name: string;
@@ -11,6 +11,7 @@ export interface CartItem {
   quantity: number;
   slug: string;
   category: string;
+  stock: number; // <-- AÑADIDO: Propiedad necesaria para validaciones
 }
 
 interface CartContextType {
@@ -32,49 +33,55 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // 1. Cargar carrito del LocalStorage al iniciar
+  // Cargar carrito del LocalStorage al iniciar
   useEffect(() => {
     const savedCart = localStorage.getItem("transcendent_cart");
     if (savedCart) {
-      setItems(JSON.parse(savedCart));
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Error parsing cart data:", e);
+      }
     }
     setIsLoaded(true);
   }, []);
 
-  // 2. Guardar en LocalStorage cada vez que cambie
+  // Guardar en LocalStorage cada vez que cambie
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem("transcendent_cart", JSON.stringify(items));
     }
   }, [items, isLoaded]);
 
-  // Lógica: Agregar Item
+  // Lógica: Agregar Item (Actualizada para capturar el stock)
   const addItem = (product: any, qty: number) => {
     setItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
-        // Si ya existe, sumamos la cantidad
+        // Si ya existe, sumamos la cantidad (pero aseguramos actualizar el stock por si cambió)
         return prev.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + qty }
+            ? { ...item, quantity: item.quantity + qty, stock: product.stock }
             : item
         );
       }
-      // Si no existe, lo agregamos normalizado
+      
+      // Si no existe, lo agregamos normalizado incluyendo el stock actual
       return [
         ...prev,
         {
           id: product.id,
           name: product.name,
           price: Number(product.price),
-          image: product.images, // Asegúrate de que tu DB mande 'images' string
+          image: product.images, 
           quantity: qty,
           slug: product.slug,
           category: product.category,
+          stock: product.stock, // <-- AÑADIDO: Se guarda el stock del producto
         },
       ];
     });
-    setIsCartOpen(true); // Abrir carrito automáticamente al agregar
+    setIsCartOpen(true); 
   };
 
   const removeItem = (id: string) => {

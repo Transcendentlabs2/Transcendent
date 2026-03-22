@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { createProduct, updateProduct } from "@/app/actions/products";
-import { Save, ImagePlus, X, FlaskConical } from "lucide-react";
+import { Save, ImagePlus, X, FlaskConical, Info } from "lucide-react";
 import Image from "next/image";
 import Swal from "sweetalert2";
 
@@ -72,19 +72,14 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
   };
 
   return (
-    // AQUÍ ESTÁ LA CLAVE DEL LAYOUT:
-    // h-full (móvil) vs max-h-[85vh] (desktop)
-    // rounded-none (móvil) vs rounded-2xl (desktop)
     <div className="relative w-full h-full sm:h-auto sm:max-h-[85vh] bg-[var(--bg-page)] border-0 sm:border sm:border-[var(--glass-border)] rounded-none sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       
-      {/* Header Fijo */}
       <div className="flex items-center justify-between p-5 border-b border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0">
         <h3 className="text-lg md:text-xl font-display font-bold text-[var(--text-main)] flex items-center gap-3">
           <FlaskConical className="text-[var(--color-brand-primary)]" />
           {initialData ? "Edit Compound" : "New Compound"}
         </h3>
         
-        {/* Botón Cerrar más grande en móvil para facilitar el toque */}
         <button 
             onClick={onClose} 
             className="p-3 -mr-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400 rounded-full transition-colors active:scale-90"
@@ -93,7 +88,6 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         </button>
       </div>
 
-      {/* Body con Scroll */}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 sm:pb-8 bg-[var(--bg-page)]">
         <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
           
@@ -101,6 +95,10 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             <div className="space-y-2">
               <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Product Name</label>
               <input name="name" defaultValue={initialData?.name} required className="input-scientific" placeholder="e.g. BPC-157" />
+              <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] mt-1 ml-1 italic">
+                 <Info className="w-3 h-3 text-amber-500" />
+                 <span>Do not add "Out of Stock" to the name. The system handles this via the stock field.</span>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -119,7 +117,7 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Stock</label>
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Current Stock</label>
               <input name="stock" type="number" defaultValue={initialData?.stock} required className="input-scientific" />
             </div>
 
@@ -134,7 +132,6 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
                 <textarea name="description" defaultValue={initialData?.description} rows={6} required className="input-scientific resize-none" />
             </div>
 
-            {/* Imagen Cloudinary */}
             <div className="space-y-2">
                 <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Visual Documentation</label>
                 
@@ -181,7 +178,6 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         </form>
       </div>
 
-      {/* Footer Botones - Fijo abajo */}
       <div className="flex justify-between sm:justify-end gap-3 p-5 border-t border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0 sticky bottom-0 z-20 pb-8 sm:pb-5">
             <button onClick={onClose} className="px-6 py-3 rounded-xl font-bold text-sm text-[var(--text-muted)] bg-[var(--glass-border)]/50 sm:bg-transparent hover:bg-[var(--glass-border)] transition-colors w-full sm:w-auto">
                 Cancel
@@ -204,10 +200,10 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             background-color: var(--bg-page);
             border: 1px solid var(--glass-border);
             border-radius: 0.75rem;
-            padding: 0.875rem 1rem; /* Más padding para dedos en móvil */
+            padding: 0.875rem 1rem;
             color: var(--text-main);
             outline: none;
-            font-size: 1rem; /* Evita el zoom automático en iOS inputs */
+            font-size: 1rem;
             transition: all 0.2s;
         }
         .input-scientific:focus {
