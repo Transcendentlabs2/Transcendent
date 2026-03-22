@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ArrowRight, ScanLine, Info, FlaskConical, Check } from "lucide-react";
+import { Plus, ArrowRight, ScanLine, Info, FlaskConical, Check, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import CatalogModal from "./CatalogModal";
@@ -27,7 +27,7 @@ const CATEGORY_MAP: Record<string, string> = {
   "SARMs": "sarms"
 };
 
-const LabContainer = ({ image, name }: { image: string, name: string }) => {
+const LabContainer = ({ image, name, isOOS }: { image: string, name: string, isOOS: boolean }) => {
   return (
     <div className="relative w-48 h-64 mx-auto flex items-center justify-center transform-gpu">
       <motion.div 
@@ -52,7 +52,7 @@ const LabContainer = ({ image, name }: { image: string, name: string }) => {
           alt={name} 
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-contain drop-shadow-2xl filter contrast-110 saturate-100"
+          className={`object-contain drop-shadow-2xl filter contrast-110 saturate-100 transition-all duration-500 ${isOOS ? "grayscale opacity-40" : ""}`}
           priority={true}
         />
         <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-t from-black/10 to-transparent blur-md opacity-30 rounded-full scale-x-75" />
@@ -79,6 +79,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
     e.preventDefault();
     e.stopPropagation();
 
+    if (product.stock <= 0) return; // Seguridad extra
+
     const rect = e.currentTarget.getBoundingClientRect();
     const newParticle = {
       id: Date.now(),
@@ -98,7 +100,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
   return (
     <>
-    {/* PARTICLES OVERLAY - OPTIMIZADO PARA MOBILE */}
+    {/* PARTICLES OVERLAY */}
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
       <AnimatePresence>
         {particles.map((p) => (
@@ -156,84 +158,106 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
       <motion.div layout className="flex flex-wrap justify-center gap-6 md:gap-8">
         <AnimatePresence mode="popLayout">
-          {displayProducts.map((product) => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              key={product.id}
-              className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] transition-all duration-300 
-                         bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-xl supports-[backdrop-filter]:bg-opacity-70
-                         hover:border-[var(--color-brand-primary)]/50 shadow-sm transform-gpu"
-            >
-              <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-5 w-full h-full">
-                  {product.stock < 50 && (
-                    <span className="absolute top-5 right-5 z-30 bg-[var(--text-main)] text-[var(--bg-page)] text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
-                        HIGH DEMAND
-                    </span>
-                  )}
+          {displayProducts.map((product) => {
+            const isOOS = product.stock <= 0;
 
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--accent-glow)] rounded-full blur-[90px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            return (
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                key={product.id}
+                className={`w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] transition-all duration-300 
+                           bg-[var(--glass-bg)] border backdrop-blur-xl supports-[backdrop-filter]:bg-opacity-70 transform-gpu
+                           ${isOOS ? "border-red-500/20 grayscale-[0.5]" : "border-[var(--glass-border)] hover:border-[var(--color-brand-primary)]/50 shadow-sm"}`}
+              >
+                <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-5 w-full h-full">
+                    {!isOOS && product.stock < 50 && (
+                      <span className="absolute top-5 right-5 z-30 bg-[var(--text-main)] text-[var(--bg-page)] text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
+                          HIGH DEMAND
+                      </span>
+                    )}
 
-                  <div className="relative z-10 w-full mb-2">
-                      <LabContainer image={product.images} name={product.name} />
-                  </div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[var(--accent-glow)] rounded-full blur-[90px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-                  <div className="w-full px-1 relative z-10 mt-auto">
-                      <div className="flex items-center justify-center gap-2 mb-3 opacity-60">
-                          <ScanLine className="w-3 h-3 text-[var(--color-brand-primary)]" />
-                          <p className="text-[10px] uppercase tracking-widest font-mono text-[var(--text-muted)]">
-                              REF: {product.slug.slice(0,8)}
-                          </p>
-                      </div>
-                      
-                      <h3 className="text-xl font-bold font-display text-[var(--text-main)] mb-1 leading-tight">{product.name}</h3>
-                      <p className="text-xs text-[var(--text-muted)] font-mono mb-6 flex items-center justify-center gap-2">
-                          <FlaskConical className="w-3 h-3" /> {product.purity || "Premium Grade"} 
-                      </p>
-                      
-                      <div className="border-t border-[var(--glass-border)] pt-5 w-full">
-                          <div className="flex justify-between items-center mb-4">
-                              <span className="text-xl font-bold text-[var(--text-main)] font-mono">${Number(product.price).toFixed(2)}</span>
-                              <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                  <span className="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400">In Stock</span>
-                              </div>
-                          </div>
+                    <div className="relative z-10 w-full mb-2">
+                        <LabContainer image={product.images} name={product.name} isOOS={isOOS} />
+                    </div>
 
-                          <div className="grid grid-cols-2 gap-3">
-                              <div className="flex items-center justify-center gap-1.5 border border-[var(--glass-border)] text-[var(--text-muted)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider active:bg-[var(--glass-border)] transition-colors">
-                                  <Info className="w-3.5 h-3.5" /> Details
-                              </div>
-                              
-                              <motion.div 
-                                  whileTap={{ scale: 0.92 }}
-                                  onClick={(e) => handleAddToCart(e, product)}
-                                  className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg cursor-pointer touch-manipulation ${
-                                      addingId === product.id 
-                                      ? "bg-emerald-500 text-white" 
-                                      : "bg-[var(--text-main)] text-[var(--bg-page)] active:bg-[var(--color-brand-primary)]"
-                                  }`}
-                              >
-                                  <AnimatePresence mode="wait">
-                                      {addingId === product.id ? (
-                                          <motion.span key="ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-1">
-                                              Added <Check className="w-3.5 h-3.5" />
+                    <div className="w-full px-1 relative z-10 mt-auto">
+                        <div className="flex items-center justify-center gap-2 mb-3 opacity-60">
+                            <ScanLine className="w-3 h-3 text-[var(--color-brand-primary)]" />
+                            <p className="text-[10px] uppercase tracking-widest font-mono text-[var(--text-muted)]">
+                                REF: {product.slug.slice(0,8)}
+                            </p>
+                        </div>
+                        
+                        <h3 className={`text-xl font-bold font-display mb-1 leading-tight ${isOOS ? "text-[var(--text-muted)]" : "text-[var(--text-main)]"}`}>
+                          {product.name}
+                        </h3>
+                        <p className="text-xs text-[var(--text-muted)] font-mono mb-6 flex items-center justify-center gap-2">
+                            <FlaskConical className="w-3 h-3" /> {product.purity || "Premium Grade"} 
+                        </p>
+                        
+                        <div className="border-t border-[var(--glass-border)] pt-5 w-full">
+                            <div className="flex justify-between items-center mb-4">
+                                <span className={`text-xl font-bold font-mono ${isOOS ? "text-[var(--text-muted)] line-through" : "text-[var(--text-main)]"}`}>
+                                  ${Number(product.price).toFixed(2)}
+                                </span>
+                                
+                                {isOOS ? (
+                                  <div className="flex items-center gap-1.5 bg-red-500/10 px-2 py-1 rounded-full border border-red-500/20">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                      <span className="text-[9px] uppercase font-bold text-red-500">Out of Stock</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                      <span className="text-[9px] uppercase font-bold text-emerald-600 dark:text-emerald-400">In Stock</span>
+                                  </div>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex items-center justify-center gap-1.5 border border-[var(--glass-border)] text-[var(--text-muted)] px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider active:bg-[var(--glass-border)] transition-colors">
+                                    <Info className="w-3.5 h-3.5" /> Details
+                                </div>
+                                
+                                <motion.div 
+                                    whileTap={!isOOS ? { scale: 0.92 } : {}}
+                                    onClick={(e) => !isOOS && handleAddToCart(e, product)}
+                                    className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg touch-manipulation ${
+                                        isOOS 
+                                        ? "bg-[var(--glass-border)] text-[var(--text-muted)] cursor-not-allowed"
+                                        : addingId === product.id 
+                                        ? "bg-emerald-500 text-white" 
+                                        : "bg-[var(--text-main)] text-[var(--bg-page)] active:bg-[var(--color-brand-primary)] cursor-pointer"
+                                    }`}
+                                >
+                                    <AnimatePresence mode="wait">
+                                        {isOOS ? (
+                                          <motion.span key="oos" className="flex items-center gap-1">
+                                            Sold Out
                                           </motion.span>
-                                      ) : (
-                                          <motion.span key="add" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-1">
-                                              Add <Plus className="w-3.5 h-3.5" />
-                                          </motion.span>
-                                      )}
-                                  </AnimatePresence>
-                              </motion.div>
-                          </div>
-                      </div>
-                  </div>
-              </Link>
-            </motion.div>
-          ))}
+                                        ) : addingId === product.id ? (
+                                            <motion.span key="ok" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-1">
+                                                Added <Check className="w-3.5 h-3.5" />
+                                            </motion.span>
+                                        ) : (
+                                            <motion.span key="add" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="flex items-center gap-1">
+                                                Add <Plus className="w-3.5 h-3.5" />
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </div>
+                </Link>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </motion.div>
 
