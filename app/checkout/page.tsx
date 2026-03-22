@@ -5,9 +5,8 @@ import { placeOrder } from "@/app/actions/place-order";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShieldCheck, Lock, Loader2, ArrowLeft, MapPin } from "lucide-react";
+import { ShieldCheck, Lock, Loader2, ArrowLeft, MapPin, Globe } from "lucide-react";
 import Link from "next/link";
-// IMPORTAMOS SQUARE SDK
 import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
 
 export default function CheckoutPage() {
@@ -15,6 +14,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Añadimos 'country' al estado inicial
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,18 +22,17 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     state: "",
-    postalCode: ""
+    postalCode: "",
+    country: "US" // Valor por defecto
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Obtenemos las variables de entorno
   const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID as string;
   const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID as string;
 
-  // AJUSTE 1: Prevenir que muestre "empty" si estamos procesando la redirección exitosa
   if (items.length === 0 && !isLoading) {
       return (
           <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--bg-page)] text-[var(--text-muted)]">
@@ -47,7 +46,6 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] font-sans pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         
-        {/* FORMULARIO */}
         <div className="space-y-8">
             <div className="flex items-center gap-2 mb-6">
                 <Link href="/" className="p-2 hover:bg-[var(--glass-border)] rounded-full transition-colors">
@@ -56,16 +54,13 @@ export default function CheckoutPage() {
                 <h1 className="text-2xl font-display font-bold">Secure Checkout</h1>
             </div>
 
-            {/* Quitamos el onSubmit del form porque Square manejará el envío */}
             <form id="checkout-form" className="space-y-8">
-                
                 {/* Contact Info */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">1</div>
                         <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">Contact Information</h2>
                     </div>
-                    
                     <div className="grid grid-cols-1 gap-4">
                         <div>
                             <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Full Name</label>
@@ -78,13 +73,13 @@ export default function CheckoutPage() {
                             </div>
                             <div>
                                 <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Phone (Mobile)</label>
-                                <input required name="phone" onChange={handleInputChange} type="tel" placeholder="(555) 123-4567" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                                <input required name="phone" onChange={handleInputChange} type="tel" placeholder="+57 300..." className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Shipping Info */}
+                {/* Shipping Info - AHORA DINÁMICO */}
                 <section className="space-y-4">
                      <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">2</div>
@@ -94,32 +89,43 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 gap-4">
                         <div>
                             <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Country</label>
-                            <div className="w-full bg-[var(--glass-border)]/30 border border-[var(--glass-border)] rounded-xl px-4 py-3 text-[var(--text-muted)] flex items-center gap-2 cursor-not-allowed">
-                                <MapPin className="w-4 h-4" />
-                                United States
-                            </div>
+                            <select 
+                                name="country" 
+                                onChange={handleInputChange}
+                                className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors appearance-none cursor-pointer"
+                            >
+                                <option value="US">United States</option>
+                                <option value="CO">Colombia</option>
+                            </select>
                         </div>
 
                         <div>
                             <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Street Address</label>
-                            <input required name="address" onChange={handleInputChange} type="text" placeholder="123 Science Dr" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                            <input required name="address" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Calle 10 # 5-20" : "123 Science Dr"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
                         </div>
 
                         <div className="grid grid-cols-6 gap-4">
                             <div className="col-span-6 md:col-span-3">
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">City</label>
-                                <input required name="city" onChange={handleInputChange} type="text" placeholder="Boston" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">City / Ciudad</label>
+                                <input required name="city" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Pereira" : "Boston"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
                             </div>
                             <div className="col-span-3 md:col-span-2">
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">State</label>
-                                <input required name="state" onChange={handleInputChange} type="text" placeholder="MA" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors uppercase" maxLength={2} />
+                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">
+                                    {formData.country === "CO" ? "Dept / Prov" : "State"}
+                                </label>
+                                <input required name="state" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Risaralda" : "MA"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors uppercase" maxLength={formData.country === "US" ? 2 : 20} />
                             </div>
                             <div className="col-span-3 md:col-span-1">
                                 <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Zip Code</label>
-                                <input required name="postalCode" onChange={handleInputChange} type="text" placeholder="02115" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                                <input required name="postalCode" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "660001" : "02115"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
                             </div>
                         </div>
                     </div>
+                    {formData.country === "CO" && (
+                        <p className="text-[10px] text-amber-500 font-bold bg-amber-500/10 p-2 rounded-lg">
+                            Nota: Asegúrese de usar la dirección y código postal asociados a su cuenta de Bancolombia para evitar rechazos.
+                        </p>
+                    )}
                 </section>
             </form>
         </div>
@@ -128,7 +134,6 @@ export default function CheckoutPage() {
         <div className="lg:sticky lg:top-24 h-fit space-y-6">
             <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-6 shadow-xl">
                 <h3 className="font-bold text-lg mb-4">Order Summary</h3>
-                
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                     {items.map((item) => (
                         <div key={item.id} className="flex gap-3">
@@ -160,41 +165,32 @@ export default function CheckoutPage() {
                     </div>
                 )}
 
-                {/* CONTENEDOR DE PAGO DE SQUARE */}
                 <div className={isLoading ? "hidden" : "block"}>
                     <PaymentForm
                         applicationId={appId}
                         locationId={locationId}
                         cardTokenizeResponseReceived={async (token: any) => {
-                            // 1. Validamos que el usuario llenó sus datos antes de pagar
                             if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
-                                alert("Please fill in all contact and shipping information before completing the payment.");
+                                alert("Please fill in all information.");
                                 return;
                             }
-
                             setIsLoading(true);
-
-                            // AJUSTE 2: Removido el finally. Solo apagamos isLoading si hay error.
                             try {
                                 const cartPayload = items.map(item => ({
                                     productId: item.id,
                                     quantity: item.quantity
                                 }));
-
-                                // 2. Enviamos todo al Server Action: Carrito, Datos de envío y TOKEN DE PAGO
                                 const response = await placeOrder(cartPayload, formData, token.token);
-
                                 if (response.ok && response.order) {
                                     clearCart(); 
                                     router.push(`/orders/${response.order.id}`); 
-                                    // NO apagamos isLoading aquí, dejamos que la transición ocurra con el spinner girando
                                 } else {
                                     alert(response.message || "Error processing order");
                                     setIsLoading(false);
                                 }
                             } catch (error) {
                                 console.error(error);
-                                alert("Unexpected error. Please try again.");
+                                alert("Unexpected error.");
                                 setIsLoading(false);
                             } 
                         }}
@@ -208,13 +204,9 @@ export default function CheckoutPage() {
                        <ShieldCheck className="w-3 h-3 text-emerald-500" />
                        <span>SSL Secure Encrypted Payment via Square</span>
                    </div>
-                   <p className="text-[10px] text-[var(--text-muted)] opacity-70">
-                       Research Use Only. Not for human consumption.
-                   </p>
                 </div>
             </div>
         </div>
-
       </div>
     </div>
   );

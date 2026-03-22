@@ -12,6 +12,7 @@ type ShippingData = {
   city: string;
   state: string;      
   postalCode: string; 
+  country: string; // <-- AHORA RECIBE EL PAÍS DESDE EL FORMULARIO
 };
 
 type CartItem = {
@@ -55,7 +56,6 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
     // --- PASO 1: COBRO CON SQUARE (LIVE/PRODUCCIÓN) ---
     const amountInCents = Math.round(totalAmount * 100);
     try {
-        // URL CAMBIADA A PRODUCCIÓN
         const squareEndpoint = 'https://connect.squareup.com/v2/payments';
         
         const squareResponse = await fetch(squareEndpoint, {
@@ -77,7 +77,11 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         
         if (!squareResponse.ok || paymentData.errors) {
             console.error("Square Production Error:", paymentData.errors);
-            return { ok: false, message: "Payment declined by provider. Please check your card details." };
+            // Mensaje más descriptivo para el cliente en caso de rechazo
+            return { 
+                ok: false, 
+                message: "Payment declined. Please ensure the address and zip code match your bank records." 
+            };
         }
     } catch (paymentError) {
         console.error("Square Connection Error:", paymentError);
@@ -95,7 +99,8 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           city: shippingData.city,
           state: shippingData.state,
           postalCode: shippingData.postalCode, 
-          country: "United States",            
+          // USAMOS EL PAÍS QUE VIENE DEL FORMULARIO
+          country: shippingData.country === "CO" ? "Colombia" : "United States",            
           total: totalAmount,
           status: 'PAID', 
           isPaid: true,   
@@ -106,7 +111,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     });
 
-    // --- PASO 3: ENVIAR CORREO (Solo si lo anterior fue exitoso) ---
+    // --- PASO 3: ENVIAR CORREO (CON EL PAÍS DINÁMICO) ---
     try {
       const apiKey = process.env.RESEND_API_KEY;
       
@@ -155,7 +160,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
                 <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
                   ${shippingData.address}<br>
                   ${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}<br>
-                  United States
+                  ${shippingData.country === "CO" ? "Colombia" : "United States"}
                 </p>
               </div>
 
