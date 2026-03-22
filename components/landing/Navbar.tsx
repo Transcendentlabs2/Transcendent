@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ShoppingCart, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, Search, Globe } from "lucide-react"; // ✅ Añadí el icono Globe
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link"; // ✅ 1. IMPORTAMOS LINK
+import Link from "next/link";
 import logo from "@/app/assets/logo.webp"; 
 import { useCart } from "@/context/CartContext"; 
 
@@ -13,9 +13,31 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
-  const { toggleCart, cartCount } = useCart();
+  // ✅ Estado para el idioma actual
+  const [currentLang, setCurrentLang] = useState('en');
   
+  const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
+
+  // ✅ Leer la cookie de Google Translate al cargar la página
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const isSpanish = document.cookie.includes('googtrans=/en/es');
+      setCurrentLang(isSpanish ? 'es' : 'en');
+    }
+  }, []);
+
+  // ✅ Función para cambiar el idioma usando la cookie de Google
+  const changeLanguage = (langCode: string) => {
+    if (langCode === currentLang) return;
+    
+    // Forzar la cookie de Google Translate (/en/es para español, /en/en para inglés)
+    document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
+    document.cookie = `googtrans=/en/${langCode}; path=/;`; 
+    
+    // Recargar para que el script de Google aplique los cambios
+    window.location.reload();
+  };
 
   // 1. Bloqueo de scroll en móvil
   useEffect(() => {
@@ -54,9 +76,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Función para scroll suave en anchors de la misma página
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // Si es solo un hash (#), intentamos hacer scroll
     if (href.startsWith("#")) {
       e.preventDefault();
       const targetId = href.replace("#", "");
@@ -66,11 +86,10 @@ export default function Navbar() {
         element.scrollIntoView({ behavior: "smooth" });
       }
     }
-    // Si no (ej: rutas externas), dejamos que Link actúe normal
   };
 
   const navLinks = [
-    { name: "Catalog", href: "/#catalog" }, // ✅ Ajustado para funcionar desde /product/
+    { name: "Catalog", href: "/#catalog" },
     { name: "Verify Batch", href: "/#verification" },
     { name: "Calculator", href: "/#calculator" },
     { name: "Science", href: "/#science" },
@@ -93,8 +112,6 @@ export default function Navbar() {
         
         {/* --- LEFT: BRANDING --- */}
         <div className="flex items-center gap-4">
-            
-            {/* ✅ LOGO: LINK A HOME */}
             <Link 
                 href="/" 
                 className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 cursor-pointer hover:scale-105 transition-transform"
@@ -110,7 +127,6 @@ export default function Navbar() {
 
             <div className={`hidden md:block h-8 w-[1px] bg-[var(--text-muted)] opacity-20`} />
 
-            {/* ✅ TEXTO: LINK A HOME */}
             <Link href="/" className="flex flex-col justify-center cursor-pointer group">
                 <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-[var(--text-main)] mb-1.5 transition-colors group-hover:text-[var(--color-brand-primary)]">
                     TRANSCENDENT
@@ -130,9 +146,8 @@ export default function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              // Si estamos en home, hacemos scroll suave, si no, navega
               onClick={(e) => handleScrollTo(e as any, link.href)}
-              className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors py-2 relative group cursor-pointer"
+              className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors py-2 relative group cursor-pointer notranslate" 
             >
               {link.name}
               <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-brand-primary)] transition-all duration-300 group-hover:w-full" />
@@ -143,6 +158,31 @@ export default function Navbar() {
         {/* --- RIGHT: ICONS --- */}
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
+              
+              {/* ✅ COMPONENTE DE IDIOMA (DESKTOP) */}
+              <div className="flex items-center bg-[var(--text-muted)]/10 rounded-full p-1 mr-2 border border-[var(--glass-border)]">
+                <button
+                  onClick={() => changeLanguage('en')}
+                  className={`px-2.5 py-1 text-[10px] font-bold rounded-full transition-colors ${
+                    currentLang === 'en' 
+                      ? 'bg-cyan-500 text-white shadow-sm' 
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => changeLanguage('es')}
+                  className={`px-2.5 py-1 text-[10px] font-bold rounded-full transition-colors ${
+                    currentLang === 'es' 
+                      ? 'bg-cyan-500 text-white shadow-sm' 
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+                  }`}
+                >
+                  ES
+                </button>
+              </div>
+
               <button className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
                  <Search className="w-5 h-5" />
               </button>
@@ -182,11 +222,38 @@ export default function Navbar() {
             style={{ maxHeight: "calc(100vh - 80px)" }} 
           >
             <div className="p-6 flex flex-col gap-4 pb-20"> 
+              
+              {/* ✅ COMPONENTE DE IDIOMA (MOBILE) */}
+              <div className="flex items-center justify-between p-4 bg-[var(--text-muted)]/5 rounded-xl border border-[var(--glass-border)] mb-2">
+                <div className="flex items-center gap-2 text-[var(--text-main)]">
+                  <Globe className="w-5 h-5" />
+                  <span className="font-bold text-sm">Language</span>
+                </div>
+                <div className="flex bg-[var(--bg-page)] rounded-lg p-1 border border-[var(--glass-border)]">
+                  <button
+                    onClick={() => changeLanguage('en')}
+                    className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                      currentLang === 'en' ? 'bg-cyan-500 text-white shadow-sm' : 'text-[var(--text-muted)]'
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => changeLanguage('es')}
+                    className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                      currentLang === 'es' ? 'bg-cyan-500 text-white shadow-sm' : 'text-[var(--text-muted)]'
+                    }`}
+                  >
+                    Español
+                  </button>
+                </div>
+              </div>
+
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-bold text-[var(--text-main)] py-4 border-b border-[var(--glass-border)] last:border-0 active:text-[var(--color-brand-primary)] transition-colors"
+                  className="text-lg font-bold text-[var(--text-main)] py-4 border-b border-[var(--glass-border)] last:border-0 active:text-[var(--color-brand-primary)] transition-colors notranslate"
                   onClick={(e) => handleScrollTo(e as any, link.href)}
                 >
                   {link.name}
