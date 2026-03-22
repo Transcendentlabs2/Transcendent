@@ -52,10 +52,12 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     }
 
-    // --- PASO 1: COBRO CON SQUARE ---
+    // --- PASO 1: COBRO CON SQUARE (LIVE/PRODUCCIÓN) ---
     const amountInCents = Math.round(totalAmount * 100);
     try {
-        const squareEndpoint = 'https://connect.squareupsandbox.com/v2/payments';
+        // URL CAMBIADA A PRODUCCIÓN
+        const squareEndpoint = 'https://connect.squareup.com/v2/payments';
+        
         const squareResponse = await fetch(squareEndpoint, {
             method: 'POST',
             headers: {
@@ -72,15 +74,17 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         });
 
         const paymentData = await squareResponse.json();
+        
         if (!squareResponse.ok || paymentData.errors) {
-            console.error("Square Error:", paymentData.errors);
-            return { ok: false, message: "Payment declined by provider." };
+            console.error("Square Production Error:", paymentData.errors);
+            return { ok: false, message: "Payment declined by provider. Please check your card details." };
         }
     } catch (paymentError) {
+        console.error("Square Connection Error:", paymentError);
         return { ok: false, message: "Could not connect to payment provider." };
     }
 
-    // --- PASO 2: GUARDAR EN PRISMA ---
+    // --- PASO 2: GUARDAR EN BASE DE DATOS ---
     const order = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
@@ -107,7 +111,6 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       const apiKey = process.env.RESEND_API_KEY;
       
       if (apiKey) {
-        // Inicialización interna para evitar el error de Vercel
         const resend = new Resend(apiKey);
         
         const itemsHtml = orderItemsData.map(item => `
@@ -169,7 +172,6 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         });
       }
     } catch (emailError) {
-      // Error silencioso para no arruinar la experiencia del usuario si falla el email
       console.error("Resend Error:", emailError);
     }
 
