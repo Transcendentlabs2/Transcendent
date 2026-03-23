@@ -9,6 +9,7 @@ import logo from "@/app/assets/logo.webp";
 import { useCart } from "@/context/CartContext"; 
 
 export default function Navbar() {
+  const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -18,37 +19,55 @@ export default function Navbar() {
   const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
 
-  // LECTURA DE ESTADO
+  // LECTURA DE ESTADO OPTIMIZADA
   useEffect(() => {
+    setMounted(true); // Indica que ya estamos en el cliente
+    
     if (typeof document !== 'undefined') {
-      const isSpanish = document.cookie.includes('googtrans=/en/es') || document.cookie.includes('googtrans=/auto/es');
-      setCurrentLang(isSpanish ? 'es' : 'en');
+      // Usamos Regex para extraer el valor exacto de la cookie y evitar falsos positivos
+      const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
+      const cookieValue = match ? match[2] : null;
+
+      if (cookieValue && (cookieValue.endsWith('/es') || cookieValue.includes('es'))) {
+        setCurrentLang('es');
+      } else {
+        setCurrentLang('en');
+      }
     }
   }, []);
 
-  // SOBREESCRITURA DE COOKIE (CORREGIDA)
+  // SOBREESCRITURA Y DESTRUCCIÓN DE COOKIE OPTIMIZADA
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
-    setCurrentLang(langCode);
+    setCurrentLang(langCode); // Forzamos el cambio visual inmediatamente
+    
+    const domain = window.location.hostname;
     
     if (langCode === 'en') {
-      // Eliminar la cookie para volver al inglés
+      // Destrucción total de la cookie en todas las rutas y dominios posibles
       const expires = "expires=Thu, 01 Jan 1970 00:00:00 UTC";
       document.cookie = `googtrans=; ${expires}; path=/;`;
-      document.cookie = `googtrans=; ${expires}; path=/; domain=${window.location.hostname};`;
-      document.cookie = `googtrans=; ${expires}; path=/; domain=.${window.location.hostname};`;
+      document.cookie = `googtrans=; ${expires}; path=/; domain=${domain};`;
+      document.cookie = `googtrans=; ${expires}; path=/; domain=.${domain};`;
+      
+      // Limpiamos Storage por si Google Translate guardó preferencias localmente
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('googtrans');
+        sessionStorage.removeItem('googtrans');
+      }
     } else {
-      // Establecer la cookie para traducir a español
+      // Establecer la cookie de español
       const translateValue = `/en/${langCode}`;
       document.cookie = `googtrans=${translateValue}; path=/;`;
-      document.cookie = `googtrans=${translateValue}; path=/; domain=${window.location.hostname};`;
-      document.cookie = `googtrans=${translateValue}; path=/; domain=.${window.location.hostname};`;
+      document.cookie = `googtrans=${translateValue}; path=/; domain=${domain};`;
+      document.cookie = `googtrans=${translateValue}; path=/; domain=.${domain};`;
     }
     
+    // Reducimos el delay para que la sensación sea más instantánea
     setTimeout(() => {
       window.location.reload();
-    }, 300);
+    }, 150);
   };
 
   useEffect(() => {
@@ -166,25 +185,30 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
               
+              {/* Contenedor del Botón Desktop con protección de montaje */}
               <div 
-                className="relative flex items-center bg-[var(--text-muted)]/10 p-1 mr-2 rounded-full cursor-pointer notranslate border border-[var(--glass-border)] shadow-inner w-[90px] h-[30px]"
-                onClick={() => changeLanguage(currentLang === 'en' ? 'es' : 'en')}
+                className={`relative flex items-center bg-[var(--text-muted)]/10 p-1 mr-2 rounded-full cursor-pointer notranslate border border-[var(--glass-border)] shadow-inner w-[90px] h-[30px] transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+                onClick={() => mounted && changeLanguage(currentLang === 'en' ? 'es' : 'en')}
               >
-                <motion.div
-                  className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-full shadow-md"
-                  initial={false}
-                  animate={{
-                    left: currentLang === 'en' ? '4px' : 'calc(50% + 0px)',
-                  }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                />
-                
-                <span className={`relative z-10 w-1/2 text-center text-[10px] font-bold flex items-center justify-center gap-1 transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
-                  <span>🇺🇸</span> EN
-                </span>
-                <span className={`relative z-10 w-1/2 text-center text-[10px] font-bold flex items-center justify-center gap-1 transition-colors duration-300 ${currentLang === 'es' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
-                  <span>🇪🇸</span> ES
-                </span>
+                {mounted && (
+                  <>
+                    <motion.div
+                      className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-full shadow-md"
+                      initial={false}
+                      animate={{
+                        left: currentLang === 'en' ? '4px' : 'calc(50% + 0px)',
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    />
+                    
+                    <span className={`relative z-10 w-1/2 text-center text-[10px] font-bold flex items-center justify-center gap-1 transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
+                      <span>🇺🇸</span> EN
+                    </span>
+                    <span className={`relative z-10 w-1/2 text-center text-[10px] font-bold flex items-center justify-center gap-1 transition-colors duration-300 ${currentLang === 'es' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
+                      <span>🇪🇸</span> ES
+                    </span>
+                  </>
+                )}
               </div>
 
               <button className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
@@ -226,6 +250,7 @@ export default function Navbar() {
           >
             <div className="p-6 flex flex-col gap-4 pb-20"> 
               
+              {/* Contenedor del Botón Móvil con protección de montaje */}
               <div className="flex items-center justify-between p-4 bg-[var(--text-muted)]/5 rounded-xl border border-[var(--glass-border)] mb-2 notranslate">
                 <div className="flex items-center gap-2 text-[var(--text-main)]">
                   <Globe className="w-5 h-5" />
@@ -233,24 +258,28 @@ export default function Navbar() {
                 </div>
                 
                 <div 
-                  className="relative flex items-center bg-[var(--bg-page)] p-1 rounded-lg border border-[var(--glass-border)] cursor-pointer w-[140px] h-[36px]"
-                  onClick={() => changeLanguage(currentLang === 'en' ? 'es' : 'en')}
+                  className={`relative flex items-center bg-[var(--bg-page)] p-1 rounded-lg border border-[var(--glass-border)] cursor-pointer w-[140px] h-[36px] transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+                  onClick={() => mounted && changeLanguage(currentLang === 'en' ? 'es' : 'en')}
                 >
-                  <motion.div
-                    className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-md shadow-sm"
-                    initial={false}
-                    animate={{
-                      left: currentLang === 'en' ? '4px' : 'calc(50% + 0px)',
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  />
-                  
-                  <span className={`relative z-10 w-1/2 text-center text-xs font-bold transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
-                    🇺🇸 EN
-                  </span>
-                  <span className={`relative z-10 w-1/2 text-center text-xs font-bold transition-colors duration-300 ${currentLang === 'es' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
-                    🇪🇸 ES
-                  </span>
+                  {mounted && (
+                    <>
+                      <motion.div
+                        className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-md shadow-sm"
+                        initial={false}
+                        animate={{
+                          left: currentLang === 'en' ? '4px' : 'calc(50% + 0px)',
+                        }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                      />
+                      
+                      <span className={`relative z-10 w-1/2 text-center text-xs font-bold transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
+                        🇺🇸 EN
+                      </span>
+                      <span className={`relative z-10 w-1/2 text-center text-xs font-bold transition-colors duration-300 ${currentLang === 'es' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
+                        🇪🇸 ES
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 
