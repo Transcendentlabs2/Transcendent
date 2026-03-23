@@ -19,12 +19,10 @@ export default function Navbar() {
   const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
 
-  // LECTURA DE ESTADO OPTIMIZADA
   useEffect(() => {
-    setMounted(true); // Indica que ya estamos en el cliente
+    setMounted(true);
     
     if (typeof document !== 'undefined') {
-      // Usamos Regex para extraer el valor exacto de la cookie y evitar falsos positivos
       const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
       const cookieValue = match ? match[2] : null;
 
@@ -36,38 +34,37 @@ export default function Navbar() {
     }
   }, []);
 
-  // SOBREESCRITURA Y DESTRUCCIÓN DE COOKIE OPTIMIZADA
+  // MÉTODO NATIVO: SIN RECARGAS
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
-    setCurrentLang(langCode); // Forzamos el cambio visual inmediatamente
+    setCurrentLang(langCode); 
     
-    const domain = window.location.hostname;
-    
-    if (langCode === 'en') {
-      // Destrucción total de la cookie en todas las rutas y dominios posibles
-      const expires = "expires=Thu, 01 Jan 1970 00:00:00 UTC";
-      document.cookie = `googtrans=; ${expires}; path=/;`;
-      document.cookie = `googtrans=; ${expires}; path=/; domain=${domain};`;
-      document.cookie = `googtrans=; ${expires}; path=/; domain=.${domain};`;
-      
-      // Limpiamos Storage por si Google Translate guardó preferencias localmente
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('googtrans');
-        sessionStorage.removeItem('googtrans');
+    // Buscamos el selector oculto que Google Translate inyecta en el DOM
+    const googleSelect = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+
+    if (googleSelect) {
+      if (langCode === 'en') {
+        // Para volver al idioma original, Google a veces usa 'en' o a veces un string vacío ''
+        const hasEnOption = Array.from(googleSelect.options).some(opt => opt.value === 'en');
+        googleSelect.value = hasEnOption ? 'en' : ''; 
+      } else {
+        googleSelect.value = langCode;
       }
+      
+      // Despachamos el evento para que Google haga la magia sin recargar la página
+      googleSelect.dispatchEvent(new Event('change'));
     } else {
-      // Establecer la cookie de español
-      const translateValue = `/en/${langCode}`;
+      // Fallback de seguridad estricto solo si el selector de Google falló en cargar
+      const domain = window.location.hostname;
+      const translateValue = langCode === 'es' ? '/en/es' : '/auto/en';
+      
       document.cookie = `googtrans=${translateValue}; path=/;`;
       document.cookie = `googtrans=${translateValue}; path=/; domain=${domain};`;
       document.cookie = `googtrans=${translateValue}; path=/; domain=.${domain};`;
+      
+      setTimeout(() => window.location.reload(), 150);
     }
-    
-    // Reducimos el delay para que la sensación sea más instantánea
-    setTimeout(() => {
-      window.location.reload();
-    }, 150);
   };
 
   useEffect(() => {
@@ -185,7 +182,6 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
               
-              {/* Contenedor del Botón Desktop con protección de montaje */}
               <div 
                 className={`relative flex items-center bg-[var(--text-muted)]/10 p-1 mr-2 rounded-full cursor-pointer notranslate border border-[var(--glass-border)] shadow-inner w-[90px] h-[30px] transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => mounted && changeLanguage(currentLang === 'en' ? 'es' : 'en')}
@@ -250,7 +246,6 @@ export default function Navbar() {
           >
             <div className="p-6 flex flex-col gap-4 pb-20"> 
               
-              {/* Contenedor del Botón Móvil con protección de montaje */}
               <div className="flex items-center justify-between p-4 bg-[var(--text-muted)]/5 rounded-xl border border-[var(--glass-border)] mb-2 notranslate">
                 <div className="flex items-center gap-2 text-[var(--text-main)]">
                   <Globe className="w-5 h-5" />
