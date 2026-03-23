@@ -26,17 +26,25 @@ export default function Navbar() {
     }
   }, []);
 
-  // SOBREESCRITURA DE COOKIE
+  // SOBREESCRITURA DE COOKIE (CORREGIDA)
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
     setCurrentLang(langCode);
     
-    const translateValue = langCode === 'en' ? '/en/en' : `/en/${langCode}`;
-    
-    document.cookie = `googtrans=${translateValue}; path=/;`;
-    document.cookie = `googtrans=${translateValue}; path=/; domain=${window.location.hostname};`;
-    document.cookie = `googtrans=${translateValue}; path=/; domain=.${window.location.hostname};`;
+    if (langCode === 'en') {
+      // Eliminar la cookie para volver al inglés
+      const expires = "expires=Thu, 01 Jan 1970 00:00:00 UTC";
+      document.cookie = `googtrans=; ${expires}; path=/;`;
+      document.cookie = `googtrans=; ${expires}; path=/; domain=${window.location.hostname};`;
+      document.cookie = `googtrans=; ${expires}; path=/; domain=.${window.location.hostname};`;
+    } else {
+      // Establecer la cookie para traducir a español
+      const translateValue = `/en/${langCode}`;
+      document.cookie = `googtrans=${translateValue}; path=/;`;
+      document.cookie = `googtrans=${translateValue}; path=/; domain=${window.location.hostname};`;
+      document.cookie = `googtrans=${translateValue}; path=/; domain=.${window.location.hostname};`;
+    }
     
     setTimeout(() => {
       window.location.reload();
@@ -78,7 +86,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Tipo explicitly definido para evitar errores de any
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
       e.preventDefault();
