@@ -102,9 +102,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
   // Cálculos desglosados
-  const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
-  const cartSubtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingTotal = items.reduce((acc, item) => acc + item.shippingPrice * item.quantity, 0);
+const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const cartSubtotal = items.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0);
+  const shippingTotal = items.reduce((acc, item) => acc + (item.shippingPrice || 0) * item.quantity, 0);
   const cartTotal = cartSubtotal + shippingTotal;
 
   return (
