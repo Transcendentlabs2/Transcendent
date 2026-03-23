@@ -26,7 +26,10 @@ export default function Navbar() {
       const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
       const cookieValue = match ? match[2] : null;
 
-      if (cookieValue && (cookieValue.endsWith('/es') || cookieValue.includes('es'))) {
+      // También revisamos localStorage por si Google guardó la preferencia ahí
+      const localTranslate = window.localStorage.getItem('googtrans');
+
+      if ((cookieValue && cookieValue.includes('es')) || (localTranslate && localTranslate.includes('es'))) {
         setCurrentLang('es');
       } else {
         setCurrentLang('en');
@@ -34,37 +37,38 @@ export default function Navbar() {
     }
   }, []);
 
-  // MÉTODO NATIVO: SIN RECARGAS
+  // MÉTODO SEGURO: DESTRUCCIÓN TOTAL Y RECARGA
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
-    setCurrentLang(langCode); 
+    setCurrentLang(langCode);
+    const domain = window.location.hostname;
     
-    // Buscamos el selector oculto que Google Translate inyecta en el DOM
-    const googleSelect = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+    if (langCode === 'en') {
+      // 1. Destruir Cookies en todos los subdominios y paths
+      const expires = "expires=Thu, 01 Jan 1970 00:00:00 UTC";
+      document.cookie = `googtrans=; ${expires}; path=/;`;
+      document.cookie = `googtrans=; ${expires}; path=/; domain=${domain};`;
+      document.cookie = `googtrans=; ${expires}; path=/; domain=.${domain};`;
+      
+      // 2. Destruir Storage local
+      window.localStorage.removeItem('googtrans');
+      window.sessionStorage.removeItem('googtrans');
 
-    if (googleSelect) {
-      if (langCode === 'en') {
-        // Para volver al idioma original, Google a veces usa 'en' o a veces un string vacío ''
-        const hasEnOption = Array.from(googleSelect.options).some(opt => opt.value === 'en');
-        googleSelect.value = hasEnOption ? 'en' : ''; 
-      } else {
-        googleSelect.value = langCode;
-      }
-      
-      // Despachamos el evento para que Google haga la magia sin recargar la página
-      googleSelect.dispatchEvent(new Event('change'));
+      // 3. Remover las clases de opacidad por si acaso
+      document.documentElement.classList.remove('translating');
+      document.documentElement.classList.remove('translated-ltr');
     } else {
-      // Fallback de seguridad estricto solo si el selector de Google falló en cargar
-      const domain = window.location.hostname;
-      const translateValue = langCode === 'es' ? '/en/es' : '/auto/en';
-      
+      // Establecer la cookie de español
+      const translateValue = `/en/${langCode}`;
       document.cookie = `googtrans=${translateValue}; path=/;`;
       document.cookie = `googtrans=${translateValue}; path=/; domain=${domain};`;
       document.cookie = `googtrans=${translateValue}; path=/; domain=.${domain};`;
-      
-      setTimeout(() => window.location.reload(), 150);
+      window.localStorage.setItem('googtrans', translateValue);
     }
+    
+    // Recarga inmediata para evitar el colapso del DOM de Next.js
+    window.location.reload();
   };
 
   useEffect(() => {
