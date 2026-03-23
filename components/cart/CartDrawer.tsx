@@ -159,15 +159,20 @@ export default function CartDrawer() {
                     </div>
                 )}
 
-                {/* Desglose de precios añadido aquí */}
+                {/* Desglose de precios modificado con indicador "Free" */}
                 <div className="space-y-2 border-b border-[var(--glass-border)] pb-3">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-[var(--text-muted)]">Subtotal</span>
                     <span className="font-mono font-bold">${cartSubtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-[var(--text-muted)]">Shipping</span>
-                    <span className="font-mono font-bold">${shippingTotal.toFixed(2)}</span>
+                    <span className="text-[var(--text-muted)] flex items-center gap-2">
+                        Shipping 
+                        {shippingTotal === 0 && <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Free!</span>}
+                    </span>
+                    <span className={`font-mono font-bold ${shippingTotal === 0 ? "text-emerald-500" : ""}`}>
+                        ${shippingTotal.toFixed(2)}
+                    </span>
                   </div>
                 </div>
 

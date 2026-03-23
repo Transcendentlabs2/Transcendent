@@ -5,7 +5,7 @@ import { placeOrder } from "@/app/actions/place-order";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShieldCheck, Lock, Loader2, ArrowLeft, MapPin, Globe } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
 
@@ -14,16 +14,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Añadimos 'country' al estado inicial
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "US" // Valor por defecto
+    name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "US"
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -55,7 +47,6 @@ export default function CheckoutPage() {
             </div>
 
             <form id="checkout-form" className="space-y-8">
-                {/* Contact Info */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">1</div>
@@ -79,7 +70,6 @@ export default function CheckoutPage() {
                     </div>
                 </section>
 
-                {/* Shipping Info */}
                 <section className="space-y-4">
                      <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">2</div>
@@ -89,30 +79,22 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 gap-4">
                         <div>
                             <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Country</label>
-                            <select 
-                                name="country" 
-                                onChange={handleInputChange}
-                                className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors appearance-none cursor-pointer"
-                            >
+                            <select name="country" onChange={handleInputChange} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors appearance-none cursor-pointer">
                                 <option value="US">United States</option>
                                 <option value="CO">Colombia</option>
                             </select>
                         </div>
-
                         <div>
                             <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Street Address</label>
                             <input required name="address" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Calle 10 # 5-20" : "123 Science Dr"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
                         </div>
-
                         <div className="grid grid-cols-6 gap-4">
                             <div className="col-span-6 md:col-span-3">
                                 <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">City / Ciudad</label>
                                 <input required name="city" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Pereira" : "Boston"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
                             </div>
                             <div className="col-span-3 md:col-span-2">
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">
-                                    {formData.country === "CO" ? "Dept / Prov" : "State"}
-                                </label>
+                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">{formData.country === "CO" ? "Dept / Prov" : "State"}</label>
                                 <input required name="state" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Risaralda" : "MA"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors uppercase" maxLength={formData.country === "US" ? 2 : 20} />
                             </div>
                             <div className="col-span-3 md:col-span-1">
@@ -130,7 +112,6 @@ export default function CheckoutPage() {
             </form>
         </div>
 
-        {/* RESUMEN Y PAGO SQUARE */}
         <div className="lg:sticky lg:top-24 h-fit space-y-6">
             <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-6 shadow-xl">
                 <h3 className="font-bold text-lg mb-4">Order Summary</h3>
@@ -146,23 +127,18 @@ export default function CheckoutPage() {
                                     <span>Qty: {item.quantity}</span>
                                     <span>${(item.price * item.quantity).toFixed(2)}</span>
                                 </div>
-                                {/* Mostrar envío por producto opcionalmente */}
-                                {item.shippingPrice > 0 && (
-                                    <p className="text-[10px] text-[var(--text-muted)]">+ ${(item.shippingPrice * item.quantity).toFixed(2)} shipping</p>
-                                )}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Desglose de precios en el Checkout */}
                 <div className="border-t border-[var(--glass-border)] mt-4 pt-4 space-y-2">
                     <div className="flex justify-between text-sm text-[var(--text-muted)]">
                         <span>Subtotal</span>
                         <span className="font-mono">${cartSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-[var(--text-muted)]">
-                        <span>Shipping</span>
+                        <span>Shipping {shippingTotal === 0 && <span className="text-emerald-500 font-bold ml-1">(Free!)</span>}</span>
                         <span className="font-mono">${shippingTotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xl font-bold pt-2 border-t border-[var(--glass-border)] text-[var(--color-brand-primary)]">
@@ -189,10 +165,7 @@ export default function CheckoutPage() {
                             }
                             setIsLoading(true);
                             try {
-                                const cartPayload = items.map(item => ({
-                                    productId: item.id,
-                                    quantity: item.quantity
-                                }));
+                                const cartPayload = items.map(item => ({ productId: item.id, quantity: item.quantity }));
                                 const response = await placeOrder(cartPayload, formData, token.token);
                                 if (response.ok && response.order) {
                                     clearCart(); 
@@ -202,7 +175,6 @@ export default function CheckoutPage() {
                                     setIsLoading(false);
                                 }
                             } catch (error) {
-                                console.error(error);
                                 alert("Unexpected error.");
                                 setIsLoading(false);
                             } 

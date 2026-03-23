@@ -40,7 +40,6 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
     });
 
     let totalAmount = 0;       // Subtotal de los productos
-    let totalShipping = 0;     // <--- NUEVO: Acumulador exclusivo para el envío
     const orderItemsData: any[] = [];
     const squareLineItems: any[] = [];
 
@@ -49,10 +48,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       if (!dbProduct) throw new Error(`Product not found: ${item.productId}`);
 
       const price = Number(dbProduct.price);
-      const shippingPrice = Number(dbProduct.shippingPrice || 0); // <--- NUEVO: Sacamos el envío de la DB
-
       totalAmount += price * item.quantity;
-      totalShipping += shippingPrice * item.quantity;             // <--- NUEVO: Sumamos el envío
 
       orderItemsData.push({
         productId: dbProduct.id,
@@ -72,12 +68,14 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     }
 
-    const finalTotalAmount = totalAmount + totalShipping; // <--- NUEVO: Total real a cobrar
+    // --- NUEVO CÁLCULO DE ENVÍO: $9.95 si es menor a $300. Gratis si es $300 o más ---
+    const totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
+    const finalTotalAmount = totalAmount + totalShipping; // Total real a cobrar
 
-    // <--- NUEVO: Agregamos el envío como un ítem extra en Square para que Pirate Ship lo detecte
+    // Agregamos el envío como un ítem extra en Square para que Pirate Ship lo detecte (solo si se cobra)
     if (totalShipping > 0) {
       squareLineItems.push({
-        name: 'Shipping',
+        name: 'Flat Rate Shipping',
         quantity: '1',
         base_price_money: {
           amount: Math.round(totalShipping * 100),
@@ -100,7 +98,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
             body: JSON.stringify({
                 order: {
                     location_id: locationId,
-                    line_items: squareLineItems, // Aquí ya va incluido el ítem de Shipping
+                    line_items: squareLineItems, // Aquí ya va incluido el ítem de Shipping si aplica
                     fulfillments: [{
                         type: 'SHIPMENT',
                         shipment_details: {
@@ -136,7 +134,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
             body: JSON.stringify({
                 source_id: paymentToken,
                 idempotency_key: crypto.randomUUID(),
-                amount_money: { amount: Math.round(finalTotalAmount * 100), currency: 'USD' }, // <--- ACTUALIZADO: Cobramos el Total Real
+                amount_money: { amount: Math.round(finalTotalAmount * 100), currency: 'USD' }, // Cobramos el Total Real
                 location_id: locationId,
                 order_id: squareOrderId
             })
@@ -163,7 +161,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           state: shippingData.state,
           postalCode: shippingData.postalCode, 
           country: shippingData.country === "CO" ? "Colombia" : "United States",            
-          total: finalTotalAmount, // <--- ACTUALIZADO: Guardamos el Total Real
+          total: finalTotalAmount, // Guardamos el Total Real
           status: 'PAID', 
           isPaid: true,   
           items: {
