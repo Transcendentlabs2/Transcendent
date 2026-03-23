@@ -1,4 +1,3 @@
-
 'use server';
 
 import { prisma } from '@/lib/prisma';
@@ -40,7 +39,8 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       where: { id: { in: productIds }, isActive: true },
     });
 
-    let totalAmount = 0;
+    let totalAmount = 0;       // Subtotal de los productos
+    let totalShipping = 0;     // <--- NUEVO: Acumulador exclusivo para el envío
     const orderItemsData: any[] = [];
     const squareLineItems: any[] = [];
 
@@ -49,7 +49,10 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       if (!dbProduct) throw new Error(`Product not found: ${item.productId}`);
 
       const price = Number(dbProduct.price);
+      const shippingPrice = Number(dbProduct.shippingPrice || 0); // <--- NUEVO: Sacamos el envío de la DB
+
       totalAmount += price * item.quantity;
+      totalShipping += shippingPrice * item.quantity;             // <--- NUEVO: Sumamos el envío
 
       orderItemsData.push({
         productId: dbProduct.id,
@@ -58,12 +61,26 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         name: dbProduct.name 
       });
 
-      // Formato para que Pirate Ship lea los productos desde Square
+      // Formato para que Pirate Ship lea los productos desde Square (Precio BASE)
       squareLineItems.push({
         name: dbProduct.name,
         quantity: item.quantity.toString(),
         base_price_money: {
           amount: Math.round(price * 100),
+          currency: 'USD'
+        }
+      });
+    }
+
+    const finalTotalAmount = totalAmount + totalShipping; // <--- NUEVO: Total real a cobrar
+
+    // <--- NUEVO: Agregamos el envío como un ítem extra en Square para que Pirate Ship lo detecte
+    if (totalShipping > 0) {
+      squareLineItems.push({
+        name: 'Shipping',
+        quantity: '1',
+        base_price_money: {
+          amount: Math.round(totalShipping * 100),
           currency: 'USD'
         }
       });
@@ -83,7 +100,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
             body: JSON.stringify({
                 order: {
                     location_id: locationId,
-                    line_items: squareLineItems,
+                    line_items: squareLineItems, // Aquí ya va incluido el ítem de Shipping
                     fulfillments: [{
                         type: 'SHIPMENT',
                         shipment_details: {
@@ -119,9 +136,9 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
             body: JSON.stringify({
                 source_id: paymentToken,
                 idempotency_key: crypto.randomUUID(),
-                amount_money: { amount: Math.round(totalAmount * 100), currency: 'USD' },
+                amount_money: { amount: Math.round(finalTotalAmount * 100), currency: 'USD' }, // <--- ACTUALIZADO: Cobramos el Total Real
                 location_id: locationId,
-                order_id: squareOrderId // <--- AQUÍ SE UNE TODO
+                order_id: squareOrderId
             })
         });
 
@@ -134,7 +151,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         return { ok: false, message: "Error communicating with payment provider." };
     }
 
-    // --- PASO 2: GUARDAR EN TU BASE DE DATOS (IGUAL QUE ANTES) ---
+    // --- PASO 2: GUARDAR EN TU BASE DE DATOS ---
     const order = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
@@ -146,7 +163,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           state: shippingData.state,
           postalCode: shippingData.postalCode, 
           country: shippingData.country === "CO" ? "Colombia" : "United States",            
-          total: totalAmount,
+          total: finalTotalAmount, // <--- ACTUALIZADO: Guardamos el Total Real
           status: 'PAID', 
           isPaid: true,   
           items: {
@@ -156,7 +173,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     });
 
-    // --- PASO 3: ENVIAR CORREO (IGUAL QUE ANTES) ---
+    // --- PASO 3: ENVIAR CORREO ---
     try {
       if (apiKey) {
         const resend = new Resend(apiKey);
@@ -179,9 +196,12 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
               <table style="width: 100%; border-collapse: collapse;">
                 ${itemsHtml}
                 <tr>
-                  <td style="padding: 16px 0; text-align: right; font-weight: bold;">Total Paid:</td>
-                  <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">$${totalAmount.toFixed(2)}</td>
+                  <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Shipping & Handling</td>
+                  <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #6b7280; font-weight: bold;">$${totalShipping.toFixed(2)}</td>
                 </tr>
+                <tr>
+                  <td style="padding: 16px 0; text-align: right; font-weight: bold;">Total Paid:</td>
+                  <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">$${finalTotalAmount.toFixed(2)}</td> </tr>
               </table>
               <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #f3f4f6;">
                 <h4 style="margin: 0 0 8px 0;">Shipping Address</h4>
