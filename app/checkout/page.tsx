@@ -10,7 +10,7 @@ import Link from "next/link";
 import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
 
 export default function CheckoutPage() {
-  const { items, cartTotal, clearCart } = useCart();
+  const { items, cartSubtotal, shippingTotal, cartTotal, clearCart } = useCart();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,7 +79,7 @@ export default function CheckoutPage() {
                     </div>
                 </section>
 
-                {/* Shipping Info - AHORA DINÁMICO */}
+                {/* Shipping Info */}
                 <section className="space-y-4">
                      <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">2</div>
@@ -146,26 +146,39 @@ export default function CheckoutPage() {
                                     <span>Qty: {item.quantity}</span>
                                     <span>${(item.price * item.quantity).toFixed(2)}</span>
                                 </div>
+                                {/* Mostrar envío por producto opcionalmente */}
+                                {item.shippingPrice > 0 && (
+                                    <p className="text-[10px] text-[var(--text-muted)]">+ ${(item.shippingPrice * item.quantity).toFixed(2)} shipping</p>
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="border-t border-[var(--glass-border)] mt-4 pt-4 mb-6 space-y-2">
-                    <div className="flex justify-between text-xl font-bold pt-2 text-[var(--color-brand-primary)]">
+                {/* Desglose de precios en el Checkout */}
+                <div className="border-t border-[var(--glass-border)] mt-4 pt-4 space-y-2">
+                    <div className="flex justify-between text-sm text-[var(--text-muted)]">
+                        <span>Subtotal</span>
+                        <span className="font-mono">${cartSubtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-[var(--text-muted)]">
+                        <span>Shipping</span>
+                        <span className="font-mono">${shippingTotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xl font-bold pt-2 border-t border-[var(--glass-border)] text-[var(--color-brand-primary)]">
                         <span>Total</span>
                         <span>${cartTotal.toFixed(2)}</span>
                     </div>
                 </div>
 
                 {isLoading && (
-                    <div className="flex justify-center items-center py-4">
+                    <div className="flex justify-center items-center py-4 mt-4">
                         <Loader2 className="w-6 h-6 animate-spin text-[var(--color-brand-primary)]" />
                         <span className="ml-2 font-bold">Processing...</span>
                     </div>
                 )}
 
-                <div className={isLoading ? "hidden" : "block"}>
+                <div className={`mt-6 ${isLoading ? "hidden" : "block"}`}>
                     <PaymentForm
                         applicationId={appId}
                         locationId={locationId}

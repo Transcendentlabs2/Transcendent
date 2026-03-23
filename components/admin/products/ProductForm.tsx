@@ -116,12 +116,18 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
               <input name="price" type="number" step="0.01" defaultValue={Number(initialData?.price || 0)} required className="input-scientific" />
             </div>
 
+            {/* NUEVO CAMPO AGREGADO AQUÍ */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Shipping Price (USD)</label>
+              <input name="shippingPrice" type="number" step="0.01" defaultValue={Number(initialData?.shippingPrice || 0)} required className="input-scientific" />
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Current Stock</label>
               <input name="stock" type="number" defaultValue={initialData?.stock} required className="input-scientific" />
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2 md:col-span-1">
               <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Purity Analysis</label>
               <input name="purity" defaultValue={initialData?.purity} className="input-scientific" placeholder=">99% HPLC" />
             </div>

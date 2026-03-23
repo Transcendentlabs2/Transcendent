@@ -8,9 +8,9 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 export default function CartDrawer() {
-  const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartTotal } = useCart();
+  const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartSubtotal, shippingTotal, cartTotal } = useCart();
   
-  // 1. Verificamos si hay algún producto que se quedó sin stock en el carrito
+  // Verificamos si hay algún producto que se quedó sin stock en el carrito
   const hasInvalidItems = items.some(item => (item.stock || 0) <= 0);
 
   useEffect(() => {
@@ -158,6 +158,18 @@ export default function CartDrawer() {
                         </p>
                     </div>
                 )}
+
+                {/* Desglose de precios añadido aquí */}
+                <div className="space-y-2 border-b border-[var(--glass-border)] pb-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[var(--text-muted)]">Subtotal</span>
+                    <span className="font-mono font-bold">${cartSubtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[var(--text-muted)]">Shipping</span>
+                    <span className="font-mono font-bold">${shippingTotal.toFixed(2)}</span>
+                  </div>
+                </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold uppercase text-[var(--text-muted)] tracking-widest">Total Estimated</span>

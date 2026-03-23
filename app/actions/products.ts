@@ -8,6 +8,7 @@ export async function createProduct(formData: FormData) {
   try {
     const name = formData.get("name") as string;
     const price = formData.get("price") as string;
+    const shippingPrice = formData.get("shippingPrice") as string; // <--- NUEVO
     const description = formData.get("description") as string;
     const category = formData.get("category") as string;
     const stock = formData.get("stock") as string;
@@ -23,6 +24,7 @@ export async function createProduct(formData: FormData) {
         slug,
         description,
         price: parseFloat(price),
+        shippingPrice: parseFloat(shippingPrice || "0"), // <--- NUEVO
         stock: parseInt(stock),
         category,
         images: imageUrl,
@@ -71,6 +73,7 @@ export async function updateProduct(id: string, formData: FormData) {
       description: formData.get("description") as string,
       category: formData.get("category") as string,
       price: parseFloat(formData.get("price") as string),
+      shippingPrice: parseFloat((formData.get("shippingPrice") as string) || "0"), // <--- NUEVO
       stock: parseInt(formData.get("stock") as string),
       purity: formData.get("purity") as string,
       // Si el usuario no subió imagen nueva, mantenemos la anterior (esto lo manejamos en el form, 

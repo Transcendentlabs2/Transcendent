@@ -2,16 +2,17 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-// 1. DEFINICIÓN ACTUALIZADA: Ahora incluimos 'stock'
+// 1. DEFINICIÓN ACTUALIZADA: Ahora incluimos 'stock' y 'shippingPrice'
 export interface CartItem {
   id: string;
   name: string;
   price: number;
+  shippingPrice: number; // <-- AÑADIDO
   image: string;
   quantity: number;
   slug: string;
   category: string;
-  stock: number; // <-- AÑADIDO: Propiedad necesaria para validaciones
+  stock: number;
 }
 
 interface CartContextType {
@@ -23,7 +24,9 @@ interface CartContextType {
   isCartOpen: boolean;
   toggleCart: () => void;
   cartCount: number;
-  cartTotal: number;
+  cartSubtotal: number;  // <-- AÑADIDO: Para mostrar el costo base
+  shippingTotal: number; // <-- AÑADIDO: Para mostrar el costo de envío
+  cartTotal: number;     // <-- ACTUALIZADO: Subtotal + Envío
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -53,12 +56,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isLoaded]);
 
-  // Lógica: Agregar Item (Actualizada para capturar el stock)
+  // Lógica: Agregar Item
   const addItem = (product: any, qty: number) => {
     setItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
-        // Si ya existe, sumamos la cantidad (pero aseguramos actualizar el stock por si cambió)
+        // Si ya existe, sumamos la cantidad y actualizamos stock
         return prev.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + qty, stock: product.stock }
@@ -66,18 +69,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
       
-      // Si no existe, lo agregamos normalizado incluyendo el stock actual
+      // Si no existe, lo agregamos normalizado incluyendo stock y shippingPrice
       return [
         ...prev,
         {
           id: product.id,
           name: product.name,
           price: Number(product.price),
+          shippingPrice: Number(product.shippingPrice || 0), // <-- AÑADIDO
           image: product.images, 
           quantity: qty,
           slug: product.slug,
           category: product.category,
-          stock: product.stock, // <-- AÑADIDO: Se guarda el stock del producto
+          stock: product.stock,
         },
       ];
     });
@@ -97,8 +101,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([]);
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
+  // Cálculos desglosados
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
-  const cartTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const cartSubtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const shippingTotal = items.reduce((acc, item) => acc + item.shippingPrice * item.quantity, 0);
+  const cartTotal = cartSubtotal + shippingTotal;
 
   return (
     <CartContext.Provider
@@ -111,6 +118,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         isCartOpen,
         toggleCart,
         cartCount,
+        cartSubtotal,   // <-- EXPORTADO
+        shippingTotal,  // <-- EXPORTADO
         cartTotal,
       }}
     >
