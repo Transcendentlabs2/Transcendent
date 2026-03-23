@@ -26,7 +26,6 @@ export default function Navbar() {
       const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
       const cookieValue = match ? match[2] : null;
 
-      // También revisamos localStorage por si Google guardó la preferencia ahí
       const localTranslate = window.localStorage.getItem('googtrans');
 
       if ((cookieValue && cookieValue.includes('es')) || (localTranslate && localTranslate.includes('es'))) {
@@ -37,38 +36,37 @@ export default function Navbar() {
     }
   }, []);
 
-  // MÉTODO SEGURO: DESTRUCCIÓN TOTAL Y RECARGA
   const changeLanguage = (langCode: string) => {
     if (langCode === currentLang) return;
     
     setCurrentLang(langCode);
-    const domain = window.location.hostname;
+    
+    const host = window.location.hostname;
+    const rootDomain = host.split('.').length > 2 ? host.substring(host.indexOf('.')) : `.${host}`;
     
     if (langCode === 'en') {
-      // 1. Destruir Cookies en todos los subdominios y paths
-      const expires = "expires=Thu, 01 Jan 1970 00:00:00 UTC";
-      document.cookie = `googtrans=; ${expires}; path=/;`;
-      document.cookie = `googtrans=; ${expires}; path=/; domain=${domain};`;
-      document.cookie = `googtrans=; ${expires}; path=/; domain=.${domain};`;
+      const expireStr = "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = `googtrans${expireStr}`;
+      document.cookie = `googtrans${expireStr} domain=${host};`;
+      document.cookie = `googtrans${expireStr} domain=.${host};`;
+      document.cookie = `googtrans${expireStr} domain=${rootDomain};`; 
       
-      // 2. Destruir Storage local
       window.localStorage.removeItem('googtrans');
       window.sessionStorage.removeItem('googtrans');
 
-      // 3. Remover las clases de opacidad por si acaso
       document.documentElement.classList.remove('translating');
       document.documentElement.classList.remove('translated-ltr');
     } else {
-      // Establecer la cookie de español
       const translateValue = `/en/${langCode}`;
-      document.cookie = `googtrans=${translateValue}; path=/;`;
-      document.cookie = `googtrans=${translateValue}; path=/; domain=${domain};`;
-      document.cookie = `googtrans=${translateValue}; path=/; domain=.${domain};`;
+      document.cookie = `googtrans=${translateValue}; path=/; domain=${host};`;
+      document.cookie = `googtrans=${translateValue}; path=/; domain=.${host};`;
+      document.cookie = `googtrans=${translateValue}; path=/; domain=${rootDomain};`;
       window.localStorage.setItem('googtrans', translateValue);
     }
     
-    // Recarga inmediata para evitar el colapso del DOM de Next.js
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 200);
   };
 
   useEffect(() => {
