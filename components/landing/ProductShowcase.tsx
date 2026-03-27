@@ -72,19 +72,19 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
   // 1. Filtramos PRIMERO para dejar solo los que tienen stock disponible
   const inStockProducts = products.filter(p => p.stock > 0);
 
-  // 2. Aplicamos el filtro de categoría sobre los productos con stock
+  // 2. Filtro insensible a mayúsculas/minúsculas para evitar errores con la BD
   const filteredProducts = activeCategory === "All" 
     ? inStockProducts 
-    : inStockProducts.filter(p => p.category === CATEGORY_MAP[activeCategory]);
+    : inStockProducts.filter(p => p.category?.toLowerCase() === CATEGORY_MAP[activeCategory]?.toLowerCase());
 
-  // 3. Limitamos la cantidad a mostrar
+  // 3. Limitamos a 4 en desktop
   const displayProducts = filteredProducts.slice(0, 4);
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (product.stock <= 0) return; // Seguridad extra
+    if (product.stock <= 0) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
     const newParticle = {
@@ -161,8 +161,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      <motion.div layout className="flex flex-wrap justify-center gap-6 md:gap-8">
-        <AnimatePresence mode="popLayout">
+      <motion.div layout className="flex flex-wrap justify-center md:justify-start gap-6 md:gap-8 min-h-[400px]">
+        <AnimatePresence mode="sync">
           {displayProducts.map((product) => {
             const isOOS = product.stock <= 0;
 
@@ -171,7 +171,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                 layout
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
                 key={product.id}
                 className={`w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] transition-all duration-300 
                            bg-[var(--glass-bg)] border backdrop-blur-xl supports-[backdrop-filter]:bg-opacity-70 transform-gpu
@@ -229,15 +230,14 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                                     <Info className="w-3.5 h-3.5" /> Details
                                 </div>
                                 
-                                <motion.div 
-                                    whileTap={!isOOS ? { scale: 0.92 } : {}}
+                                <button 
                                     onClick={(e) => !isOOS && handleAddToCart(e, product)}
                                     className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg touch-manipulation ${
                                         isOOS 
                                         ? "bg-[var(--glass-border)] text-[var(--text-muted)] cursor-not-allowed"
                                         : addingId === product.id 
                                         ? "bg-emerald-500 text-white" 
-                                        : "bg-[var(--text-main)] text-[var(--bg-page)] active:bg-[var(--color-brand-primary)] cursor-pointer"
+                                        : "bg-[var(--text-main)] text-[var(--bg-page)] hover:scale-[1.02] active:scale-95 cursor-pointer"
                                     }`}
                                 >
                                     <AnimatePresence mode="wait">
@@ -255,7 +255,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                                             </motion.span>
                                         )}
                                     </AnimatePresence>
-                                </motion.div>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -268,7 +268,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
       {/* BOTÓN ULTRA PREMIUM PARA VER EL CATÁLOGO COMPLETO */}
       <div className="mt-20 flex justify-center relative">
-        {/* Glow de fondo que pulsa */}
         <motion.div 
           className="absolute inset-0 bg-[var(--color-brand-primary)] rounded-full blur-[40px] opacity-20 pointer-events-none mx-auto w-64 h-20"
           animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.4, 0.1] }}
@@ -279,16 +278,13 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           onClick={() => setCatalogOpen(true)}
           className="relative group p-[1px] rounded-full overflow-hidden shadow-2xl shadow-[var(--color-brand-primary)]/10 hover:shadow-[var(--color-brand-primary)]/30 transition-shadow duration-500 active:scale-95"
         >
-          {/* Borde animado que rota */}
           <motion.div 
              className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0_340deg,var(--color-brand-primary)_360deg)] opacity-70"
              animate={{ rotate: 360 }}
              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
           />
           
-          {/* Contenedor principal del botón */}
           <div className="relative flex items-center gap-5 bg-[var(--bg-page)]/95 backdrop-blur-xl px-10 py-5 rounded-full transition-all group-hover:bg-[var(--bg-page)]/80">
-             {/* Shimmer / Destello que barre de lado a lado */}
              <motion.div 
                className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
                animate={{ x: ["-300%", "400%"] }}

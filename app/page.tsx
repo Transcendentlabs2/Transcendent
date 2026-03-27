@@ -21,8 +21,8 @@ export default async function Home() {
   // 1. OBTENER DATOS REALES DE LA BASE DE DATOS
   const products = await prisma.product.findMany({
     where: { isActive: true },
-    orderBy: { createdAt: 'desc' },
-    take: 8 
+    orderBy: { createdAt: 'desc' }
+    // Se eliminó el "take: 8" para que traiga TODO el catálogo de la base de datos
   });
 
   // 2. SERIALIZAR DATOS

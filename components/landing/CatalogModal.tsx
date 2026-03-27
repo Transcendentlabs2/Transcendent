@@ -39,7 +39,8 @@ export default function CatalogModal({ products, onClose }: { products: Product[
   useEffect(() => {
     let result = products;
     if (selectedCategory !== "All") {
-      result = result.filter(p => p.category === CATEGORY_MAP[selectedCategory]);
+      // Filtro insensible a mayúsculas para evitar problemas con la base de datos
+      result = result.filter(p => p.category?.toLowerCase() === CATEGORY_MAP[selectedCategory]?.toLowerCase());
     }
     if (searchTerm) {
       result = result.filter(p => 
@@ -159,17 +160,17 @@ export default function CatalogModal({ products, onClose }: { products: Product[
               layout 
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             >
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence mode="sync">
                     {filtered.map((product) => {
                         const isOOS = product.stock <= 0;
                         
                         return (
                         <motion.div 
                             layout 
-                            initial={{ opacity: 0, scale: 0.9, y: 15 }} 
-                            animate={{ opacity: 1, scale: 1, y: 0 }} 
-                            exit={{ opacity: 0, scale: 0.9, y: -15 }}
-                            transition={{ duration: 0.3 }}
+                            initial={{ opacity: 0, scale: 0.95 }} 
+                            animate={{ opacity: 1, scale: 1 }} 
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
                             key={product.id} 
                             className={`group relative bg-[var(--glass-bg)] border rounded-2xl transition-all ${
                                 isOOS 
