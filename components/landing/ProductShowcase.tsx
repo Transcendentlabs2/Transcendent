@@ -69,15 +69,12 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
   
   const { addItem } = useCart();
 
-  // 1. Filtramos PRIMERO para dejar solo los que tienen stock disponible
   const inStockProducts = products.filter(p => p.stock > 0);
 
-  // 2. Filtro insensible a mayúsculas/minúsculas para evitar errores con la BD
   const filteredProducts = activeCategory === "All" 
     ? inStockProducts 
     : inStockProducts.filter(p => p.category?.toLowerCase() === CATEGORY_MAP[activeCategory]?.toLowerCase());
 
-  // 3. Limitamos a 4 en desktop
   const displayProducts = filteredProducts.slice(0, 4);
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
@@ -152,7 +149,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
               className={`px-4 py-2 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase border transition-all active:scale-95 ${
                 activeCategory === cat
                   ? "bg-[var(--text-main)] text-[var(--bg-page)] border-[var(--text-main)]" 
-                  : "bg-transparent text-[var(--text-muted)] border-[var(--glass-border)]"
+                  : "bg-transparent text-[var(--text-muted)] border-[var(--glass-border)] hover:border-[var(--text-muted)]"
               }`}
             >
               {cat}
@@ -161,22 +158,22 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      <motion.div layout className="flex flex-wrap justify-center md:justify-start gap-6 md:gap-8 min-h-[400px]">
-        <AnimatePresence mode="sync">
+      {/* Contenedor Grid Fijo para evitar saltos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 min-h-[400px]">
+        <AnimatePresence mode="popLayout">
           {displayProducts.map((product) => {
             const isOOS = product.stock <= 0;
 
             return (
               <motion.div
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
                 key={product.id}
-                className={`w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[280px] group relative rounded-[2.5rem] transition-all duration-300 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className={`w-full group relative rounded-[2.5rem] transition-all duration-300 
                            bg-[var(--glass-bg)] border backdrop-blur-xl supports-[backdrop-filter]:bg-opacity-70 transform-gpu
-                           ${isOOS ? "border-red-500/20 grayscale-[0.5]" : "border-[var(--glass-border)] hover:border-[var(--color-brand-primary)]/50 shadow-sm"}`}
+                           ${isOOS ? "border-red-500/20 grayscale-[0.5]" : "border-[var(--glass-border)] hover:border-[var(--color-brand-primary)]/50 shadow-sm hover:shadow-lg"}`}
               >
                 <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-5 w-full h-full">
                     {!isOOS && product.stock < 50 && (
@@ -264,7 +261,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
             );
           })}
         </AnimatePresence>
-      </motion.div>
+      </div>
 
       {/* BOTÓN ULTRA PREMIUM PARA VER EL CATÁLOGO COMPLETO */}
       <div className="mt-20 flex justify-center relative">

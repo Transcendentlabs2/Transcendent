@@ -39,7 +39,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
   useEffect(() => {
     let result = products;
     if (selectedCategory !== "All") {
-      // Filtro insensible a mayúsculas para evitar problemas con la base de datos
       result = result.filter(p => p.category?.toLowerCase() === CATEGORY_MAP[selectedCategory]?.toLowerCase());
     }
     if (searchTerm) {
@@ -156,22 +155,18 @@ export default function CatalogModal({ products, onClose }: { products: Product[
 
         {/* GRID DE PRODUCTOS */}
         <div className="flex-1 overflow-y-auto px-5 md:px-8 pb-24 relative z-10 custom-scrollbar overscroll-contain">
-            <motion.div 
-              layout 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-            >
-                <AnimatePresence mode="sync">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <AnimatePresence mode="popLayout">
                     {filtered.map((product) => {
                         const isOOS = product.stock <= 0;
                         
                         return (
                         <motion.div 
-                            layout 
-                            initial={{ opacity: 0, scale: 0.95 }} 
-                            animate={{ opacity: 1, scale: 1 }} 
+                            key={product.id}
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }} 
+                            animate={{ opacity: 1, scale: 1, y: 0 }} 
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
-                            key={product.id} 
                             className={`group relative bg-[var(--glass-bg)] border rounded-2xl transition-all ${
                                 isOOS 
                                 ? "border-red-500/20 grayscale-[0.4] opacity-70" 
@@ -239,7 +234,7 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                         );
                     })}
                 </AnimatePresence>
-            </motion.div>
+            </div>
 
             {/* ESTADO VACÍO */}
             {filtered.length === 0 && (
