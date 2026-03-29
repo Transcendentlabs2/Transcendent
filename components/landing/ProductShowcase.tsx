@@ -17,6 +17,7 @@ interface Product {
   purity?: string;
   slug: string;
   description?: string;
+  isFeatured?: boolean; // <--- AGREGADO
 }
 
 const CATEGORIES = ["All", "Research Peptides", "Nootropics", "Supplements", "SARMs"];
@@ -75,7 +76,15 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
     ? inStockProducts 
     : inStockProducts.filter(p => p.category?.toLowerCase() === CATEGORY_MAP[activeCategory]?.toLowerCase());
 
-  const displayProducts = filteredProducts.slice(0, 4);
+  // ORDENAR: Ponemos los productos destacados primero
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (a.isFeatured && !b.isFeatured) return -1;
+    if (!a.isFeatured && b.isFeatured) return 1;
+    return 0; 
+  });
+
+  // Tomamos los 4 primeros después de ordenarlos
+  const displayProducts = sortedProducts.slice(0, 4);
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();

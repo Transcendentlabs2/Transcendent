@@ -125,6 +125,21 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
               <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Purity Analysis</label>
               <input name="purity" defaultValue={initialData?.purity} className="input-scientific" placeholder=">99% HPLC" />
             </div>
+
+            {/* --- NUEVO CAMPO: CHECKBOX DE DESTACADO --- */}
+            <div className="space-y-2 md:col-span-2 flex items-center gap-3 bg-[var(--text-muted)]/5 p-4 rounded-xl border border-[var(--glass-border)] transition-colors hover:bg-[var(--text-muted)]/10">
+              <input 
+                type="checkbox" 
+                name="isFeatured" 
+                id="isFeatured"
+                defaultChecked={initialData?.isFeatured} 
+                value="true"
+                className="w-5 h-5 accent-[var(--color-brand-primary)] cursor-pointer rounded border-[var(--glass-border)]" 
+              />
+              <label htmlFor="isFeatured" className="text-sm font-bold text-[var(--text-main)] cursor-pointer select-none">
+                Highlight Compound (Show first in Product Showcase)
+              </label>
+            </div>
           </div>
 
             <div className="space-y-2">

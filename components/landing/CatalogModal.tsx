@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
+// --- INTERFAZ ACTUALIZADA ---
 interface Product {
     id: string;
     name: string;
@@ -17,6 +18,7 @@ interface Product {
     purity?: string;
     slug: string;
     description?: string;
+    isFeatured?: boolean; // <--- Agregado aquí para limpiar el error de TS
 }
 
 const CATEGORIES = ["All", "Research Peptides", "Nootropics", "Supplements", "SARMs"];
@@ -47,6 +49,14 @@ export default function CatalogModal({ products, onClose }: { products: Product[
         p.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
+    
+    // Opcional: También puedes ordenar el catálogo completo para que los destacados salgan primero aquí
+    result.sort((a, b) => {
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        return 0;
+    });
+
     setFiltered(result);
   }, [searchTerm, selectedCategory, products]);
 

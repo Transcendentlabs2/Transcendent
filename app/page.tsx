@@ -30,7 +30,8 @@ export default async function Home() {
     ...product,
     price: Number(product.price), 
     purity: product.purity || "High Purity", 
-    description: product.description || "" 
+    description: product.description || "",
+    isFeatured: Boolean(product.isFeatured) // Aseguramos que pase como booleano
   }));
 
   return (

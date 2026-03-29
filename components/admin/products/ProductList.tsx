@@ -1,6 +1,6 @@
 "use client";
 import { deleteProduct } from "@/app/actions/products";
-import { Trash2, Edit, Package } from "lucide-react";
+import { Trash2, Edit, Package, Star } from "lucide-react"; // <-- Importado Star
 import Image from "next/image";
 import Swal from "sweetalert2";
 
@@ -17,8 +17,8 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
         text: "This action cannot be undone.",
         icon: 'warning',
         showCancelButton: true,
-        background: 'var(--bg-page)', // Usa variable CSS
-        color: 'var(--text-main)',    // Usa variable CSS
+        background: 'var(--bg-page)',
+        color: 'var(--text-main)',
         confirmButtonColor: '#ef4444',
         cancelButtonColor: 'var(--text-muted)',
         confirmButtonText: 'Yes, delete it'
@@ -57,9 +57,8 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
       {products.map((product) => (
         <div key={product.id} className="group bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-2xl overflow-hidden hover:border-[var(--color-brand-primary)]/50 hover:shadow-lg hover:shadow-[var(--color-brand-primary)]/5 transition-all duration-300 flex flex-col">
             
-            {/* Header Imagen - CORREGIDO: Fondo suave adaptable */}
+            {/* Header Imagen */}
             <div className="relative h-52 w-full bg-[var(--text-muted)]/5 border-b border-[var(--glass-border)] p-4 flex items-center justify-center overflow-hidden">
-                {/* Fondo sutil decorativo detrás del producto */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-brand-primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative w-full h-full z-10">
@@ -72,6 +71,13 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                     />
                 </div>
                 
+                {/* --- NUEVO: Badge de Destacado --- */}
+                {product.isFeatured && (
+                    <div className="absolute top-3 left-3 bg-amber-500/10 backdrop-blur-md p-1.5 rounded-lg border border-amber-500/20 shadow-sm z-20 text-amber-500" title="Featured Compound">
+                        <Star className="w-4 h-4 fill-current" />
+                    </div>
+                )}
+
                 {/* Badge Categoría */}
                 <div className="absolute top-3 right-3 bg-[var(--bg-page)]/80 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-[var(--text-muted)] uppercase border border-[var(--glass-border)] shadow-sm z-20">
                     {product.category}

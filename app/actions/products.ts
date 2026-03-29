@@ -14,6 +14,9 @@ export async function createProduct(formData: FormData) {
     const imageUrl = formData.get("imageUrl") as string;
     const purity = formData.get("purity") as string;
     
+    // Convertir el checkbox a booleano (si no está marcado, será null/undefined, por lo que evalúa a false)
+    const isFeatured = formData.get("isFeatured") === "true";
+    
     // Generar Slug automático
     const slug = name.toLowerCase().trim().replace(/ /g, "-").replace(/[^\w-]+/g, "") + "-" + Date.now().toString().slice(-4);
 
@@ -28,6 +31,7 @@ export async function createProduct(formData: FormData) {
         images: imageUrl,
         purity,
         isActive: true,
+        isFeatured, // <--- CAMPO GUARDADO AQUÍ
       },
     });
 
@@ -50,7 +54,7 @@ export async function deleteProduct(id: string) {
   }
 }
 
-// --- 3. ACTUALIZAR PRODUCTO (Opcional, si expandes a edición) ---
+// --- 3. ACTUALIZAR ESTADO ---
 export async function toggleProductStatus(id: string, currentStatus: boolean) {
     try {
         await prisma.product.update({
@@ -64,8 +68,12 @@ export async function toggleProductStatus(id: string, currentStatus: boolean) {
     }
 }
 
+// --- 4. ACTUALIZAR PRODUCTO ---
 export async function updateProduct(id: string, formData: FormData) {
   try {
+    // Convertir el checkbox a booleano
+    const isFeatured = formData.get("isFeatured") === "true";
+
     const data: any = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
@@ -73,9 +81,8 @@ export async function updateProduct(id: string, formData: FormData) {
       price: parseFloat(formData.get("price") as string),
       stock: parseInt(formData.get("stock") as string),
       purity: formData.get("purity") as string,
-      // Si el usuario no subió imagen nueva, mantenemos la anterior (esto lo manejamos en el form, 
-      // pero aquí aseguramos recibir el string)
       images: formData.get("imageUrl") as string,
+      isFeatured, // <--- CAMPO ACTUALIZADO AQUÍ
     };
 
     await prisma.product.update({
