@@ -13,6 +13,7 @@ interface ProductFormProps {
 }
 
 export default function ProductForm({ onClose, initialData }: ProductFormProps) {
+  // ... (tu lógica de estado y handleSubmit se mantiene igual)
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -72,8 +73,11 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
   };
 
   return (
-    <div className="relative w-full h-full sm:h-auto sm:max-h-[85vh] bg-[var(--bg-page)] border-0 sm:border sm:border-[var(--glass-border)] rounded-none sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    // 1. CAMBIO AQUÍ: max-h-[90vh] asegura que el modal no sea más alto que la pantalla
+    // flex y flex-col aseguran que el header, el scroll y el footer se distribuyan bien.
+    <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] bg-[var(--bg-page)] border-0 sm:border sm:border-[var(--glass-border)] rounded-none sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       
+      {/* HEADER (Queda igual, es shrink-0) */}
       <div className="flex items-center justify-between p-5 border-b border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0">
         <h3 className="text-lg md:text-xl font-display font-bold text-[var(--text-main)] flex items-center gap-3">
           <FlaskConical className="text-[var(--color-brand-primary)]" />
@@ -88,9 +92,12 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 sm:pb-8 bg-[var(--bg-page)]">
+      {/* 2. CAMBIO AQUÍ: flex-1 permite que tome el espacio sobrante. 
+          overflow-y-auto crea el scroll interno. Ajusté el padding inferior (pb-6 en lugar de pb-32)
+          porque el footer ya no es 'sticky', sino que vive fuera de este div scrollable. */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[var(--bg-page)]">
         <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
-          
+          {/* ... Todo tu formulario (campos, grid, imagen) queda EXACTAMENTE igual ... */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Product Name</label>
@@ -126,7 +133,6 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
               <input name="purity" defaultValue={initialData?.purity} className="input-scientific" placeholder=">99% HPLC" />
             </div>
 
-            {/* --- NUEVO CAMPO: CHECKBOX DE DESTACADO --- */}
             <div className="space-y-2 md:col-span-2 flex items-center gap-3 bg-[var(--text-muted)]/5 p-4 rounded-xl border border-[var(--glass-border)] transition-colors hover:bg-[var(--text-muted)]/10">
               <input 
                 type="checkbox" 
@@ -193,7 +199,10 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         </form>
       </div>
 
-      <div className="flex justify-between sm:justify-end gap-3 p-5 border-t border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0 sticky bottom-0 z-20 pb-8 sm:pb-5">
+      {/* 3. CAMBIO AQUÍ: Quitamos 'sticky bottom-0 z-20 pb-8 sm:pb-5' 
+          Al hacer que este div sea hermano del div scrollable (y tener shrink-0), 
+          siempre estará visible al final del modal, sin importar el scroll interno. */}
+      <div className="flex justify-between sm:justify-end gap-3 p-5 border-t border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0">
             <button onClick={onClose} className="px-6 py-3 rounded-xl font-bold text-sm text-[var(--text-muted)] bg-[var(--glass-border)]/50 sm:bg-transparent hover:bg-[var(--glass-border)] transition-colors w-full sm:w-auto">
                 Cancel
             </button>
