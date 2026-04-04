@@ -71,8 +71,8 @@ function CheckoutForm({ formData, items, cartSubtotal, clearCart }: any) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-      <div className="p-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl">
-        <label className="block text-xs font-bold mb-3 uppercase tracking-widest text-[var(--text-muted)]">
+      <div className="p-4 bg-white border border-gray-200 rounded-xl">
+        <label className="block text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">
             Credit or Debit Card
         </label>
         <div className="py-2">
@@ -80,9 +80,15 @@ function CheckoutForm({ formData, items, cartSubtotal, clearCart }: any) {
                 style: {
                     base: {
                         fontSize: '16px',
-                        color: '#ffffff',
-                        '::placeholder': { color: '#6b7280' },
+                        color: '#111827', // <--- CAMBIADO A NEGRO CHARCOAL
+                        fontFamily: 'sans-serif',
+                        '::placeholder': { 
+                            color: '#9ca3af' // <--- GRIS CLARO PARA EL MM/AA CVC
+                        },
                     },
+                    invalid: {
+                        color: '#ef4444',
+                    }
                 },
             }} />
         </div>
@@ -90,7 +96,7 @@ function CheckoutForm({ formData, items, cartSubtotal, clearCart }: any) {
 
       <button 
         disabled={isLoading || !stripe}
-        className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[var(--color-brand-primary)] hover:text-white transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+        className="w-full bg-[#111827] text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
       >
         {isLoading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
@@ -114,54 +120,56 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
       return (
-          <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--bg-page)]">
-              <p className="text-[var(--text-muted)]">Your cart is empty.</p>
-              <Link href="/" className="mt-4 text-[var(--color-brand-primary)] hover:underline">Return to catalog</Link>
+          <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+              <p className="text-gray-500">Your cart is empty.</p>
+              <Link href="/" className="mt-4 text-cyan-500 hover:underline">Return to catalog</Link>
           </div>
       );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] font-sans pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-white text-gray-900 font-sans pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="space-y-8">
             <div className="flex items-center gap-2 mb-6">
-                <Link href="/" className="p-2 hover:bg-[var(--glass-border)] rounded-full transition-colors">
-                    <ArrowLeft className="w-5 h-5 text-[var(--text-muted)]" />
+                <Link href="/" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <ArrowLeft className="w-5 h-5 text-gray-400" />
                 </Link>
-                <h1 className="text-2xl font-display font-bold">Secure Checkout</h1>
+                <h1 className="text-2xl font-bold">Secure Checkout</h1>
             </div>
 
             <div className="space-y-8">
+                {/* Contact Info */}
                 <section className="space-y-4">
-                    <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
-                        <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">1</div>
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">Contact</h2>
+                    <div className="flex items-center gap-2 border-b border-gray-100 pb-2 mb-4">
+                        <div className="w-6 h-6 rounded-full bg-cyan-500 text-white flex items-center justify-center text-xs font-bold">1</div>
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Contact</h2>
                     </div>
                     <div className="grid grid-cols-1 gap-4">
-                        <input required name="name" onChange={handleInputChange} type="text" placeholder="Full Name" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)]" />
+                        <input required name="name" onChange={handleInputChange} type="text" placeholder="Full Name" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-colors" />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input required name="email" onChange={handleInputChange} type="email" placeholder="Email" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)]" />
-                            <input required name="phone" onChange={handleInputChange} type="tel" placeholder="Phone" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)]" />
+                            <input required name="email" onChange={handleInputChange} type="email" placeholder="Email" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-colors" />
+                            <input required name="phone" onChange={handleInputChange} type="tel" placeholder="Phone" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-colors" />
                         </div>
                     </div>
                 </section>
 
+                {/* Shipping Info */}
                 <section className="space-y-4">
-                     <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
-                        <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">2</div>
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">Shipping</h2>
+                     <div className="flex items-center gap-2 border-b border-gray-100 pb-2 mb-4">
+                        <div className="w-6 h-6 rounded-full bg-cyan-500 text-white flex items-center justify-center text-xs font-bold">2</div>
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Shipping</h2>
                     </div>
                     <div className="grid grid-cols-1 gap-4">
-                        <select name="country" onChange={handleInputChange} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] appearance-none">
+                        <select name="country" onChange={handleInputChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 appearance-none cursor-pointer">
                             <option value="US">United States</option>
                             <option value="CO">Colombia</option>
                         </select>
-                        <input required name="address" onChange={handleInputChange} type="text" placeholder="Street Address" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)]" />
+                        <input required name="address" onChange={handleInputChange} type="text" placeholder="Street Address" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-colors" />
                         <div className="grid grid-cols-3 gap-4">
-                            <input required name="city" onChange={handleInputChange} type="text" placeholder="City" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)]" />
-                            <input required name="state" onChange={handleInputChange} type="text" placeholder="State" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] uppercase" />
-                            <input required name="postalCode" onChange={handleInputChange} type="text" placeholder="Zip" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)]" />
+                            <input required name="city" onChange={handleInputChange} type="text" placeholder="City" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-colors" />
+                            <input required name="state" onChange={handleInputChange} type="text" placeholder="State" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-colors uppercase" />
+                            <input required name="postalCode" onChange={handleInputChange} type="text" placeholder="Zip" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 transition-colors" />
                         </div>
                     </div>
                 </section>
@@ -169,19 +177,19 @@ export default function CheckoutPage() {
         </div>
 
         <div className="lg:sticky lg:top-24 h-fit">
-            <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-6 shadow-xl">
+            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-xl">
                 <h3 className="font-bold text-lg mb-4">Summary</h3>
                 <div className="space-y-4 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
                     {items.map((item) => (
                         <div key={item.id} className="flex justify-between text-sm">
-                            <span className="text-[var(--text-muted)]">{item.name} x{item.quantity}</span>
+                            <span className="text-gray-500">{item.name} x{item.quantity}</span>
                             <span className="font-mono">${(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                     ))}
                 </div>
 
-                <div className="border-t border-[var(--glass-border)] mt-4 pt-4 space-y-2">
-                    <div className="flex justify-between text-xl font-bold pt-2 border-t border-[var(--glass-border)] text-[var(--color-brand-primary)]">
+                <div className="border-t border-gray-100 mt-4 pt-4 space-y-2">
+                    <div className="flex justify-between text-xl font-bold pt-2 border-t border-gray-100 text-cyan-600">
                         <span>Total</span>
                         <span>${cartSubtotal.toFixed(2)}</span>
                     </div>
@@ -196,7 +204,7 @@ export default function CheckoutPage() {
                     />
                 </Elements>
 
-                <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-[var(--text-muted)]">
+                <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-gray-400">
                     <ShieldCheck className="w-3 h-3 text-emerald-500" />
                     <span>Secure Encrypted Payment via Stripe</span>
                 </div>
