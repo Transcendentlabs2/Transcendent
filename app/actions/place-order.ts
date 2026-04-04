@@ -60,23 +60,24 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       descriptionLines.push(`${dbProduct.name} x${item.quantity}`);
     }
 
-    // Lógica de Envío
-    const totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
+    // --- REGLA DE ENVÍO: COMENTADA PARA EL TEST DE $1 ---
+    // const totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
+    const totalShipping = 0; // <--- CAMBIO AQUÍ: Ahora el envío es gratis para tu prueba
+    
     const finalTotalAmount = totalAmount + totalShipping;
 
     // --- PASO 1: COBRO CON STRIPE ---
     try {
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(finalTotalAmount * 100), // En centavos
+            amount: Math.round(finalTotalAmount * 100), 
             currency: 'usd',
             payment_method: paymentMethodId,
             confirm: true,
             description: `Order: ${descriptionLines.join(', ')}`,
             automatic_payment_methods: { 
                 enabled: true,
-                allow_redirects: 'never' // Para procesar directamente sin salir de la web
+                allow_redirects: 'never'
             },
-            // CRUCIAL PARA PIRATE SHIP:
             shipping: {
                 name: shippingData.name,
                 address: {
@@ -103,7 +104,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         return { ok: false, message: stripeError.message || "Payment declined." };
     }
 
-    // --- PASO 2: GUARDAR EN TU BASE DE DATOS (PRISMA) ---
+    // --- PASO 2: GUARDAR EN PRISMA ---
     const order = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
@@ -129,7 +130,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     });
 
-    // --- PASO 3: ENVIAR CORREO (RESEND) ---
+    // --- PASO 3: ENVIAR CORREO (CON EL DISEÑO COMPLETO) ---
     try {
       if (apiKey) {
         const resend = new Resend(apiKey);
