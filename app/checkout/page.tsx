@@ -29,7 +29,6 @@ function CheckoutForm({ formData, items, cartTotal, clearCart }: any) {
 
     setIsLoading(true);
 
-    // 1. Crear el PaymentMethod en Stripe
     const cardElement = elements.getElement(CardElement);
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: 'card',
@@ -53,7 +52,6 @@ function CheckoutForm({ formData, items, cartTotal, clearCart }: any) {
       return;
     }
 
-    // 2. Enviar a nuestra Server Action
     try {
         const cartPayload = items.map((item: any) => ({ productId: item.id, quantity: item.quantity }));
         const response = await placeOrder(cartPayload, formData, paymentMethod.id);
@@ -97,7 +95,7 @@ function CheckoutForm({ formData, items, cartTotal, clearCart }: any) {
         {isLoading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
         ) : (
-            <>Pay $${cartTotal.toFixed(2)} Now</>
+            <>Pay ${cartTotal.toFixed(2)} Now</>
         )}
       </button>
     </form>
@@ -135,7 +133,6 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-8">
-                {/* Contact Info */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">1</div>
@@ -150,7 +147,6 @@ export default function CheckoutPage() {
                     </div>
                 </section>
 
-                {/* Shipping Info */}
                 <section className="space-y-4">
                      <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
                         <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">2</div>
@@ -185,14 +181,17 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="border-t border-[var(--glass-border)] mt-4 pt-4 space-y-2">
-                    <div className="flex justify-between text-sm text-[var(--text-muted)]">
+                    {/* --- DESGLOSE COMENTADO PARA TEST DE $1 --- */}
+                    {/* <div className="flex justify-between text-sm text-[var(--text-muted)]">
                         <span>Subtotal</span>
-                        <span>${cartSubtotal.toFixed(2)}</span>
+                        <span className="font-mono">${cartSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-[var(--text-muted)]">
                         <span>Shipping</span>
-                        <span>${shippingTotal.toFixed(2)}</span>
-                    </div>
+                        <span className="font-mono">${shippingTotal.toFixed(2)}</span>
+                    </div> 
+                    */}
+                    
                     <div className="flex justify-between text-xl font-bold pt-2 border-t border-[var(--glass-border)] text-[var(--color-brand-primary)]">
                         <span>Total</span>
                         <span>${cartTotal.toFixed(2)}</span>
