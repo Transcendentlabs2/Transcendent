@@ -5,14 +5,14 @@ import { placeOrder } from "@/app/actions/place-order";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShieldCheck, Loader2, ArrowLeft, CreditCard as CardIcon } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-function CheckoutForm({ formData, items, cartTotal, clearCart }: any) {
+function CheckoutForm({ formData, items, cartSubtotal, clearCart }: any) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -95,7 +95,7 @@ function CheckoutForm({ formData, items, cartTotal, clearCart }: any) {
         {isLoading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
         ) : (
-            <>Pay ${cartTotal.toFixed(2)} Now</>
+            <>Pay ${cartSubtotal.toFixed(2)} Now</>
         )}
       </button>
     </form>
@@ -103,7 +103,7 @@ function CheckoutForm({ formData, items, cartTotal, clearCart }: any) {
 }
 
 export default function CheckoutPage() {
-  const { items, cartSubtotal, shippingTotal, cartTotal, clearCart } = useCart();
+  const { items, cartSubtotal, clearCart } = useCart();
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "US"
   });
@@ -181,20 +181,9 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="border-t border-[var(--glass-border)] mt-4 pt-4 space-y-2">
-                    {/* --- DESGLOSE COMENTADO PARA TEST DE $1 --- */}
-                    {/* <div className="flex justify-between text-sm text-[var(--text-muted)]">
-                        <span>Subtotal</span>
-                        <span className="font-mono">${cartSubtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-[var(--text-muted)]">
-                        <span>Shipping</span>
-                        <span className="font-mono">${shippingTotal.toFixed(2)}</span>
-                    </div> 
-                    */}
-                    
                     <div className="flex justify-between text-xl font-bold pt-2 border-t border-[var(--glass-border)] text-[var(--color-brand-primary)]">
                         <span>Total</span>
-                        <span>${cartTotal.toFixed(2)}</span>
+                        <span>${cartSubtotal.toFixed(2)}</span>
                     </div>
                 </div>
 
@@ -202,7 +191,7 @@ export default function CheckoutPage() {
                     <CheckoutForm 
                         formData={formData} 
                         items={items} 
-                        cartTotal={cartTotal} 
+                        cartSubtotal={cartSubtotal} 
                         clearCart={clearCart} 
                     />
                 </Elements>

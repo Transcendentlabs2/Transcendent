@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 export default function CartDrawer() {
-  const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartSubtotal, shippingTotal, cartTotal } = useCart();
+  const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartSubtotal } = useCart();
   
   const hasInvalidItems = items.some(item => (item.stock || 0) <= 0);
 
@@ -88,11 +88,6 @@ export default function CartDrawer() {
                         <div className="flex justify-between items-start gap-2">
                           <div className="min-w-0">
                               <h4 className={`font-bold text-sm leading-tight mb-1 line-clamp-2 ${isItemOOS ? "text-red-400" : "text-[var(--text-main)]"}`}>{item.name}</h4>
-                              {isItemOOS ? (
-                                <span className="text-[9px] font-bold text-red-500 uppercase tracking-tighter bg-red-500/10 px-1.5 py-0.5 rounded">Out of Stock</span>
-                              ) : (
-                                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider truncate">{item.category || "Research Peptide"}</p>
-                              )}
                           </div>
                           <button onClick={() => removeItem(item.id)} className="text-red-400/60 hover:text-red-500 hover:bg-red-500/10 p-1.5 rounded-md transition-all shrink-0">
                             <Trash2 className="w-4 h-4" />
@@ -116,30 +111,10 @@ export default function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="p-6 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/50 space-y-4 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-                {hasInvalidItems && (
-                    <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-                        <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-red-400 leading-tight">Some items in your cart are currently out of stock.</p>
-                    </div>
-                )}
-
-                {/* --- SECCIÓN COMENTADA PARA TEST DE $1 --- */}
-                {/* <div className="space-y-2 border-b border-[var(--glass-border)] pb-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-[var(--text-muted)]">Subtotal</span>
-                    <span className="font-mono font-bold">${cartSubtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-[var(--text-muted)] flex items-center gap-2">Shipping</span>
-                    <span className="font-mono font-bold">${shippingTotal.toFixed(2)}</span>
-                  </div>
-                </div> 
-                */}
-
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold uppercase text-[var(--text-muted)] tracking-widest">Total Estimated</span>
                   <span className="text-2xl font-mono font-bold text-[var(--text-main)]">
-                    ${cartTotal.toFixed(2)}
+                    ${cartSubtotal.toFixed(2)}
                   </span>
                 </div>
 
