@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { Resend } from 'resend';
 import Stripe from 'stripe';
+import EasyPostClient from '@easypost/api';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-01-27.acacia' as any,
@@ -130,7 +131,50 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     });
 
-    // --- PASO 3: ENVIAR CORREO (CON EL DISEÑO COMPLETO) ---
+    // --- PASO 3: INTEGRACIÓN DE EASYPOST ---
+    let trackingUrl = null;
+    try {
+      if (process.env.EASYPOST_API_KEY) {
+        const easypost = new EasyPostClient(process.env.EASYPOST_API_KEY);
+
+        const shipment = await easypost.Shipment.create({
+          to_address: {
+            name: shippingData.name,
+            street1: shippingData.address,
+            city: shippingData.city,
+            state: shippingData.state,
+            zip: shippingData.postalCode,
+            country: shippingData.country,
+            phone: shippingData.phone,
+            email: shippingData.email,
+          },
+          from_address: {
+            company: 'Transcendent Labs',
+            street1: '107 NEW BRICK CHURCH PIKE',
+            street2: 'F',
+            city: 'GOODLETTSVILLE',
+            state: 'TN',
+            zip: '37072-1545',
+            country: 'US',
+          },
+          parcel: {
+            length: 10,  // OJO: Cambia esto a las medidas reales de tu caja en pulgadas
+            width: 8,
+            height: 4,
+            weight: 16,  // OJO: Cambia esto al peso real en onzas
+          }
+        });
+
+        // Comprar etiqueta automáticamente (si falla por fondos, igual la orden ya se guardó)
+        const boughtShipment = await easypost.Shipment.buy(shipment.id, shipment.lowestRate());
+        trackingUrl = boughtShipment.tracker.public_url;
+      }
+    } catch (easyPostError) {
+      console.error("EasyPost Error:", easyPostError);
+      // El bloque catch asegura que si EasyPost falla, no se daña la compra del cliente
+    }
+
+    // --- PASO 4: ENVIAR CORREO (CON EL DISEÑO COMPLETO) ---
     try {
       if (apiKey) {
         const resend = new Resend(apiKey);
@@ -140,6 +184,13 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
             <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827; font-weight: bold;">$${(item.price * item.quantity).toFixed(2)}</td>
           </tr>
         `).join('');
+
+        const trackingHtml = trackingUrl 
+          ? `<div style="margin-top: 20px; padding: 16px; background-color: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; text-align: center;">
+              <p style="margin: 0; color: #1e3a8a; font-weight: bold;">Track your order:</p>
+              <a href="${trackingUrl}" style="color: #2563eb; text-decoration: none; word-break: break-all;">${trackingUrl}</a>
+             </div>` 
+          : '';
 
         await resend.emails.send({
           from: 'Transcendent Labs <orders@transcendent-labs.com>',
@@ -160,6 +211,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
                   <td style="padding: 16px 0; text-align: right; font-weight: bold;">Total Paid:</td>
                   <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">$${finalTotalAmount.toFixed(2)}</td> </tr>
               </table>
+              ${trackingHtml}
               <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #f3f4f6;">
                 <h4 style="margin: 0 0 8px 0;">Shipping Address</h4>
                 <p style="margin: 0; color: #6b7280; font-size: 14px;">${shippingData.address}, ${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}<br>${shippingData.country === "CO" ? "Colombia" : "United States"}</p>
