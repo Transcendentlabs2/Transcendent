@@ -12,8 +12,8 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-// Modificamos el prop para recibir finalTotal en lugar de cartSubtotal
-function CheckoutForm({ formData, items, finalTotal, clearCart }: any) {
+// Modificamos el prop para recibir promoCode también
+function CheckoutForm({ formData, items, finalTotal, clearCart, promoCode }: any) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -55,7 +55,9 @@ function CheckoutForm({ formData, items, finalTotal, clearCart }: any) {
 
     try {
         const cartPayload = items.map((item: any) => ({ productId: item.id, quantity: item.quantity }));
-        const response = await placeOrder(cartPayload, formData, paymentMethod.id);
+        
+        // --- INTERVENCIÓN QUIRÚRGICA: Pasamos el promoCode al backend ---
+        const response = await placeOrder(cartPayload, formData, paymentMethod.id, promoCode);
         
         if (response.ok && response.order) {
             clearCart(); 
@@ -102,7 +104,6 @@ function CheckoutForm({ formData, items, finalTotal, clearCart }: any) {
         {isLoading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
         ) : (
-            // Reflejamos el total final en el botón
             <>Pay ${finalTotal.toFixed(2)} Now</>
         )}
       </button>
@@ -116,13 +117,24 @@ export default function CheckoutPage() {
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "US"
   });
 
-  // --- REGLA DE ENVÍO AGREGADA ---
-  const shippingCost = (cartSubtotal > 0 && cartSubtotal < 300) ? 9.95 : 0;
-  const finalTotal = cartSubtotal + shippingCost;
+  // --- NUEVOS ESTADOS PARA EL PROMO CODE ---
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // --- MATEMÁTICA VISUAL REFLEJANDO EL BACKEND ---
+  let calculatedSubtotal = cartSubtotal;
+  let shippingCost = (calculatedSubtotal > 0 && calculatedSubtotal < 300) ? 9.95 : 0;
+
+  if (appliedPromo === "TEST1") {
+    calculatedSubtotal = items.reduce((acc: number, item: any) => acc + (1 * item.quantity), 0);
+    shippingCost = 0;
+  }
+
+  const finalTotal = calculatedSubtotal + shippingCost;
 
   if (items.length === 0) {
       return (
@@ -189,16 +201,46 @@ export default function CheckoutPage() {
                     {items.map((item) => (
                         <div key={item.id} className="flex justify-between text-sm">
                             <span className="text-gray-500">{item.name} x{item.quantity}</span>
-                            <span className="font-mono">${(item.price * item.quantity).toFixed(2)}</span>
+                            {/* Tachamos el precio si hay promo */}
+                            <span className="font-mono">
+                                {appliedPromo === "TEST1" && <span className="line-through text-gray-300 mr-2">${(item.price * item.quantity).toFixed(2)}</span>}
+                                ${appliedPromo === "TEST1" ? (1 * item.quantity).toFixed(2) : (item.price * item.quantity).toFixed(2)}
+                            </span>
                         </div>
                     ))}
+                </div>
+
+                {/* NUEVO: Campo de Promo Code */}
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                    <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2 block">Promo Code</label>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={promoCodeInput}
+                            onChange={(e) => setPromoCodeInput(e.target.value)}
+                            placeholder="Enter code"
+                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 outline-none focus:border-cyan-500 transition-colors uppercase"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setAppliedPromo(promoCodeInput.trim().toUpperCase())}
+                            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold hover:bg-gray-300 transition-colors"
+                        >
+                            Apply
+                        </button>
+                    </div>
+                    {appliedPromo === 'TEST1' && (
+                        <p className="text-emerald-500 text-xs font-bold mt-2 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3" /> Test mode active: items are $1, shipping is free.
+                        </p>
+                    )}
                 </div>
 
                 {/* Desglose de Subtotal, Envío y Total */}
                 <div className="border-t border-gray-100 mt-4 pt-4 space-y-2">
                     <div className="flex justify-between text-sm text-gray-500">
                         <span>Subtotal</span>
-                        <span>${cartSubtotal.toFixed(2)}</span>
+                        <span>${calculatedSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-500">
                         <span>Shipping</span>
@@ -216,6 +258,7 @@ export default function CheckoutPage() {
                         items={items} 
                         finalTotal={finalTotal} 
                         clearCart={clearCart} 
+                        promoCode={appliedPromo} 
                     />
                 </Elements>
 

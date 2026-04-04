@@ -25,7 +25,8 @@ type CartItem = {
   quantity: number;
 };
 
-export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, paymentMethodId: string) => {
+// 1. Añadimos promoCode como parámetro opcional al final
+export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, paymentMethodId: string, promoCode?: string) => {
   try {
     const apiKey = process.env.RESEND_API_KEY;
 
@@ -49,7 +50,12 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
       if (!dbProduct) throw new Error(`Product not found: ${item.productId}`);
 
-      const price = Number(dbProduct.price);
+      // 2. INTERVENCIÓN QUIRÚRGICA: Precio a $1 si el código es TEST1
+      let price = Number(dbProduct.price);
+      if (promoCode === 'TEST1') {
+        price = 1;
+      }
+
       totalAmount += price * item.quantity;
 
       orderItemsData.push({
@@ -61,9 +67,11 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       descriptionLines.push(`${dbProduct.name} x${item.quantity}`);
     }
 
-    // --- REGLA DE ENVÍO: COMENTADA PARA EL TEST DE $1 ---
-    const totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
-    // const totalShipping = 0; // <--- CAMBIO AQUÍ: Ahora el envío es gratis para tu prueba
+    // 3. INTERVENCIÓN QUIRÚRGICA: Envío a 0 si el código es TEST1
+    let totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
+    if (promoCode === 'TEST1') {
+      totalShipping = 0;
+    }
     
     const finalTotalAmount = totalAmount + totalShipping;
 
@@ -158,23 +166,21 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
             country: 'US',
           },
           parcel: {
-            length: 10,  // OJO: Cambia esto a las medidas reales de tu caja en pulgadas
-            width: 8,
-            height: 4,
-            weight: 16,  // OJO: Cambia esto al peso real en onzas
+            length: 6,   
+            width: 4,    
+            height: 1,   
+            weight: 3,   
           }
         });
 
-        // Comprar etiqueta automáticamente (si falla por fondos, igual la orden ya se guardó)
         const boughtShipment = await easypost.Shipment.buy(shipment.id, shipment.lowestRate());
         trackingUrl = boughtShipment.tracker.public_url;
       }
     } catch (easyPostError) {
       console.error("EasyPost Error:", easyPostError);
-      // El bloque catch asegura que si EasyPost falla, no se daña la compra del cliente
     }
 
-    // --- PASO 4: ENVIAR CORREO (CON EL DISEÑO COMPLETO) ---
+    // --- PASO 4: ENVIAR CORREO ---
     try {
       if (apiKey) {
         const resend = new Resend(apiKey);
