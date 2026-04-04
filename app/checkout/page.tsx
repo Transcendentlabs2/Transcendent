@@ -12,7 +12,8 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-function CheckoutForm({ formData, items, cartSubtotal, clearCart }: any) {
+// Modificamos el prop para recibir finalTotal en lugar de cartSubtotal
+function CheckoutForm({ formData, items, finalTotal, clearCart }: any) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -80,10 +81,10 @@ function CheckoutForm({ formData, items, cartSubtotal, clearCart }: any) {
                 style: {
                     base: {
                         fontSize: '16px',
-                        color: '#111827', // <--- CAMBIADO A NEGRO CHARCOAL
+                        color: '#111827',
                         fontFamily: 'sans-serif',
                         '::placeholder': { 
-                            color: '#9ca3af' // <--- GRIS CLARO PARA EL MM/AA CVC
+                            color: '#9ca3af' 
                         },
                     },
                     invalid: {
@@ -101,7 +102,8 @@ function CheckoutForm({ formData, items, cartSubtotal, clearCart }: any) {
         {isLoading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
         ) : (
-            <>Pay ${cartSubtotal.toFixed(2)} Now</>
+            // Reflejamos el total final en el botón
+            <>Pay ${finalTotal.toFixed(2)} Now</>
         )}
       </button>
     </form>
@@ -113,6 +115,10 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "US"
   });
+
+  // --- REGLA DE ENVÍO AGREGADA ---
+  const shippingCost = (cartSubtotal > 0 && cartSubtotal < 300) ? 9.95 : 0;
+  const finalTotal = cartSubtotal + shippingCost;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -188,10 +194,19 @@ export default function CheckoutPage() {
                     ))}
                 </div>
 
+                {/* Desglose de Subtotal, Envío y Total */}
                 <div className="border-t border-gray-100 mt-4 pt-4 space-y-2">
+                    <div className="flex justify-between text-sm text-gray-500">
+                        <span>Subtotal</span>
+                        <span>${cartSubtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500">
+                        <span>Shipping</span>
+                        <span>{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
+                    </div>
                     <div className="flex justify-between text-xl font-bold pt-2 border-t border-gray-100 text-cyan-600">
                         <span>Total</span>
-                        <span>${cartSubtotal.toFixed(2)}</span>
+                        <span>${finalTotal.toFixed(2)}</span>
                     </div>
                 </div>
 
@@ -199,7 +214,7 @@ export default function CheckoutPage() {
                     <CheckoutForm 
                         formData={formData} 
                         items={items} 
-                        cartSubtotal={cartSubtotal} 
+                        finalTotal={finalTotal} 
                         clearCart={clearCart} 
                     />
                 </Elements>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, ChevronLeft, AlertCircle } from "lucide-react";
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext"; 
 import Link from "next/link";
@@ -11,6 +11,10 @@ export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartSubtotal } = useCart();
   
   const hasInvalidItems = items.some(item => (item.stock || 0) <= 0);
+
+  // --- REGLA DE ENVÍO AGREGADA ---
+  const shippingCost = (cartSubtotal > 0 && cartSubtotal < 300) ? 9.95 : 0;
+  const finalTotal = cartSubtotal + shippingCost;
 
   useEffect(() => {
     if (isCartOpen) {
@@ -111,10 +115,23 @@ export default function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="p-6 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/50 space-y-4 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-                <div className="flex justify-between items-center">
+                
+                {/* Agregado el desglose del subtotal y el envío si aplica */}
+                <div className="space-y-1 mb-2">
+                  <div className="flex justify-between items-center text-sm text-[var(--text-muted)]">
+                    <span>Subtotal</span>
+                    <span>${cartSubtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm text-[var(--text-muted)]">
+                    <span>Shipping</span>
+                    <span>{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center border-t border-[var(--glass-border)] pt-3">
                   <span className="text-xs font-bold uppercase text-[var(--text-muted)] tracking-widest">Total Estimated</span>
                   <span className="text-2xl font-mono font-bold text-[var(--text-main)]">
-                    ${cartSubtotal.toFixed(2)}
+                    ${finalTotal.toFixed(2)}
                   </span>
                 </div>
 

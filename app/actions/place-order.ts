@@ -61,8 +61,8 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
     }
 
     // --- REGLA DE ENVÍO: COMENTADA PARA EL TEST DE $1 ---
-    // const totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
-    const totalShipping = 0; // <--- CAMBIO AQUÍ: Ahora el envío es gratis para tu prueba
+    const totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
+    // const totalShipping = 0; // <--- CAMBIO AQUÍ: Ahora el envío es gratis para tu prueba
     
     const finalTotalAmount = totalAmount + totalShipping;
 
