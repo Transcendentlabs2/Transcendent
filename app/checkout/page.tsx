@@ -117,7 +117,6 @@ export default function CheckoutPage() {
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "US"
   });
 
-  // --- NUEVOS ESTADOS PARA EL PROMO CODE ---
   const [promoCodeInput, setPromoCodeInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState("");
 
@@ -126,11 +125,17 @@ export default function CheckoutPage() {
   };
 
   // --- MATEMÁTICA VISUAL REFLEJANDO EL BACKEND ---
+  const discount5Codes = ['UNCDAVE', 'ANT26', 'BIGTEX', 'YANKS26'];
   let calculatedSubtotal = cartSubtotal;
-  let shippingCost = (calculatedSubtotal > 0 && calculatedSubtotal < 300) ? 9.95 : 0;
 
   if (appliedPromo === "TEST1") {
     calculatedSubtotal = items.reduce((acc: number, item: any) => acc + (1 * item.quantity), 0);
+  } else if (discount5Codes.includes(appliedPromo)) {
+    calculatedSubtotal = items.reduce((acc: number, item: any) => acc + (item.price * 0.95 * item.quantity), 0);
+  }
+
+  let shippingCost = (calculatedSubtotal > 0 && calculatedSubtotal < 300) ? 9.95 : 0;
+  if (appliedPromo === "TEST1") {
     shippingCost = 0;
   }
 
@@ -198,19 +203,29 @@ export default function CheckoutPage() {
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-xl">
                 <h3 className="font-bold text-lg mb-4">Summary</h3>
                 <div className="space-y-4 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                    {items.map((item) => (
-                        <div key={item.id} className="flex justify-between text-sm">
-                            <span className="text-gray-500">{item.name} x{item.quantity}</span>
-                            {/* Tachamos el precio si hay promo */}
-                            <span className="font-mono">
-                                {appliedPromo === "TEST1" && <span className="line-through text-gray-300 mr-2">${(item.price * item.quantity).toFixed(2)}</span>}
-                                ${appliedPromo === "TEST1" ? (1 * item.quantity).toFixed(2) : (item.price * item.quantity).toFixed(2)}
-                            </span>
-                        </div>
-                    ))}
+                    {items.map((item) => {
+                        let itemFinalPrice = item.price;
+                        if (appliedPromo === "TEST1") {
+                            itemFinalPrice = 1;
+                        } else if (discount5Codes.includes(appliedPromo)) {
+                            itemFinalPrice = item.price * 0.95;
+                        }
+                        
+                        const isDiscounted = appliedPromo === "TEST1" || discount5Codes.includes(appliedPromo);
+
+                        return (
+                            <div key={item.id} className="flex justify-between text-sm">
+                                <span className="text-gray-500">{item.name} x{item.quantity}</span>
+                                <span className="font-mono">
+                                    {isDiscounted && <span className="line-through text-gray-300 mr-2">${(item.price * item.quantity).toFixed(2)}</span>}
+                                    ${(itemFinalPrice * item.quantity).toFixed(2)}
+                                </span>
+                            </div>
+                        );
+                    })}
                 </div>
 
-                {/* NUEVO: Campo de Promo Code */}
+                {/* Campo de Promo Code */}
                 <div className="mt-4 border-t border-gray-100 pt-4">
                     <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2 block">Promo Code</label>
                     <div className="flex gap-2">
@@ -232,6 +247,11 @@ export default function CheckoutPage() {
                     {appliedPromo === 'TEST1' && (
                         <p className="text-emerald-500 text-xs font-bold mt-2 flex items-center gap-1">
                             <ShieldCheck className="w-3 h-3" /> Test mode active: items are $1, shipping is free.
+                        </p>
+                    )}
+                    {discount5Codes.includes(appliedPromo) && (
+                        <p className="text-emerald-500 text-xs font-bold mt-2 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3" /> 5% Discount applied successfully!
                         </p>
                     )}
                 </div>

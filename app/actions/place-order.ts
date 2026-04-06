@@ -25,7 +25,6 @@ type CartItem = {
   quantity: number;
 };
 
-// 1. Añadimos promoCode como parámetro opcional al final
 export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, paymentMethodId: string, promoCode?: string) => {
   try {
     const apiKey = process.env.RESEND_API_KEY;
@@ -46,14 +45,21 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
     const orderItemsData: any[] = [];
     const descriptionLines: string[] = [];
 
+    // Normalizamos el código promocional a mayúsculas para evitar errores de tipeo del cliente
+    const upperPromo = promoCode ? promoCode.trim().toUpperCase() : '';
+    const discount5Codes = ['UNCDAVE', 'ANT26', 'BIGTEX', 'YANKS26'];
+
     for (const item of cartItems) {
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
       if (!dbProduct) throw new Error(`Product not found: ${item.productId}`);
 
-      // 2. INTERVENCIÓN QUIRÚRGICA: Precio a $1 si el código es TEST1
       let price = Number(dbProduct.price);
-      if (promoCode === 'TEST1') {
-        price = 1;
+      
+      // INTERVENCIÓN QUIRÚRGICA: Lógica de Promociones
+      if (upperPromo === 'TEST1') {
+        price = 1; // Modo test
+      } else if (discount5Codes.includes(upperPromo)) {
+        price = price * 0.95; // Aplica 5% de descuento al precio original
       }
 
       totalAmount += price * item.quantity;
@@ -67,9 +73,9 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       descriptionLines.push(`${dbProduct.name} x${item.quantity}`);
     }
 
-    // 3. INTERVENCIÓN QUIRÚRGICA: Envío a 0 si el código es TEST1
+    // El envío se calcula con normalidad, excepto si es TEST1
     let totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
-    if (promoCode === 'TEST1') {
+    if (upperPromo === 'TEST1') {
       totalShipping = 0;
     }
     
@@ -180,7 +186,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       console.error("EasyPost Error:", easyPostError);
     }
 
-    // --- PASO 4: ENVIAR CORREO ---
+    // --- PASO 4: ENVIAR CORREOS ---
     try {
       if (apiKey) {
         const resend = new Resend(apiKey);
@@ -198,6 +204,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
              </div>` 
           : '';
 
+        // 1. Correo para el cliente
         await resend.emails.send({
           from: 'Transcendent Labs <orders@transcendent-labs.com>',
           to: shippingData.email,
@@ -224,6 +231,39 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
               </div>
             </div>`
         });
+
+        // 2. Correo interno para el administrador
+        await resend.emails.send({
+          from: 'Transcendent Labs <orders@transcendent-labs.com>',
+          to: 'mjdiamant8@gmail.com',
+          subject: `🚨 New Sale! Order #${order.id.slice(0, 8)} - $${finalTotalAmount.toFixed(2)}`,
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+              <h1 style="color: #111827; font-size: 20px; border-bottom: 2px solid #10b981; padding-bottom: 10px;">🎉 New Order Received</h1>
+              <p><strong>Customer:</strong> ${shippingData.name} (${shippingData.email})</p>
+              <p><strong>Phone:</strong> ${shippingData.phone}</p>
+              <p><strong>Total Amount:</strong> <span style="color: #10b981; font-weight: bold;">$${finalTotalAmount.toFixed(2)}</span></p>
+              
+              <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #f3f4f6;">
+                <h4 style="margin: 0 0 8px 0;">Shipping Destination</h4>
+                <p style="margin: 0; color: #374151; font-size: 14px;">
+                  ${shippingData.address}<br/>
+                  ${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}<br/>
+                  ${shippingData.country === "CO" ? "Colombia" : "United States"}
+                </p>
+              </div>
+
+              <h4 style="margin: 0 0 8px 0;">Order Items</h4>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                ${itemsHtml}
+              </table>
+              
+              <p style="text-align: center; margin-top: 30px;">
+                Log in to your dashboard or EasyPost to process the shipment.
+              </p>
+            </div>`
+        });
+
       }
     } catch (emailError) { console.error("Resend Error:", emailError); }
 
