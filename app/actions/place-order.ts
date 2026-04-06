@@ -145,14 +145,17 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     });
 
-    // --- PASO 3: INTEGRACIÓN DE EASYPOST ---
+    // --- PASO 3: INTEGRACIÓN DE EASYPOST (ACTUALIZADO CON VALIDACIÓN) ---
     let trackingUrl = null;
+    let labelUrl = null;
+
     try {
       if (process.env.EASYPOST_API_KEY) {
         const easypost = new EasyPostClient(process.env.EASYPOST_API_KEY);
 
         const shipment = await easypost.Shipment.create({
           to_address: {
+            verify: ['delivery'], // <--- ESTO ES VITAL: Verifica si la dirección existe
             name: shippingData.name,
             street1: shippingData.address,
             city: shippingData.city,
@@ -179,11 +182,31 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           }
         });
 
-        const boughtShipment = await easypost.Shipment.buy(shipment.id, shipment.lowestRate());
-        trackingUrl = boughtShipment.tracker.public_url;
+        // Verificamos el estado de la dirección
+        const addressVerification = shipment.to_address.verifications?.delivery;
+        
+        if (addressVerification?.success === false) {
+           console.warn(`EasyPost Warning: La dirección parece ser inválida o no verificable para la orden ${order.id}. Errores:`, addressVerification.errors);
+           // Podrías decidir detener el proceso aquí y devolver un error al frontend,
+           // pero como el cobro de Stripe ya se hizo en el Paso 1, lo mejor es registrar 
+           // el warning y dejar que la compra de la etiqueta intente procesarse de todos modos, 
+           // o bien, no comprarla automáticamente y obligar al admin a revisarla manualmente.
+           // Por ahora, procedemos intentando comprar la tarifa más baja.
+        }
+
+        const rateToBuy = shipment.lowestRate();
+
+        if (rateToBuy) {
+            const boughtShipment = await easypost.Shipment.buy(shipment.id, rateToBuy);
+            trackingUrl = boughtShipment.tracker.public_url;
+            labelUrl = boughtShipment.postage_label.label_url; 
+            console.log(`Etiqueta comprada exitosamente. Tracking: ${trackingUrl}`);
+        } else {
+            console.error(`EasyPost Error: No se encontraron tarifas para la orden ${order.id}`);
+        }
       }
     } catch (easyPostError) {
-      console.error("EasyPost Error:", easyPostError);
+      console.error("EasyPost Error durante la creación de la etiqueta:", easyPostError);
     }
 
     // --- PASO 4: ENVIAR CORREOS ---
@@ -260,6 +283,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
               
               <p style="text-align: center; margin-top: 30px;">
                 Log in to your dashboard or EasyPost to process the shipment.
+                ${labelUrl ? `<br><br><a href="${labelUrl}" style="color: #2563eb; text-decoration: none;">Download Shipping Label PDF</a>` : ''}
               </p>
             </div>`
         });
