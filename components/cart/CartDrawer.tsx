@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext"; 
 import Link from "next/link";
@@ -12,9 +12,14 @@ export default function CartDrawer() {
   
   const hasInvalidItems = items.some(item => (item.stock || 0) <= 0);
 
-  // --- REGLA DE ENVÍO AGREGADA ---
-  const shippingCost = (cartSubtotal > 0 && cartSubtotal < 300) ? 9.95 : 0;
+  // --- LÓGICA DE ENVÍO GRATIS ---
+  const FREE_SHIPPING_THRESHOLD = 300;
+  const shippingCost = (cartSubtotal > 0 && cartSubtotal < FREE_SHIPPING_THRESHOLD) ? 9.95 : 0;
   const finalTotal = cartSubtotal + shippingCost;
+  
+  // Cálculo para la barra dinámica
+  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - cartSubtotal);
+  const progressPercentage = Math.min(100, (cartSubtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   useEffect(() => {
     if (isCartOpen) {
@@ -116,7 +121,31 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="p-6 border-t border-[var(--glass-border)] bg-[var(--glass-bg)]/50 space-y-4 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                 
-                {/* Agregado el desglose del subtotal y el envío si aplica */}
+                {/* --- BARRA DINÁMICA DE ENVÍO GRATIS --- */}
+                <div className="bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-xl p-3 flex flex-col gap-2.5">
+                  <div className="flex items-center gap-2 text-xs font-mono">
+                    <Truck className={`w-4 h-4 ${amountToFreeShipping === 0 ? "text-emerald-500" : "text-[var(--text-muted)]"}`} />
+                    {amountToFreeShipping > 0 ? (
+                      <span className="text-[var(--text-muted)]">
+                        You're <strong className="text-[var(--color-brand-primary)] font-bold">${amountToFreeShipping.toFixed(2)}</strong> away from <strong className="text-[var(--text-main)] font-bold">Free Shipping</strong>
+                      </span>
+                    ) : (
+                      <span className="text-emerald-500 font-bold uppercase tracking-wide">
+                        Free Shipping Unlocked!
+                      </span>
+                    )}
+                  </div>
+                  <div className="w-full bg-[var(--glass-border)] rounded-full h-1.5 overflow-hidden">
+                     <motion.div 
+                       initial={{ width: 0 }}
+                       animate={{ width: `${progressPercentage}%` }}
+                       transition={{ duration: 0.5, ease: "easeOut" }}
+                       className={`h-full rounded-full transition-colors duration-300 ${amountToFreeShipping === 0 ? "bg-emerald-500" : "bg-[var(--color-brand-primary)]"}`}
+                     />
+                  </div>
+                </div>
+                {/* -------------------------------------- */}
+
                 <div className="space-y-1 mb-2">
                   <div className="flex justify-between items-center text-sm text-[var(--text-muted)]">
                     <span>Subtotal</span>
