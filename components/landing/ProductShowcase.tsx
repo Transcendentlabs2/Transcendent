@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ArrowRight, ScanLine, Info, FlaskConical, Check } from "lucide-react";
+import { Plus, ArrowRight, ScanLine, Info, FlaskConical, Check, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import CatalogModal from "./CatalogModal";
@@ -148,6 +148,17 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           <p className="text-[var(--text-muted)] max-w-md text-lg font-sans">
             Research-grade peptides synthesized for maximum bioavailability.
           </p>
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center gap-2 mt-4 bg-[var(--color-brand-primary)]/10 border border-[var(--color-brand-primary)]/20 px-4 py-2 rounded-full"
+          >
+            <Truck className="w-4 h-4 text-[var(--color-brand-primary)]" />
+            <span className="text-xs font-mono font-bold tracking-wide uppercase text-[var(--text-main)]">
+              Free Shipping over $300 USD
+            </span>
+          </motion.div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -273,44 +284,57 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
       </div>
 
       {/* BOTÓN ULTRA PREMIUM PARA VER EL CATÁLOGO COMPLETO */}
-      <div className="mt-20 flex justify-center relative">
-        <motion.div 
-          className="absolute inset-0 bg-[var(--color-brand-primary)] rounded-full blur-[40px] opacity-20 pointer-events-none mx-auto w-64 h-20"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.4, 0.1] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-        
-        <button 
-          onClick={() => setCatalogOpen(true)}
-          className="relative group p-[1px] rounded-full overflow-hidden shadow-2xl shadow-[var(--color-brand-primary)]/10 hover:shadow-[var(--color-brand-primary)]/30 transition-shadow duration-500 active:scale-95"
-        >
+      <div className="mt-20 flex flex-col items-center justify-center relative">
+        <div className="relative">
           <motion.div 
-             className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0_340deg,var(--color-brand-primary)_360deg)] opacity-70"
-             animate={{ rotate: 360 }}
-             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 bg-[var(--color-brand-primary)] rounded-full blur-[40px] opacity-20 pointer-events-none mx-auto w-64 h-20"
+            animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.4, 0.1] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           />
           
-          <div className="relative flex items-center gap-5 bg-[var(--bg-page)]/95 backdrop-blur-xl px-10 py-5 rounded-full transition-all group-hover:bg-[var(--bg-page)]/80">
-             <motion.div 
-               className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
-               animate={{ x: ["-300%", "400%"] }}
-               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
-             />
-             
-             <div className="flex flex-col text-left relative z-10">
-                <span className="text-[10px] text-[var(--color-brand-primary)] font-bold uppercase tracking-widest mb-0.5">
-                  Unlock Access
-                </span>
-                <span className="text-[var(--text-main)] text-base font-display font-bold tracking-wide">
-                  Explore Full Catalog
-                </span>
-             </div>
-             
-             <div className="w-10 h-10 rounded-full bg-[var(--text-main)] text-[var(--bg-page)] flex items-center justify-center relative z-10 shadow-[0_0_15px_var(--color-brand-primary)] group-hover:translate-x-1.5 group-hover:bg-[var(--color-brand-primary)] group-hover:text-white transition-all duration-300">
-               <ArrowRight className="w-5 h-5" />
-             </div>
-          </div>
-        </button>
+          <button 
+            onClick={() => setCatalogOpen(true)}
+            className="relative group p-[1px] rounded-full overflow-hidden shadow-2xl shadow-[var(--color-brand-primary)]/10 hover:shadow-[var(--color-brand-primary)]/30 transition-shadow duration-500 active:scale-95 z-10"
+          >
+            <motion.div 
+               className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0_340deg,var(--color-brand-primary)_360deg)] opacity-70"
+               animate={{ rotate: 360 }}
+               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            />
+            
+            <div className="relative flex items-center gap-5 bg-[var(--bg-page)]/95 backdrop-blur-xl px-10 py-5 rounded-full transition-all group-hover:bg-[var(--bg-page)]/80">
+               <motion.div 
+                 className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
+                 animate={{ x: ["-300%", "400%"] }}
+                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
+               />
+               
+               <div className="flex flex-col text-left relative z-10">
+                  <span className="text-[10px] text-[var(--color-brand-primary)] font-bold uppercase tracking-widest mb-0.5">
+                    Unlock Access
+                  </span>
+                  <span className="text-[var(--text-main)] text-base font-display font-bold tracking-wide">
+                    Explore Full Catalog
+                  </span>
+               </div>
+               
+               <div className="w-10 h-10 rounded-full bg-[var(--text-main)] text-[var(--bg-page)] flex items-center justify-center relative z-10 shadow-[0_0_15px_var(--color-brand-primary)] group-hover:translate-x-1.5 group-hover:bg-[var(--color-brand-primary)] group-hover:text-white transition-all duration-300">
+                 <ArrowRight className="w-5 h-5" />
+               </div>
+            </div>
+          </button>
+        </div>
+
+        {/* FREE SHIPPING BADGE UNDER BUTTON */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-6 flex items-center gap-2 text-[var(--text-muted)] text-xs font-mono uppercase tracking-widest relative z-0"
+        >
+          <Truck className="w-3.5 h-3.5 text-[var(--text-main)]" />
+          <span>Unlock <strong className="text-[var(--text-main)]">Free Shipping</strong> over $300</span>
+        </motion.div>
       </div>
 
     </section>
