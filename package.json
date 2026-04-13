@@ -27,7 +27,7 @@
     "next": "^15.1.7",
     "next-cloudinary": "^6.17.5",
     "react": "^19.2.5",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.2.5",
     "react-square-web-payments-sdk": "^3.3.0",
     "recharts": "^3.7.0",
     "resend": "^6.9.4",
