@@ -12,7 +12,6 @@ const MicroDataPoints = () => (
     className="w-full h-full opacity-60"
     style={{ overflow: "visible" }}
   >
-    {/* Aumentamos a 40 partículas para más volumen */}
     {[...Array(40)].map((_, i) => (
       <motion.circle 
         key={i}
@@ -110,7 +109,8 @@ export default function HeroModern() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
 
-      <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+      {/* Reducción de gap-12 a gap-4 para versión móvil */}
+      <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-center">
         
         {/* --- COLUMNA IZQUIERDA (Texto) --- */}
         <motion.div 
@@ -170,12 +170,13 @@ export default function HeroModern() {
           </motion.div>
         </motion.div>
 
-        {/* --- COLUMNA DERECHA (DISEÑO PREMIUM DISRUPTIVO - EFECTO STACKED) --- */}
+        {/* --- COLUMNA DERECHA --- */}
+        {/* Ajuste de altura en móvil h-[420px] y mt-2 para acercar la imagen al texto */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[500px] md:h-[600px] lg:h-[700px] flex items-center justify-center pointer-events-none mt-12 lg:mt-0 transform-gpu"
+          className="relative h-[420px] md:h-[600px] lg:h-[700px] flex items-center justify-center pointer-events-none mt-2 lg:mt-0 transform-gpu"
         >
           
           {/* Brillo de Energía Central */}
@@ -187,18 +188,24 @@ export default function HeroModern() {
 
           <div className="relative w-full h-full flex flex-col items-center justify-center perspective-1000">
             
-            {/* Cuchillas de energía */}
+            {/* ========================================================
+                UPGRADE VISUAL: Anillos de Contención Molecular
+                ======================================================== */}
+            {/* Anillo Interno Dashed */}
             <motion.div 
-                animate={{ y: [0, -10, 0], opacity: [0.3, 0.8, 0.3], scaleX: [1, 1.2, 1] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-[10%] left-1/2 -translate-x-1/2 w-40 md:w-64 h-[2px] bg-gradient-to-r from-transparent via-[var(--color-brand-primary)] to-transparent z-0 shadow-[0_0_20px_var(--color-brand-primary)]"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] md:w-[400px] md:h-[400px] rounded-full border-[2px] border-[var(--color-brand-primary)]/20 border-dashed z-0"
             />
-            
+            {/* Anillo Externo Sólido (Seccionado) */}
             <motion.div 
-                animate={{ y: [0, 10, 0], opacity: [0.3, 0.8, 0.3], scaleX: [1, 1.2, 1] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
-                className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-40 md:w-64 h-[2px] bg-gradient-to-r from-transparent via-[var(--color-brand-secondary)] to-transparent z-0 shadow-[0_0_20px_var(--color-brand-secondary)]"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[460px] md:h-[460px] rounded-full border border-[var(--color-brand-secondary)]/30 z-0"
+              style={{ borderTopColor: 'transparent', borderBottomColor: 'transparent' }}
             />
+            {/* Pedestal de Luz en la base */}
+            <div className="absolute bottom-[15%] md:bottom-[20%] left-1/2 -translate-x-1/2 w-[150px] md:w-[250px] h-[10px] md:h-[20px] bg-[var(--color-brand-primary)]/30 blur-xl rounded-full z-0" />
 
             {/* Elementos y Partículas */}
             <FloatingLabElements />
@@ -211,31 +218,30 @@ export default function HeroModern() {
                 ======================================================== */}
             <div className="relative flex items-center justify-center w-full h-full">
               
-              {/* VIAL 1: FONDO IZQUIERDA (Pequeño, desenfocado, profundo) */}
+              {/* VIAL 1: FONDO IZQUIERDA */}
               <motion.div 
                 animate={{ y: [-5, 10, -5], rotate: [-8, -4, -8], scale: [0.85, 0.88, 0.85] }}
                 transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                className="absolute z-20 w-48 h-48 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] opacity-40 blur-[4px] -translate-x-20 -translate-y-16 md:-translate-x-32 md:-translate-y-24"
+                className="absolute z-20 w-40 h-40 md:w-64 md:h-64 lg:w-[320px] lg:h-[320px] opacity-40 blur-[4px] -translate-x-16 -translate-y-12 md:-translate-x-32 md:-translate-y-24"
               >
                 <Image src="/heroPeptide.webp" alt="Background Vial Left" fill sizes="320px" className="object-contain drop-shadow-2xl" />
               </motion.div>
 
-              {/* VIAL 2: FONDO DERECHA (Mediano, semi-desenfocado) */}
+              {/* VIAL 2: FONDO DERECHA */}
               <motion.div 
                 animate={{ y: [10, -8, 10], rotate: [6, 2, 6], scale: [0.9, 0.93, 0.9] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-                className="absolute z-20 w-56 h-56 md:w-72 md:h-72 lg:w-[380px] lg:h-[380px] opacity-60 blur-[2px] translate-x-24 translate-y-12 md:translate-x-36 md:translate-y-20"
+                className="absolute z-20 w-48 h-48 md:w-72 md:h-72 lg:w-[380px] lg:h-[380px] opacity-60 blur-[2px] translate-x-20 translate-y-8 md:translate-x-36 md:translate-y-20"
               >
                 <Image src="/heroPeptide.webp" alt="Background Vial Right" fill sizes="380px" className="object-contain drop-shadow-2xl" />
               </motion.div>
 
-              {/* VIAL 3: PRINCIPAL (Al frente, nítido, imponente) */}
+              {/* VIAL 3: PRINCIPAL */}
               <motion.div 
                 animate={{ y: [-15, 15, -15], rotate: [0, 2, 0, -2, 0] }}
                 transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-40 w-72 h-72 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] flex items-center justify-center drop-shadow-[0_40px_60px_rgba(0,0,0,0.6)]"
+                className="relative z-40 w-64 h-64 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] flex items-center justify-center drop-shadow-[0_40px_60px_rgba(0,0,0,0.6)]"
               >
-                {/* Aura exclusiva del frasco principal */}
                 <motion.div 
                   animate={{ opacity: [0.5, 0.8, 0.5], scale: [0.9, 1.05, 0.9] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -246,7 +252,7 @@ export default function HeroModern() {
                   src="/heroPeptide.webp" 
                   alt="Transcendent Labs Premium Peptide Vial" 
                   fill
-                  sizes="(max-width: 768px) 288px, (max-width: 1024px) 384px, 500px" 
+                  sizes="(max-width: 768px) 256px, (max-width: 1024px) 384px, 500px" 
                   className="object-contain relative z-10 filter contrast-105"
                   priority
                 />
@@ -258,15 +264,15 @@ export default function HeroModern() {
           <motion.div 
             animate={{ y: [0, -15, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-            className="absolute bottom-4 right-[5%] md:bottom-16 md:right-[5%] lg:right-0 bg-[var(--bg-page)]/80 backdrop-blur-xl p-4 md:p-5 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] border border-[var(--glass-border)] z-50 scale-90 md:scale-100"
+            className="absolute bottom-4 right-[2%] md:bottom-16 md:right-[5%] lg:right-0 bg-[var(--bg-page)]/80 backdrop-blur-xl p-3 md:p-5 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] border border-[var(--glass-border)] z-50 scale-[0.85] md:scale-100 origin-bottom-right"
           >
-             <div className="flex items-center gap-4">
-               <div className="p-3 bg-gradient-to-br from-[var(--color-brand-primary)]/20 to-[var(--color-brand-secondary)]/20 rounded-xl border border-[var(--color-brand-primary)]/30">
-                  <Activity className="w-5 h-5 md:w-6 md:h-6 text-[var(--color-brand-primary)] animate-pulse" />
+             <div className="flex items-center gap-3 md:gap-4">
+               <div className="p-2 md:p-3 bg-gradient-to-br from-[var(--color-brand-primary)]/20 to-[var(--color-brand-secondary)]/20 rounded-xl border border-[var(--color-brand-primary)]/30">
+                  <Activity className="w-4 h-4 md:w-6 md:h-6 text-[var(--color-brand-primary)] animate-pulse" />
                </div>
                <div>
-                 <p className="text-[10px] md:text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest mb-0.5">Bio-Availability</p>
-                 <p className="text-sm md:text-base font-extrabold text-[var(--text-main)] bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-main)] to-[var(--color-brand-primary)]">99.9% Optimized</p>
+                 <p className="text-[9px] md:text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest mb-0.5">Bio-Availability</p>
+                 <p className="text-xs md:text-base font-extrabold text-[var(--text-main)] bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-main)] to-[var(--color-brand-primary)]">99.9% Optimized</p>
                </div>
              </div>
           </motion.div>
