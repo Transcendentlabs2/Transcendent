@@ -1,8 +1,38 @@
 "use client";
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Activity } from "lucide-react";
+import { ArrowRight, Activity, Microscope } from "lucide-react";
 import Image from "next/image"; 
 
+// --- 1. COMPONENTE DECORATIVO: Puntos de Datos Microscópicos (Nuevo) ---
+const MicroDataPoints = () => (
+  <svg 
+    viewBox="0 0 200 200" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg" 
+    className="w-full h-full opacity-60"
+    style={{ overflow: "visible" }}
+  >
+    {[...Array(20)].map((_, i) => (
+      <motion.circle 
+        key={i}
+        cx={Math.random() * 160 + 20} 
+        cy={Math.random() * 160 + 20} 
+        r={Math.random() * 1.5 + 0.5} 
+        fill="currentColor"
+        animate={{
+          opacity: [0.1, 0.6, 0.1],
+          y: [0, -20, 0],
+        }}
+        transition={{
+          duration: Math.random() * 3 + 3,
+          repeat: Infinity,
+          delay: Math.random() * 2,
+        }}
+        className="text-[var(--color-brand-primary)]"
+      />
+    ))}
+  </svg>
+);
 
 export default function HeroModern() {
   const fadeInUp: Variants = {
@@ -32,14 +62,14 @@ export default function HeroModern() {
   return (
     <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
-      {/* FONDO DECORATIVO */}
+      {/* --- FONDO DECORATIVO GENERAL --- */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden transform translate-z-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
 
       <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         
-        {/* COLUMNA IZQUIERDA (Texto) */}
+        {/* --- COLUMNA IZQUIERDA (Texto - Se mantiene idéntica) --- */}
         <motion.div 
           variants={staggerContainer}
           initial="hidden"
@@ -96,89 +126,104 @@ export default function HeroModern() {
           </motion.div>
         </motion.div>
 
-        {/* COLUMNA DERECHA (Frasco Flotante + Animaciones Llamativas) */}
+        {/* --- COLUMNA DERECHA (NUEVO DISEÑO PREMIUM LAB) --- */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0 transform-gpu"
+          className="relative h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none mt-12 lg:mt-0 transform-gpu"
         >
-          {/* Glow de fondo pulsante */}
+          {/* 1. Malla Holográfica de Estabilización (Fondo del Mockup) */}
+          <div className="absolute w-[90%] h-[90%] md:w-[80%] md:h-[80%] rounded-full border border-[var(--glass-border)] dark:border-[var(--color-brand-secondary)]/10 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:16px_16px] opacity-10 [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_80%,transparent_100%)]"></div>
+          
+          {/* 2. Brillo de Energía Central Más Intenso */}
           <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] rounded-full blur-[80px] opacity-50 translate-z-0" 
+            animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute w-[400px] h-[400px] md:w-[500px] md:h-[500px] bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] rounded-full blur-[90px] opacity-60 translate-z-0" 
           />
 
-          {/* Estructura Orbital */}
-          <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] flex items-center justify-center">
+          {/* 3. Estructura de Contención Tecnológica (Reemplaza los círculos) */}
+          <div className="relative w-full h-full flex flex-col items-center justify-center">
             
-            {/* Anillo Externo Llamativo */}
+            {/* 3.1 Cuchilla de Energía Superior (Contención refractiva) */}
             <motion.div 
-              animate={{ rotate: 360 }}
-              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full border-2 border-dashed border-[var(--color-brand-primary)] opacity-30 shadow-[0_0_30px_var(--color-brand-primary)]"
-            />
-            
-            {/* Anillo Intermedio Rápido */}
-            <motion.div 
-              animate={{ rotate: -360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-6 md:inset-10 rounded-full border border-[var(--color-brand-secondary)] opacity-50"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[10%] left-1/2 -translate-x-1/2 w-48 md:w-64 h-1.5 rounded-full z-0 overflow-hidden shadow-[0_0_20px_var(--color-brand-primary)]"
             >
-              {/* Satélites luminosos */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-secondary)] rounded-full shadow-[0_0_20px_currentColor]" />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2 w-2 h-2 md:w-3 md:h-3 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
+              <div className="w-full h-full bg-[var(--color-brand-primary)] opacity-30"></div>
+              <motion.div 
+                animate={{ x: ["-100%", "100%"] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-80"
+              />
             </motion.div>
 
-            {/* Anillo Interno Muy Cercano al Frasco */}
+            {/* 3.2 Haces de Luz de Escaneo Vertical */}
             <motion.div 
-              animate={{ rotate: 360, scale: [1, 1.05, 1] }}
-              transition={{ rotate: { duration: 10, repeat: Infinity, ease: "linear" }, scale: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
-              className="absolute inset-16 md:inset-24 rounded-full border-t-2 border-l-2 border-[var(--text-main)] opacity-20"
+              animate={{ opacity: [0, 0.5, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute left-[35%] w-px h-full bg-[var(--color-brand-secondary)] opacity-10"
+            />
+            <motion.div 
+              animate={{ opacity: [0, 0.4, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
+              className="absolute right-[35%] w-px h-full bg-[var(--color-brand-primary)] opacity-10"
             />
 
-            {/* NÚCLEO CENTRAL - FRASCO FLOTANTE */}
+            {/* 3.3 Micro-Puntos de Datos Flotantes (Interactivos con el frasco) */}
+            <div className="absolute inset-0 z-10 p-20">
+               <MicroDataPoints />
+            </div>
+
+            {/* --- 4. FRASCO FLOTANTE (Pepito) - MÁS GRANDE Y PROTAGONISTA --- */}
             <motion.div 
-              // Efecto levitación
-              animate={{ y: [-15, 15, -15], rotateZ: [-2, 2, -2] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="relative z-20 w-40 h-40 md:w-64 md:h-64 flex items-center justify-center drop-shadow-[0_20px_30px_rgba(0,0,0,0.4)]"
+              // Efecto levitación: sube y baja de forma suave
+              animate={{ y: [-20, 20, -20] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              className="relative z-30 w-72 h-72 md:w-96 md:h-96 lg:w-[480px] lg:h-[480px] flex items-center justify-center drop-shadow-[0_25px_40px_rgba(0,0,0,0.5)] transform-gpu"
             >
-              {/* Brillo detrás del frasco */}
-              <div className="absolute inset-10 bg-white/20 dark:bg-black/20 rounded-full blur-2xl z-0" />
+              {/* Brillo focal directamente detrás del frasco */}
+              <div className="absolute inset-16 bg-white/25 dark:bg-white/10 rounded-full blur-3xl z-0" />
               
-              {/* ✅ IMAGEN CORREGIDA: Apunta directo a la carpeta public ✅ */}
               <Image 
-                src="/heroPeptide.webp"
-                alt="Premium Peptide Vial" 
+                src="/heroPeptide.webp" // Mantengo tu ruta
+                alt="Transcendent Labs Premium Peptide Vial" 
                 fill
-                sizes="(max-width: 768px) 160px, 256px"
-                className="object-contain relative z-10 drop-shadow-[0_0_25px_var(--color-brand-primary)]"
+                sizes="(max-width: 768px) 288px, (max-width: 1024px) 384px, 480px" // Ajusto sizes para el nuevo tamaño
+                className="object-contain relative z-10 drop-shadow-[0_0_30px_rgba(0,201,255,0.5)]"
                 priority
               />
-              {/* ❌ ELIMINÉ EL PLACEHOLDER QUE TAPABA LA IMAGEN ❌ */}
-
             </motion.div>
 
-            {/* Tarjeta Flotante (Bio-Availability) */}
+            {/* 3.4 Cuchilla de Energía Inferior */}
             <motion.div 
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute bottom-4 right-0 md:bottom-12 md:-right-8 bg-[var(--bg-page)]/90 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-2xl border border-[var(--color-brand-primary)]/30 z-30 scale-90 md:scale-100"
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-48 md:w-64 h-1 rounded-full z-0 shadow-[0_0_20px_var(--color-brand-secondary)]"
             >
-               <div className="flex items-center gap-3">
-                 <div className="p-2 bg-[var(--color-brand-primary)]/20 rounded-lg">
-                    <Activity className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-brand-primary)] animate-pulse" />
-                 </div>
-                 <div>
-                   <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Bio-Availability</p>
-                   <p className="text-xs md:text-sm font-bold text-[var(--text-main)]">99% Optimized</p>
-                 </div>
-               </div>
+              <div className="w-full h-full bg-[var(--color-brand-secondary)] opacity-30"></div>
             </motion.div>
-
           </div>
+
+          {/* 5. Tarjeta Flotante de Bio-Availability (Se mantiene, ajustada ligeramente) */}
+          <motion.div 
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute bottom-10 right-[5%] md:bottom-20 md:right-0 bg-[var(--bg-page)]/90 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-2xl border border-[var(--glass-border)] z-40 scale-90 md:scale-100 origin-bottom-right"
+          >
+             <div className="flex items-center gap-3">
+               <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg">
+                  <Activity className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-brand-primary)] animate-pulse" />
+               </div>
+               <div>
+                 <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Bio-Availability</p>
+                 <p className="text-xs md:text-sm font-bold text-[var(--text-main)]">99% Optimized</p>
+               </div>
+             </div>
+          </motion.div>
+
         </motion.div>
       </div>
     </section>
