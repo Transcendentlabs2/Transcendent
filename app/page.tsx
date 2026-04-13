@@ -15,6 +15,7 @@ import BatchVerifier from "@/components/landing/BatchVerifier";
 import PeptideCalculator from "@/components/landing/PeptideCalculator";
 import FAQSection from "@/components/landing/FAQSection";
 import Footer from "@/components/landing/Footer";
+import ProduccionPeptido from '@/components/landing/ProduccionPeptido'
 
 export default async function Home() {
   
@@ -53,6 +54,7 @@ export default async function Home() {
       <section id="verification" className="scroll-mt-24"><BatchVerifier /></section>
       <section id="calculator" className="scroll-mt-24"><PeptideCalculator /></section>
       <section id="faq" className="scroll-mt-24"><FAQSection /></section>
+       <section id="peptido" className="scroll-mt-24"><ProduccionPeptido/></section>
       
       <Footer />
 
