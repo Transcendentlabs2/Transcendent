@@ -1,55 +1,8 @@
 "use client";
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, Activity } from "lucide-react";
+import Image from "next/image"; 
 
-// --- 1. COMPONENTE SVG PREMIUM "PEPTIDE CORE" (Ajustado) ---
-const PeptideCoreIcon = ({ className }: { className?: string }) => (
-  <svg 
-    viewBox="0 0 100 100" 
-    fill="none" 
-    xmlns="http://www.w3.org/2000/svg" 
-    className={className}
-    style={{ overflow: "visible" }}
-  >
-    <defs>
-      <linearGradient id="peptideGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="var(--color-brand-primary)" />
-        <stop offset="100%" stopColor="var(--color-brand-secondary)" />
-      </linearGradient>
-      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-    
-    <path 
-      d="M50 2 L95 27 V77 L50 102 L5 77 V27 L50 2Z" 
-      stroke="url(#peptideGradient)" 
-      strokeWidth="1.5" 
-      strokeLinecap="round" 
-      strokeDasharray="3 3" 
-      className="opacity-40"
-    />
-    
-    <path 
-      d="M50 20 V50 L76 65 M50 50 L24 65" 
-      stroke="url(#peptideGradient)" 
-      strokeWidth="5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-      filter="url(#glow)" 
-    />
-    
-    <circle cx="50" cy="20" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
-    <circle cx="76" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-secondary)" strokeWidth="2.5" />
-    <circle cx="24" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
-    
-    <circle cx="50" cy="50" r="8" fill="url(#peptideGradient)" className="animate-pulse" />
-  </svg>
-);
 
 export default function HeroModern() {
   const fadeInUp: Variants = {
@@ -69,7 +22,6 @@ export default function HeroModern() {
     }
   };
 
-  // --- FUNCIÓN DE SCROLL AL CATÁLOGO ---
   const scrollToCatalog = () => {
     const catalogSection = document.getElementById('catalog');
     if (catalogSection) {
@@ -78,10 +30,9 @@ export default function HeroModern() {
   };
 
   return (
-    // OPTIMIZACIÓN SAFARI: 100dvh evita el salto de la barra de navegación
     <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
-      {/* --- FONDO DECORATIVO --- */}
+      {/* FONDO DECORATIVO */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden transform translate-z-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
@@ -119,7 +70,6 @@ export default function HeroModern() {
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0 justify-center lg:justify-start">
-            {/* BOTÓN CON ACCIÓN DE SCROLL */}
             <button 
                 onClick={scrollToCatalog}
                 className="group relative px-8 py-4 bg-[var(--text-main)] text-[var(--bg-page)] font-bold rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--color-brand-primary)]/20 active:scale-95 cursor-pointer"
@@ -146,67 +96,80 @@ export default function HeroModern() {
           </motion.div>
         </motion.div>
 
-        {/* COLUMNA DERECHA (Molécula 3D Abstracta) */}
+        {/* COLUMNA DERECHA (Frasco Flotante + Animaciones Llamativas) */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[300px] md:h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0 transform-gpu"
+          className="relative h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0 transform-gpu"
         >
-          {/* Glow de fondo */}
-          <div className="absolute inset-0 bg-[var(--accent-glow)] rounded-full blur-[60px] opacity-60 translate-z-0" />
+          {/* Glow de fondo pulsante */}
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] rounded-full blur-[80px] opacity-50 translate-z-0" 
+          />
 
           {/* Estructura Orbital */}
-          <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px]">
+          <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] flex items-center justify-center">
             
-            {/* Anillo Externo */}
+            {/* Anillo Externo Llamativo */}
             <motion.div 
               animate={{ rotate: 360 }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              style={{ willChange: "transform" }}
-              className="absolute inset-0 rounded-full border border-dashed border-[var(--glass-border)]"
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 rounded-full border-2 border-dashed border-[var(--color-brand-primary)] opacity-30 shadow-[0_0_30px_var(--color-brand-primary)]"
             />
             
-            {/* Anillo Interno */}
+            {/* Anillo Intermedio Rápido */}
             <motion.div 
               animate={{ rotate: -360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              style={{ willChange: "transform" }}
-              className="absolute inset-8 md:inset-12 rounded-full border border-[var(--glass-border)] opacity-60"
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-6 md:inset-10 rounded-full border border-[var(--color-brand-secondary)] opacity-50"
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
+              {/* Satélites luminosos */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-secondary)] rounded-full shadow-[0_0_20px_currentColor]" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2 w-2 h-2 md:w-3 md:h-3 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
             </motion.div>
 
-            {/* NÚCLEO CENTRAL - CONTENEDOR AJUSTADO (Light Mode Fix) */}
-            <div className="absolute inset-0 flex items-center justify-center">
-               <div className="relative w-28 h-28 md:w-40 md:h-40 bg-[var(--bg-page)]/80 backdrop-blur-sm rounded-full border border-slate-200 dark:border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
-                  
-                  <div className="w-[75%] h-[75%] animate-pulse-slow">
-                     <PeptideCoreIcon className="w-full h-full drop-shadow-[0_0_15px_rgba(0,201,255,0.4)]" />
-                  </div>
-
-                  {/* Órbita interna decorativa */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                    style={{ willChange: "transform" }}
-                    className="absolute inset-1 rounded-full border border-[var(--glass-border)] opacity-30"
-                  >
-                     <div className="absolute bottom-2 left-1/2 w-1.5 h-1.5 bg-[var(--color-brand-secondary)] rounded-full" />
-                  </motion.div>
-               </div>
-            </div>
-
-            {/* Tarjeta Flotante */}
+            {/* Anillo Interno Muy Cercano al Frasco */}
             <motion.div 
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              style={{ willChange: "transform" }}
-              className="absolute -top-2 -right-2 md:top-12 md:-right-4 bg-[var(--bg-page)]/90 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
+              animate={{ rotate: 360, scale: [1, 1.05, 1] }}
+              transition={{ rotate: { duration: 10, repeat: Infinity, ease: "linear" }, scale: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
+              className="absolute inset-16 md:inset-24 rounded-full border-t-2 border-l-2 border-[var(--text-main)] opacity-20"
+            />
+
+            {/* NÚCLEO CENTRAL - FRASCO FLOTANTE */}
+            <motion.div 
+              // Efecto levitación
+              animate={{ y: [-15, 15, -15], rotateZ: [-2, 2, -2] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="relative z-20 w-40 h-40 md:w-64 md:h-64 flex items-center justify-center drop-shadow-[0_20px_30px_rgba(0,0,0,0.4)]"
+            >
+              {/* Brillo detrás del frasco */}
+              <div className="absolute inset-10 bg-white/20 dark:bg-black/20 rounded-full blur-2xl z-0" />
+              
+              {/* ✅ IMAGEN CORREGIDA: Apunta directo a la carpeta public ✅ */}
+              <Image 
+                src="/heroPeptide.webp"
+                alt="Premium Peptide Vial" 
+                fill
+                sizes="(max-width: 768px) 160px, 256px"
+                className="object-contain relative z-10 drop-shadow-[0_0_25px_var(--color-brand-primary)]"
+                priority
+              />
+              {/* ❌ ELIMINÉ EL PLACEHOLDER QUE TAPABA LA IMAGEN ❌ */}
+
+            </motion.div>
+
+            {/* Tarjeta Flotante (Bio-Availability) */}
+            <motion.div 
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-4 right-0 md:bottom-12 md:-right-8 bg-[var(--bg-page)]/90 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-2xl border border-[var(--color-brand-primary)]/30 z-30 scale-90 md:scale-100"
             >
                <div className="flex items-center gap-3">
-                 <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg">
-                    <Activity className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-brand-primary)]" />
+                 <div className="p-2 bg-[var(--color-brand-primary)]/20 rounded-lg">
+                    <Activity className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-brand-primary)] animate-pulse" />
                  </div>
                  <div>
                    <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Bio-Availability</p>
