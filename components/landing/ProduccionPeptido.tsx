@@ -1,165 +1,144 @@
 "use client";
-import React, { useState, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, OrbitControls, ContactShadows, Html } from '@react-three/drei';
+import React, { useState, useMemo } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { 
+  OrbitControls, 
+  PerspectiveCamera, 
+  Environment, 
+  Float, 
+  ContactShadows,
+  MeshTransmissionMaterial 
+} from '@react-three/drei';
 import { useSpring, a } from '@react-spring/three';
 import * as THREE from 'three';
 
-// --- 1. COMPONENTE DEL VIAL ANIMADO ---
-// Usamos "a" (animated) de react-spring para envolver elementos 3D que se animarán
-const AnimatedMesh = a.mesh;
-const AnimatedGroup = a.group;
+// --- 1. GEOMETRÍA DEL VIAL (Perfil idéntico a la foto) ---
+const VialShape = () => {
+  const points = useMemo(() => {
+    const pts = [];
+    // Puntos (x, y) que dibujan la silueta desde el centro (0,0)
+    pts.push(new THREE.Vector2(0, 0));       // Centro base
+    pts.push(new THREE.Vector2(0.85, 0));    // Borde base
+    pts.push(new THREE.Vector2(0.9, 0.1));   // Curva base inferior
+    pts.push(new THREE.Vector2(0.9, 2.2));   // Cuerpo recto
+    pts.push(new THREE.Vector2(0.8, 2.4));   // Hombro
+    pts.push(new THREE.Vector2(0.65, 2.5));  // Cuello
+    pts.push(new THREE.Vector2(0.65, 2.8));  // Altura cuello
+    pts.push(new THREE.Vector2(0.75, 2.85)); // Labio superior
+    pts.push(new THREE.Vector2(0.75, 3.0));  // Grosor boca
+    return pts;
+  }, []);
 
-interface VialProps {
-  phase: number;
-}
+  return <latheGeometry args={[points, 64]} />;
+};
 
-const ProceduralVial: React.FC<VialProps> = ({ phase }) => {
-  const laserRef = useRef<THREE.Mesh>(null);
-
-  // Animaciones controladas por la fase actual
-  const { capY, powderOpacity, liquidOpacity, laserOpacity } = useSpring({
-    capY: phase >= 2 ? 1.5 : 2.5, // El tapón baja en la fase 2
-    powderOpacity: phase >= 1 ? 1 : 0, // El polvo aparece en la fase 1
-    liquidOpacity: phase >= 1 ? 0 : 0.6, // El líquido desaparece en la fase 1
-    laserOpacity: phase === 3 ? 1 : 0, // El láser solo se enciende en la fase 3
-    config: { mass: 1, tension: 170, friction: 26 }, // Física fluida tipo Apple
-  });
-
-  // Animación continua del láser (escaneo arriba y abajo)
-  useFrame((state) => {
-    if (laserRef.current && phase === 3) {
-      laserRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.8;
-    }
+// --- 2. COMPONENTE DEL PRODUCTO ---
+const TesamorelinVial = ({ phase }: { phase: number }) => {
+  // Animación del tapón y la tapa azul
+  const { capPos, powderScale } = useSpring({
+    capPos: phase >= 2 ? [0, 2.75, 0] : [0, 3.8, 0],
+    powderScale: phase >= 1 ? [0.85, 0.4, 0.85] : [0.85, 0.01, 0.85],
+    config: { mass: 1, tension: 120, friction: 20 }
   });
 
   return (
-    <group position={[0, -1, 0]}>
-      {/* --- EL CRISTAL (Cuerpo del vial) --- */}
-      <mesh position={[0, 1, 0]}>
-        <cylinderGeometry args={[1, 1, 2.5, 64]} />
-        {/* Material Físico Avanzado para simular vidrio realista */}
-        <meshPhysicalMaterial 
-          transmission={1} 
-          roughness={0.05} 
-          thickness={0.5} 
-          envMapIntensity={2} 
-          clearcoat={1}
-          transparent={true}
+    <group position={[0, -1.5, 0]}>
+      {/* CUERPO DE CRISTAL - Estilo Apple con refracción avanzada */}
+      <mesh>
+        <VialShape />
+        <MeshTransmissionMaterial 
+          backside 
+          samples={4} 
+          thickness={0.2} 
+          chromaticAberration={0.02} 
+          anisotropy={0.1} 
+          distortion={0.1} 
+          distortionScale={0.1} 
+          temporalDistortion={0.1} 
+          transparent
         />
       </mesh>
 
-      {/* --- LA ETIQUETA (Mockup) --- 
-          NOTA: Aquí es donde cargarías la textura de tu foto real.
-          Ejemplo: const texture = useLoader(THREE.TextureLoader, '/etiqueta.jpg');
-      */}
-      <mesh position={[0, 0.8, 0]}>
-        <cylinderGeometry args={[1.01, 1.01, 1.2, 64]} />
-        <meshStandardMaterial color="#f8f9fa" />
-        {/* Para usar tu imagen, cambiarías a: <meshStandardMaterial map={texture} /> */}
+      {/* POLVO LIOFILIZADO (Tesamorelin) */}
+      <a.mesh position={[0, 0.3, 0]} scale={powderScale as any}>
+        <cylinderGeometry args={[1, 1, 1, 32]} />
+        <meshStandardMaterial color="#ffffff" roughness={1} />
+      </a.mesh>
+
+      {/* ETIQUETA (Placeholder de alta calidad) */}
+      <mesh position={[0, 1.25, 0]}>
+        <cylinderGeometry args={[0.91, 0.91, 1.5, 64, 1, true]} />
+        <meshStandardMaterial 
+          color="white" 
+          side={THREE.DoubleSide} 
+          roughness={0.3}
+        />
       </mesh>
 
-      {/* --- LÍQUIDO / POLVO LIOFILIZADO --- */}
-      <group position={[0, 0.2, 0]}>
-        {/* Líquido inicial */}
-        <AnimatedMesh scale={[0.95, 0.3, 0.95]} material-opacity={liquidOpacity} material-transparent={true}>
-          <cylinderGeometry args={[1, 1, 1, 32]} />
-          <meshStandardMaterial color="#e0f2fe" roughness={0} />
-        </AnimatedMesh>
-        
-        {/* Polvo cristalizado (Tesamorelin) */}
-        <AnimatedMesh scale={[0.95, 0.3, 0.95]} material-opacity={powderOpacity} material-transparent={true}>
-          <cylinderGeometry args={[1, 1, 1, 32]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.9} />
-        </AnimatedMesh>
-      </group>
-
-      {/* --- TAPA Y TAPÓN DE GOMA --- */}
-      <AnimatedGroup position-y={capY}>
-        {/* Tapón de goma */}
-        <mesh position={[0, 0, 0]}>
-          <cylinderGeometry args={[0.8, 0.8, 0.4, 32]} />
-          <meshStandardMaterial color="#333333" roughness={0.8} />
+      {/* TAPA AZUL METÁLICA (Idéntica a la foto) */}
+      <a.group position={capPos as any}>
+        {/* Tapa de Aluminio */}
+        <mesh position={[0, 0.15, 0]}>
+          <cylinderGeometry args={[0.78, 0.78, 0.35, 32]} />
+          <meshStandardMaterial color="#1e3a8a" metalness={0.8} roughness={0.2} />
         </mesh>
-        {/* Tapa metálica azul (Idéntica al Tesamorelin) */}
-        <mesh position={[0, 0.2, 0]}>
-          <cylinderGeometry args={[0.9, 0.9, 0.3, 32]} />
-          <meshStandardMaterial color="#1e3a8a" metalness={0.9} roughness={0.2} />
+        {/* Parte superior plástica */}
+        <mesh position={[0, 0.35, 0]}>
+          <cylinderGeometry args={[0.8, 0.8, 0.1, 32]} />
+          <meshStandardMaterial color="#162c6b" roughness={0.5} />
         </mesh>
-      </AnimatedGroup>
-
-      {/* --- LÁSER DE INSPECCIÓN --- */}
-      <AnimatedMesh ref={laserRef} position={[0, 1, 1.1]} material-opacity={laserOpacity} material-transparent={true}>
-        <boxGeometry args={[2.5, 0.05, 0.05]} />
-        <meshBasicMaterial color="#00ffcc" />
-      </AnimatedMesh>
-      
-      {/* Luz del láser que ilumina el frasco */}
-      {phase === 3 && (
-        <pointLight position={[0, 1, 1.2]} color="#00ffcc" intensity={2} distance={3} />
-      )}
+      </a.group>
     </group>
   );
 };
 
-// --- 2. COMPONENTE PRINCIPAL (UI + Canvas) ---
-export default function PeptideSimulation() {
-  // Estado para controlar las fases: 0=Inicio, 1=Liofilización, 2=Sellado, 3=Inspección
-  const [phase, setPhase] = useState<number>(0);
-
-  const steps = [
-    { id: 0, label: "Preparación" },
-    { id: 1, label: "Liofilización" },
-    { id: 2, label: "Sellado" },
-    { id: 3, label: "Escaneo QA" }
-  ];
+// --- 3. ESCENA PRINCIPAL ---
+export default function PeptideFactory() {
+  const [phase, setPhase] = useState(0);
 
   return (
-    <div className="relative w-full h-[600px] md:h-[800px] bg-[#0a0a0a] rounded-2xl overflow-hidden border border-white/10">
-      
-      {/* CAPA 3D */}
-      <Canvas camera={{ position: [0, 2, 6], fov: 45 }}>
-        {/* Iluminación de estudio "Premium" */}
-        <ambientLight intensity={0.5} />
-        <spotLight position={[5, 5, 5]} intensity={2} angle={0.15} penumbra={1} castShadow />
-        <Environment preset="city" /> {/* Esto da los reflejos realistas al cristal */}
+    <div className="w-full h-[600px] md:h-[850px] bg-neutral-950 relative rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
+      <Canvas shadows dpr={[1, 2]}>
+        <PerspectiveCamera makeDefault position={[0, 2, 8]} fov={35} />
         
-        {/* Sombra base suave */}
-        <ContactShadows position={[0, -1.05, 0]} opacity={0.5} scale={10} blur={2} far={4} />
+        {/* Iluminación de estudio */}
+        <Environment preset="studio" />
+        <ambientLight intensity={0.2} />
+        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+        <pointLight position={[-5, 2, -5]} color="#4287f5" intensity={0.5} />
+
+        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
+          <TesamorelinVial phase={phase} />
+        </Float>
+
+        <ContactShadows position={[0, -1.6, 0]} opacity={0.4} scale={15} blur={2.5} far={4} />
         
-        <ProceduralVial phase={phase} />
-        
-        {/* Controles para que el usuario pueda rotar con el dedo/mouse suavemente */}
-        <OrbitControls enableZoom={false} enablePan={false} autoRotate={phase === 3} autoRotateSpeed={2} />
+        <OrbitControls 
+          enableZoom={false} 
+          enablePan={false} 
+          minPolarAngle={Math.PI / 2.5} 
+          maxPolarAngle={Math.PI / 1.8} 
+        />
       </Canvas>
 
-      {/* CAPA UI (Controles superpuestos) */}
-      <div className="absolute bottom-8 left-0 w-full px-6 flex flex-col items-center pointer-events-none">
-        
-        {/* Panel de Información Holográfica (Solo en fase 3) */}
-        <div className={`mb-8 p-4 bg-black/40 backdrop-blur-md border border-[#00ffcc]/30 rounded-xl transition-all duration-500 transform ${phase === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <p className="text-[#00ffcc] font-mono text-xs md:text-sm tracking-widest text-center">
-              SCAN COMPLETED <br/>
-              <span className="font-bold text-white text-lg">PUREZA: 99.8%</span>
-            </p>
-        </div>
-
-        {/* Botones de Control */}
-        <div className="flex gap-2 p-2 bg-white/5 backdrop-blur-lg rounded-full border border-white/10 pointer-events-auto">
-          {steps.map((step) => (
-            <button
-              key={step.id}
-              onClick={() => setPhase(step.id)}
-              className={`px-4 py-2 text-xs md:text-sm font-medium rounded-full transition-all duration-300 ${
-                phase === step.id 
-                  ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' 
-                  : 'text-white/50 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {step.label}
-            </button>
-          ))}
-        </div>
+      {/* CONTROLES UI */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 p-1.5 bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10">
+        {[0, 1, 2, 3].map((s) => (
+          <button
+            key={s}
+            onClick={() => setPhase(s)}
+            className={`px-6 py-2.5 rounded-xl text-xs font-bold tracking-widest uppercase transition-all ${
+              phase === s 
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' 
+              : 'text-neutral-500 hover:text-white'
+            }`}
+          >
+            {s === 0 && "Llenado"}
+            {s === 1 && "Liofilización"}
+            {s === 2 && "Sellado"}
+            {s === 3 && "Inspección"}
+          </button>
+        ))}
       </div>
     </div>
   );
