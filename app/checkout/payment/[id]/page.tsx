@@ -26,7 +26,6 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // --- FUNCIÓN ACTUALIZADA CON LA REDIRECCIÓN FORZADA ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reference.trim()) return alert("Please enter the Zelle confirmation number.");
@@ -37,15 +36,12 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
         const res = await confirmZelleReference(resolvedParams.id, reference);
         
         if (res?.ok) {
-            // REDIRECCIÓN FORZADA: Esto evita que Next.js se congele y limpia la UI
             window.location.href = `/checkout/success/${resolvedParams.id}`;
         } else {
-            // Si el backend responde pero con error
             alert(res?.message || "Something went wrong saving the reference. Please try again.");
             setIsLoading(false);
         }
     } catch (error: any) {
-        // Si el servidor crashea violentamente
         console.error("Server Action Crash:", error);
         alert(`A critical server error occurred: ${error?.message || "Unknown error"}. Check Vercel/Hostinger logs.`);
         setIsLoading(false);
@@ -76,7 +72,7 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
                 </div>
                 
                 {/* CAJA DEL QR Y CORREO */}
-                <div className="ml-11 bg-gray-50 p-6 rounded-2xl border border-gray-200 flex flex-col items-center justify-center space-y-6 shadow-inner">
+                <div className="ml-1 md:ml-11 bg-gray-50 p-4 md:p-6 rounded-2xl border border-gray-200 flex flex-col items-center justify-center space-y-6 shadow-inner">
                     
                     <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                         <Image 
@@ -89,18 +85,24 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
                         />
                     </div>
 
-                    <div className="w-full space-y-2 text-center">
+                    <div className="w-full space-y-3 text-center">
                         <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">Or send directly to:</p>
-                        <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200 w-full justify-between shadow-sm">
-                            <span className="font-mono font-bold text-gray-800 break-all text-sm">{zelleEmail}</span>
+                        
+                        {/* --- AQUÍ ESTÁ LA CORRECCIÓN RESPONSIVE --- */}
+                        <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-4 rounded-xl border border-gray-200 w-full justify-between shadow-sm">
+                            <span className="font-mono font-bold text-gray-800 text-sm sm:text-base text-center break-all w-full">
+                                {zelleEmail}
+                            </span>
                             <button 
                                 onClick={handleCopy}
-                                className="flex shrink-0 items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-100 hover:text-[#741bd9] transition-all"
+                                className="w-full sm:w-auto flex shrink-0 items-center justify-center gap-2 px-6 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-100 hover:text-[#741bd9] transition-all"
                             >
                                 {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                {copied ? "Copied" : "Copy"}
+                                {copied ? "Copied!" : "Copy"}
                             </button>
                         </div>
+                        {/* ------------------------------------------- */}
+
                     </div>
                 </div>
             </div>
@@ -111,18 +113,18 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
                     <div className="w-8 h-8 rounded-full bg-[#741bd9]/10 text-[#741bd9] flex items-center justify-center font-bold">2</div>
                     <h2 className="font-bold text-lg text-gray-800">Confirm your transfer</h2>
                 </div>
-                <p className="text-gray-500 pl-11 text-sm">
+                <p className="text-gray-500 pl-1 md:pl-11 text-sm">
                     Once sent, paste the Zelle confirmation/reference number here to process your order.
                 </p>
                 
-                <form onSubmit={handleSubmit} className="ml-11 space-y-4">
+                <form onSubmit={handleSubmit} className="ml-1 md:ml-11 space-y-4">
                     <input 
                         type="text" 
                         required
                         value={reference}
                         onChange={(e) => setReference(e.target.value)}
                         placeholder="e.g. 1A2B3C4D5E" 
-                        className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-4 outline-none focus:border-[#741bd9] transition-colors uppercase font-mono shadow-sm"
+                        className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-4 outline-none focus:border-[#741bd9] transition-colors uppercase font-mono shadow-sm text-center md:text-left"
                     />
                     <button 
                         type="submit"
