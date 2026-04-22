@@ -4,115 +4,14 @@ import { useCart } from "@/context/CartContext";
 import { placeOrder } from "@/app/actions/place-order";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-
-// Modificamos el prop para recibir promoCode también
-function CheckoutForm({ formData, items, finalTotal, clearCart, promoCode }: any) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!stripe || !elements) return;
-
-    if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
-        alert("Please fill in all shipping information.");
-        return;
-    }
-
-    setIsLoading(true);
-
-    const cardElement = elements.getElement(CardElement);
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement!,
-      billing_details: {
-        name: formData.name,
-        email: formData.email,
-        address: {
-            line1: formData.address,
-            city: formData.city,
-            state: formData.state,
-            postal_code: formData.postalCode,
-            country: formData.country
-        }
-      }
-    });
-
-    if (error) {
-      alert(error.message);
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-        const cartPayload = items.map((item: any) => ({ productId: item.id, quantity: item.quantity }));
-        
-        // --- INTERVENCIÓN QUIRÚRGICA: Pasamos el promoCode al backend ---
-        const response = await placeOrder(cartPayload, formData, paymentMethod.id, promoCode);
-        
-        if (response.ok && response.order) {
-            clearCart(); 
-            router.push(`/orders/${response.order.id}`); 
-        } else {
-            alert(response.message || "Error processing order");
-            setIsLoading(false);
-        }
-    } catch (err) {
-        alert("Unexpected error.");
-        setIsLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-      <div className="p-4 bg-white border border-gray-200 rounded-xl">
-        <label className="block text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">
-            Credit or Debit Card
-        </label>
-        <div className="py-2">
-            <CardElement options={{
-                style: {
-                    base: {
-                        fontSize: '16px',
-                        color: '#111827',
-                        fontFamily: 'sans-serif',
-                        '::placeholder': { 
-                            color: '#9ca3af' 
-                        },
-                    },
-                    invalid: {
-                        color: '#ef4444',
-                    }
-                },
-            }} />
-        </div>
-      </div>
-
-      <button 
-        disabled={isLoading || !stripe}
-        className="w-full bg-[#111827] text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
-      >
-        {isLoading ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
-        ) : (
-            <>Pay ${finalTotal.toFixed(2)} Now</>
-        )}
-      </button>
-    </form>
-  );
-}
 
 export default function CheckoutPage() {
-  const { items, cartSubtotal, clearCart } = useCart();
+  const { items, cartSubtotal } = useCart(); // Quitamos clearCart de aquí, se limpia tras pagar en la otra pantalla
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "US"
   });
@@ -124,7 +23,6 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // --- MATEMÁTICA VISUAL REFLEJANDO EL BACKEND ---
   const discount5Codes = ['UNCDAVE', 'ANT26', 'BIGTEX', 'YANKS26'];
   let calculatedSubtotal = cartSubtotal;
 
@@ -140,6 +38,35 @@ export default function CheckoutPage() {
   }
 
   const finalTotal = calculatedSubtotal + shippingCost;
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
+        alert("Please fill in all shipping information.");
+        return;
+    }
+
+    setIsLoading(true);
+
+    try {
+        const cartPayload = items.map((item: any) => ({ productId: item.id, quantity: item.quantity }));
+        
+        // Creamos la orden en la base de datos (Estado PENDING)
+        const response = await placeOrder(cartPayload, formData, appliedPromo);
+        
+        if (response.ok && response.order) {
+            // Redirigimos a la pantalla de pago de Zelle
+            router.push(`/checkout/payment/${response.order.id}`); 
+        } else {
+            alert(response.message || "Error processing order");
+            setIsLoading(false);
+        }
+    } catch (err) {
+        alert("Unexpected error.");
+        setIsLoading(false);
+    }
+  };
 
   if (items.length === 0) {
       return (
@@ -161,7 +88,7 @@ export default function CheckoutPage() {
                 <h1 className="text-2xl font-bold">Secure Checkout</h1>
             </div>
 
-            <div className="space-y-8">
+            <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
                 {/* Contact Info */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-2 border-b border-gray-100 pb-2 mb-4">
@@ -196,7 +123,7 @@ export default function CheckoutPage() {
                         </div>
                     </div>
                 </section>
-            </div>
+            </form>
         </div>
 
         <div className="lg:sticky lg:top-24 h-fit">
@@ -210,7 +137,6 @@ export default function CheckoutPage() {
                         } else if (discount5Codes.includes(appliedPromo)) {
                             itemFinalPrice = item.price * 0.95;
                         }
-                        
                         const isDiscounted = appliedPromo === "TEST1" || discount5Codes.includes(appliedPromo);
 
                         return (
@@ -225,67 +151,36 @@ export default function CheckoutPage() {
                     })}
                 </div>
 
-                {/* Campo de Promo Code */}
                 <div className="mt-4 border-t border-gray-100 pt-4">
                     <label className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2 block">Promo Code</label>
                     <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={promoCodeInput}
-                            onChange={(e) => setPromoCodeInput(e.target.value)}
-                            placeholder="Enter code"
-                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 outline-none focus:border-cyan-500 transition-colors uppercase"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setAppliedPromo(promoCodeInput.trim().toUpperCase())}
-                            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold hover:bg-gray-300 transition-colors"
-                        >
-                            Apply
-                        </button>
+                        <input type="text" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value)} placeholder="Enter code" className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 outline-none focus:border-cyan-500 transition-colors uppercase" />
+                        <button type="button" onClick={() => setAppliedPromo(promoCodeInput.trim().toUpperCase())} className="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold hover:bg-gray-300 transition-colors">Apply</button>
                     </div>
-                    {appliedPromo === 'TEST1' && (
-                        <p className="text-emerald-500 text-xs font-bold mt-2 flex items-center gap-1">
-                            <ShieldCheck className="w-3 h-3" /> Test mode active: items are $1, shipping is free.
-                        </p>
-                    )}
-                    {discount5Codes.includes(appliedPromo) && (
-                        <p className="text-emerald-500 text-xs font-bold mt-2 flex items-center gap-1">
-                            <ShieldCheck className="w-3 h-3" /> 5% Discount applied successfully!
-                        </p>
-                    )}
+                    {appliedPromo === 'TEST1' && <p className="text-emerald-500 text-xs font-bold mt-2 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Test mode active</p>}
+                    {discount5Codes.includes(appliedPromo) && <p className="text-emerald-500 text-xs font-bold mt-2 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> 5% Discount applied!</p>}
                 </div>
 
-                {/* Desglose de Subtotal, Envío y Total */}
                 <div className="border-t border-gray-100 mt-4 pt-4 space-y-2">
                     <div className="flex justify-between text-sm text-gray-500">
-                        <span>Subtotal</span>
-                        <span>${calculatedSubtotal.toFixed(2)}</span>
+                        <span>Subtotal</span><span>${calculatedSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-500">
-                        <span>Shipping</span>
-                        <span>{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
+                        <span>Shipping</span><span>{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
                     </div>
                     <div className="flex justify-between text-xl font-bold pt-2 border-t border-gray-100 text-cyan-600">
-                        <span>Total</span>
-                        <span>${finalTotal.toFixed(2)}</span>
+                        <span>Total</span><span>${finalTotal.toFixed(2)}</span>
                     </div>
                 </div>
 
-                <Elements stripe={stripePromise}>
-                    <CheckoutForm 
-                        formData={formData} 
-                        items={items} 
-                        finalTotal={finalTotal} 
-                        clearCart={clearCart} 
-                        promoCode={appliedPromo} 
-                    />
-                </Elements>
-
-                <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-gray-400">
-                    <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                    <span>Secure Encrypted Payment via Stripe</span>
-                </div>
+                <button 
+                    form="checkout-form"
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full mt-6 bg-[#111827] text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                    {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : <>Proceed to Payment <ArrowRight className="w-4 h-4" /></>}
+                </button>
             </div>
         </div>
       </div>

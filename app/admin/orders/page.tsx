@@ -9,10 +9,9 @@ export default async function OrdersPage() {
   // 1. Fetch de la base de datos
   const orders = await prisma.order.findMany({
     orderBy: {
-      createdAt: 'desc' // Las más recientes primero
+      createdAt: 'desc' 
     },
     include: {
-      // Traemos los items y los datos del producto
       items: {
         include: {
           product: {
@@ -33,8 +32,9 @@ export default async function OrdersPage() {
     status: order.status,
     createdAt: order.createdAt,
     
-    // AQUÍ ESTÁ EL CAMBIO:
-    // Mapeamos los datos planos de la BD a un objeto 'customer' ordenado
+    // AQUÍ ESTÁ EL CAMBIO PARA ZELLE: Pasamos el código de referencia
+    paymentReference: order.paymentReference,
+    
     customer: {
       name: order.customerName,
       email: order.customerEmail,
@@ -48,7 +48,6 @@ export default async function OrdersPage() {
     
     itemsCount: order.items.length,
     
-    // Mapeamos los items
     items: order.items.map((item) => ({
       id: item.id,
       quantity: item.quantity,
@@ -75,7 +74,7 @@ export default async function OrdersPage() {
         </div>
       </div>
 
-      {/* Renderizamos el Cliente con los datos preparados */}
+      {/* Renderizamos el Cliente con los datos preparados (incluyendo Zelle) */}
       <OrdersClient initialOrders={serializedOrders} />
       
     </div>

@@ -2,20 +2,19 @@
 
 import { useState } from "react";
 import { 
-  Search, Package, Eye, Trash2, X, MapPin, Phone, Mail 
+  Search, Package, Eye, Trash2, X, MapPin, Phone, Mail, Check, XCircle, Banknote
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateOrderStatus, deleteOrder } from "@/app/actions/admin-orders";
 import Image from "next/image";
 import Swal from 'sweetalert2';
 
-// Tipos actualizados con la nueva estructura de Guest Checkout
 type OrderType = {
   id: string;
   total: number;
   status: string;
   createdAt: Date;
-  // Objeto Customer consolidado
+  paymentReference?: string | null; // <--- Agregado para Zelle
   customer: { 
       name: string; 
       email: string; 
@@ -54,13 +53,13 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
     customClass: { popup: 'colored-toast' }
   });
 
-  // Lógica de Filtrado actualizada para buscar por datos de customer
   const filteredOrders = initialOrders.filter((order) => {
     const matchesStatus = filter === "ALL" || order.status === filter;
     const matchesSearch = 
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+      order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.paymentReference && order.paymentReference.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesStatus && matchesSearch;
   });
 
@@ -73,6 +72,25 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
       Toast.fire({ icon: "success", title: `Order updated to ${newStatus}` });
     } else {
       Toast.fire({ icon: "error", title: "Failed to update status" });
+    }
+  };
+
+  // NUEVO: Flujo seguro para aprobar pagos de Zelle
+  const handleApproveZelle = async (orderId: string) => {
+    const result = await Swal.fire({
+      title: "Approve Zelle Payment?",
+      text: "This will buy the EasyPost shipping label and email the customer. Ensure the money is in your bank account before proceeding!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#741bd9", 
+      cancelButtonColor: "#3f3f46",
+      confirmButtonText: "Yes, money received!",
+      background: "#18181b",
+      color: "#fff"
+    });
+
+    if (result.isConfirmed) {
+      await handleStatusChange(orderId, 'PAID');
     }
   };
 
@@ -106,8 +124,10 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PENDING": return "text-amber-500 bg-amber-500/10 border-amber-500/20";
+      case "VERIFYING_PAYMENT": return "text-[#741bd9] bg-[#741bd9]/10 border-[#741bd9]/30"; // Color Zelle
       case "PAID": return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
       case "SHIPPED": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
+      case "REJECTED": return "text-red-500 bg-red-500/10 border-red-500/20";
       case "CANCELLED": return "text-red-500 bg-red-500/10 border-red-500/20";
       default: return "text-gray-500 bg-gray-500/10";
     }
@@ -144,14 +164,14 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
             <Search className="absolute left-3 top-3.5 w-4 h-4 text-[var(--text-muted)]" />
             <input 
                 type="text" 
-                placeholder="Search by email, name or ID..." 
+                placeholder="Search by email, ref code or ID..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl text-sm outline-none focus:border-[var(--color-brand-primary)]"
             />
         </div>
         <div className="flex gap-1 overflow-x-auto max-w-full no-scrollbar pb-2 md:pb-0">
-            {["ALL", "PENDING", "PAID", "SHIPPED", "CANCELLED"].map((status) => (
+            {["ALL", "PENDING", "VERIFYING_PAYMENT", "PAID", "SHIPPED", "REJECTED"].map((status) => (
                 <button
                     key={status}
                     onClick={() => setFilter(status)}
@@ -161,7 +181,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                         : "border-[var(--glass-border)] text-[var(--text-muted)] hover:border-[var(--text-main)]"
                     }`}
                 >
-                    {status}
+                    {status === "VERIFYING_PAYMENT" ? "VERIFYING" : status}
                 </button>
             ))}
         </div>
@@ -177,7 +197,11 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl p-4 md:p-6 hover:border-[var(--color-brand-primary)]/30 transition-all group"
+                    className={`bg-[var(--glass-bg)] border rounded-xl p-4 md:p-6 transition-all group ${
+                        order.status === 'VERIFYING_PAYMENT' 
+                        ? 'border-[#741bd9]/50 shadow-[0_0_15px_rgba(116,27,217,0.1)]' 
+                        : 'border-[var(--glass-border)] hover:border-[var(--color-brand-primary)]/30'
+                    }`}
                 >
                     <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                         
@@ -187,15 +211,22 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                                 <span className="text-[var(--text-muted)]">•</span>
                                 <span className="text-xs text-[var(--text-muted)]">{new Date(order.createdAt).toLocaleDateString()}</span>
                             </div>
-                            {/* Mostramos los datos del GUEST customer */}
                             <h4 className="font-bold text-[var(--text-main)] truncate">{order.customer.email}</h4>
                             <p className="text-xs text-[var(--text-muted)] truncate">{order.customer.name}</p>
+                            
+                            {/* REF ZELLE VISIBLE */}
+                            {order.status === 'VERIFYING_PAYMENT' && order.paymentReference && (
+                                <div className="mt-2 inline-flex items-center gap-2 bg-[#741bd9]/10 border border-[#741bd9]/20 px-3 py-1 rounded-md">
+                                    <Banknote className="w-3 h-3 text-[#741bd9]" />
+                                    <span className="text-xs text-[#741bd9] font-mono font-bold">Ref: {order.paymentReference}</span>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-4 md:gap-8 justify-between md:justify-end">
                             <div className={`px-3 py-1 rounded-full text-[10px] font-bold border flex items-center gap-2 ${getStatusColor(order.status)}`}>
                                 <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                                {order.status}
+                                {order.status === 'VERIFYING_PAYMENT' ? 'VERIFYING' : order.status}
                             </div>
                             <div className="text-right">
                                 <p className="font-mono font-bold text-[var(--text-main)]">${order.total.toFixed(2)}</p>
@@ -211,16 +242,37 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                                 <Eye className="w-3 h-3" /> Details
                             </button>
                             
-                            <select 
-                                value={order.status}
-                                onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                className="bg-[var(--bg-page)] border border-[var(--glass-border)] text-xs rounded-lg px-2 py-2 outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
-                            >
-                                <option value="PENDING">Pending</option>
-                                <option value="PAID">Paid</option>
-                                <option value="SHIPPED">Shipped</option>
-                                <option value="CANCELLED">Cancelled</option>
-                            </select>
+                            {/* LÓGICA CONDICIONAL: Botones Zelle vs Selector normal */}
+                            {order.status === 'VERIFYING_PAYMENT' ? (
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => handleApproveZelle(order.id)}
+                                        className="flex items-center gap-1 bg-[#741bd9] text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-[#5e16b0] transition-colors"
+                                    >
+                                        <Check className="w-3 h-3" /> Approve
+                                    </button>
+                                    <button 
+                                        onClick={() => handleStatusChange(order.id, 'REJECTED')}
+                                        className="flex items-center gap-1 bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500/20 transition-colors"
+                                    >
+                                        <XCircle className="w-3 h-3" /> Reject
+                                    </button>
+                                </div>
+                            ) : (
+                                <select 
+                                    value={order.status}
+                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                    className="bg-[var(--bg-page)] border border-[var(--glass-border)] text-xs rounded-lg px-2 py-2 outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
+                                >
+                                    <option value="PENDING">Pending</option>
+                                    <option value="VERIFYING_PAYMENT">Verifying</option>
+                                    <option value="PAID">Paid</option>
+                                    <option value="SHIPPED">Shipped</option>
+                                    <option value="DELIVERED">Delivered</option>
+                                    <option value="REJECTED">Rejected</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                </select>
+                            )}
 
                             <button 
                                 onClick={() => handleDelete(order.id)}
@@ -236,7 +288,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
         </AnimatePresence>
       </div>
 
-      {/* MODAL DE DETALLES MEJORADO */}
+      {/* MODAL DE DETALLES */}
       <AnimatePresence>
         {selectedOrder && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -251,7 +303,12 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                 >
                     <div className="p-4 border-b border-[var(--glass-border)] flex justify-between items-center bg-[var(--glass-bg)]">
                         <div>
-                            <h3 className="font-bold text-lg">Order Details</h3>
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                Order Details
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase border ${getStatusColor(selectedOrder.status)}`}>
+                                    {selectedOrder.status === 'VERIFYING_PAYMENT' ? 'VERIFYING' : selectedOrder.status}
+                                </span>
+                            </h3>
                             <p className="font-mono text-xs text-[var(--text-muted)]">#{selectedOrder.id}</p>
                         </div>
                         <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-[var(--glass-border)] rounded-full">
@@ -261,7 +318,22 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
 
                     <div className="p-4 overflow-y-auto flex-1 space-y-4">
                         
-                        {/* 1. SECCIÓN DE ENVÍO (NUEVO) */}
+                        {/* SECCIÓN DE PAGO ZELLE (Visible si hay referencia) */}
+                        {selectedOrder.paymentReference && (
+                            <div className="bg-[#741bd9]/5 border border-[#741bd9]/20 p-4 rounded-xl space-y-2">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-[#741bd9] flex items-center gap-2">
+                                    <Banknote className="w-3 h-3" /> Zelle Payment
+                                </h4>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-[var(--text-muted)]">Confirmation Number:</span>
+                                    <span className="font-mono font-bold text-lg text-[#741bd9] uppercase bg-white dark:bg-black px-2 py-1 rounded border border-[#741bd9]/30">
+                                        {selectedOrder.paymentReference}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECCIÓN DE ENVÍO */}
                         <div className="bg-[var(--glass-border)]/20 p-4 rounded-xl border border-[var(--glass-border)] space-y-3">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
                                 <MapPin className="w-3 h-3" /> Shipping Information
@@ -293,7 +365,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             </div>
                         </div>
 
-                        {/* 2. PRODUCTOS */}
+                        {/* PRODUCTOS */}
                         <div className="space-y-3">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
                                 <Package className="w-3 h-3" /> Products
@@ -316,7 +388,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             ))}
                         </div>
 
-                        {/* 3. TOTAL */}
+                        {/* TOTAL */}
                         <div className="pt-4 border-t border-[var(--glass-border)] flex justify-between text-lg font-bold text-[var(--color-brand-primary)]">
                             <span>Total Amount</span>
                             <span>${selectedOrder.total.toLocaleString()}</span>
