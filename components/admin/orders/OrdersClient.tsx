@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Search, Package, Eye, Trash2, X, MapPin, Phone, Mail, Check, XCircle, Banknote, Calendar
 } from "lucide-react";
@@ -37,9 +37,22 @@ type OrderType = {
 export default function OrdersClient({ initialOrders }: { initialOrders: OrderType[] }) {
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState("ALL_TIME"); // NUEVO ESTADO PARA EL FILTRO DE FECHA
+  const [dateRange, setDateRange] = useState("ALL_TIME");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderType | null>(null);
+
+  // --- ARREGLO DEL DOBLE SCROLL ---
+  // Congela el scroll del fondo cuando el modal está abierto
+  useEffect(() => {
+    if (selectedOrder) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedOrder]);
 
   const Toast = Swal.mixin({
     toast: true,
@@ -54,19 +67,14 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
     customClass: { popup: 'colored-toast' }
   });
 
-  // --- LÓGICA DE FILTRADO COMPUESTO (Estado, Búsqueda y Fecha) ---
   const filteredOrders = initialOrders.filter((order) => {
-    // 1. Filtro por Estado
     const matchesStatus = filter === "ALL" || order.status === filter;
-    
-    // 2. Filtro por Búsqueda (Texto)
     const matchesSearch = 
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (order.paymentReference && order.paymentReference.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    // 3. Filtro por Rango de Fecha (Estilo Shopify)
     let matchesDate = true;
     const orderDate = new Date(order.createdAt);
     const today = new Date();
@@ -180,11 +188,10 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
         </div>
       </div>
 
-      {/* FILTROS MEJORADOS (Buscador + Fecha) */}
+      {/* FILTROS */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-[var(--bg-page)]/50 p-1 sticky top-0 z-10 backdrop-blur-md">
         
         <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-            {/* Buscador de Texto */}
             <div className="relative w-full sm:w-80 group">
                 <Search className="absolute left-3 top-3.5 w-4 h-4 text-[var(--text-muted)]" />
                 <input 
@@ -196,7 +203,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                 />
             </div>
 
-            {/* Selector de Fecha (Tipo Shopify) */}
             <div className="relative w-full sm:w-48 group">
                 <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-[var(--text-muted)]" />
                 <select
@@ -212,7 +218,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
             </div>
         </div>
 
-        {/* Pestañas de Estado */}
         <div className="flex gap-1 overflow-x-auto max-w-full no-scrollbar pb-2 md:pb-0 w-full md:w-auto">
             {["ALL", "PENDING", "VERIFYING_PAYMENT", "PAID", "SHIPPED", "REJECTED"].map((status) => (
                 <button
@@ -338,10 +343,10 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
         </AnimatePresence>
       </div>
 
-      {/* MODAL DE DETALLES */}
+      {/* MODAL DE DETALLES - CORRECCIÓN DE SCROLL */}
       <AnimatePresence>
         {selectedOrder && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
                 <motion.div 
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     onClick={() => setSelectedOrder(null)}
@@ -349,9 +354,9 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                 />
                 <motion.div 
                     initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-                    className="relative bg-[var(--bg-page)] border border-[var(--glass-border)] w-full max-w-lg max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+                    className="relative bg-[var(--bg-page)] border border-[var(--glass-border)] w-full max-w-lg max-h-[90dvh] sm:max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
                 >
-                    <div className="p-4 border-b border-[var(--glass-border)] flex justify-between items-center bg-[var(--glass-bg)]">
+                    <div className="p-4 border-b border-[var(--glass-border)] flex justify-between items-center bg-[var(--glass-bg)] shrink-0">
                         <div>
                             <h3 className="font-bold text-lg flex items-center gap-2">
                                 Order Details
@@ -361,12 +366,12 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             </h3>
                             <p className="font-mono text-xs text-[var(--text-muted)]">#{selectedOrder.id}</p>
                         </div>
-                        <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-[var(--glass-border)] rounded-full">
+                        <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-[var(--glass-border)] rounded-full transition-colors">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <div className="p-4 overflow-y-auto flex-1 space-y-4">
+                    <div className="p-4 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
                         
                         {selectedOrder.paymentReference && (
                             <div className="bg-[#741bd9]/5 border border-[#741bd9]/20 p-4 rounded-xl space-y-2">
@@ -374,8 +379,8 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                                     <Banknote className="w-3 h-3" /> Zelle Payment
                                 </h4>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-[var(--text-muted)]">Confirmation Number:</span>
-                                    <span className="font-mono font-bold text-lg text-[#741bd9] uppercase bg-white dark:bg-black px-2 py-1 rounded border border-[#741bd9]/30">
+                                    <span className="text-sm text-[var(--text-muted)]">Confirmation:</span>
+                                    <span className="font-mono font-bold text-base sm:text-lg text-[#741bd9] uppercase bg-white dark:bg-black px-2 py-1 rounded border border-[#741bd9]/30 break-all ml-2 text-right">
                                         {selectedOrder.paymentReference}
                                     </span>
                                 </div>
@@ -384,30 +389,31 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
 
                         <div className="bg-[var(--glass-border)]/20 p-4 rounded-xl border border-[var(--glass-border)] space-y-3">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-                                <MapPin className="w-3 h-3" /> Shipping Information
+                                <MapPin className="w-3 h-3" /> Shipping Info
                             </h4>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <p className="text-[var(--text-muted)] text-xs">Customer</p>
-                                    <p className="font-bold">{selectedOrder.customer.name}</p>
+                                    <p className="font-bold break-words">{selectedOrder.customer.name}</p>
                                 </div>
                                 <div>
                                     <p className="text-[var(--text-muted)] text-xs">Phone</p>
                                     <p className="font-mono flex items-center gap-1">
-                                        <Phone className="w-3 h-3 opacity-50" /> 
+                                        <Phone className="w-3 h-3 opacity-50 shrink-0" /> 
                                         {selectedOrder.customer.phone}
                                     </p>
                                 </div>
-                                <div className="col-span-2">
+                                <div className="sm:col-span-2">
                                     <p className="text-[var(--text-muted)] text-xs">Address</p>
-                                    <p>{selectedOrder.customer.address}</p>
-                                    <p>{selectedOrder.customer.city}, {selectedOrder.customer.state} {selectedOrder.customer.postalCode}</p>
+                                    <p className="break-words">{selectedOrder.customer.address}</p>
+                                    <p className="break-words">{selectedOrder.customer.city}, {selectedOrder.customer.state} {selectedOrder.customer.postalCode}</p>
                                     <p className="text-[var(--text-muted)] text-xs mt-1">{selectedOrder.customer.country}</p>
                                 </div>
-                                <div className="col-span-2 pt-2 border-t border-[var(--glass-border)]">
+                                <div className="sm:col-span-2 pt-2 border-t border-[var(--glass-border)]">
                                      <p className="text-[var(--text-muted)] text-xs">Email</p>
-                                     <p className="flex items-center gap-2 text-blue-400">
-                                        <Mail className="w-3 h-3" /> {selectedOrder.customer.email}
+                                     <p className="flex items-center gap-2 text-blue-400 break-words w-full">
+                                        <Mail className="w-3 h-3 shrink-0" /> 
+                                        <span className="break-all">{selectedOrder.customer.email}</span>
                                      </p>
                                 </div>
                             </div>
@@ -424,8 +430,8 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                                             <Image src={item.product.images} alt={item.product.name} fill className="object-contain" />
                                         ) : ( <div className="w-full h-full bg-gray-200" /> )}
                                     </div>
-                                    <div className="flex-1">
-                                        <h4 className="text-sm font-bold leading-tight">{item.product.name}</h4>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-sm font-bold leading-tight truncate">{item.product.name}</h4>
                                         <div className="flex justify-between items-end mt-1">
                                             <span className="text-xs text-[var(--text-muted)]">Qty: <b className="text-[var(--text-main)]">{item.quantity}</b></span>
                                             <span className="font-mono text-sm font-bold">${item.price}</span>
@@ -435,11 +441,11 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             ))}
                         </div>
 
-                        <div className="pt-4 border-t border-[var(--glass-border)] flex justify-between text-lg font-bold text-[var(--color-brand-primary)]">
-                            <span>Total Amount</span>
-                            <span>${selectedOrder.total.toLocaleString()}</span>
-                        </div>
-
+                    </div>
+                    
+                    <div className="p-4 border-t border-[var(--glass-border)] flex justify-between items-center bg-[var(--glass-bg)] shrink-0">
+                        <span className="text-sm text-[var(--text-muted)] font-bold">Total</span>
+                        <span className="text-xl font-bold text-[var(--color-brand-primary)] font-mono">${selectedOrder.total.toLocaleString()}</span>
                     </div>
                 </motion.div>
             </div>
