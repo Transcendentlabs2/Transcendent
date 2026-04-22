@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { confirmZelleReference } from "@/app/actions/place-order";
 import { Loader2, Copy, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -9,7 +8,6 @@ import Image from "next/image";
 
 export default function ZellePaymentPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const router = useRouter();
   const { clearCart } = useCart();
   
   const [reference, setReference] = useState("");
@@ -28,7 +26,7 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // --- FUNCIÓN ACTUALIZADA CON EL TRY CATCH ---
+  // --- FUNCIÓN ACTUALIZADA CON LA REDIRECCIÓN FORZADA ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reference.trim()) return alert("Please enter the Zelle confirmation number.");
@@ -39,14 +37,15 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
         const res = await confirmZelleReference(resolvedParams.id, reference);
         
         if (res?.ok) {
-            router.push(`/checkout/success/${resolvedParams.id}`);
+            // REDIRECCIÓN FORZADA: Esto evita que Next.js se congele y limpia la UI
+            window.location.href = `/checkout/success/${resolvedParams.id}`;
         } else {
-            // Si el backend responde pero con error (ej. Resend falló o el ID no existe)
+            // Si el backend responde pero con error
             alert(res?.message || "Something went wrong saving the reference. Please try again.");
             setIsLoading(false);
         }
     } catch (error: any) {
-        // Si el servidor crashea violentamente y no devuelve una respuesta JSON
+        // Si el servidor crashea violentamente
         console.error("Server Action Crash:", error);
         alert(`A critical server error occurred: ${error?.message || "Unknown error"}. Check Vercel/Hostinger logs.`);
         setIsLoading(false);
