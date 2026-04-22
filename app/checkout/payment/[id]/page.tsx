@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { confirmZelleReference } from "@/app/actions/place-order";
 import { Loader2, Copy, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import Image from "next/image"; // <--- ¡Importamos Image!
+import Image from "next/image"; 
 
 export default function ZellePaymentPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -28,17 +28,27 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // --- FUNCIÓN ACTUALIZADA CON EL TRY CATCH ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reference.trim()) return alert("Please enter the Zelle confirmation number.");
     
     setIsLoading(true);
-    const res = await confirmZelleReference(resolvedParams.id, reference);
     
-    if (res.ok) {
-        router.push(`/orders/${resolvedParams.id}`);
-    } else {
-        alert("Something went wrong. Please try again.");
+    try {
+        const res = await confirmZelleReference(resolvedParams.id, reference);
+        
+        if (res?.ok) {
+            router.push(`/orders/${resolvedParams.id}`);
+        } else {
+            // Si el backend responde pero con error (ej. Resend falló o el ID no existe)
+            alert(res?.message || "Something went wrong saving the reference. Please try again.");
+            setIsLoading(false);
+        }
+    } catch (error: any) {
+        // Si el servidor crashea violentamente y no devuelve una respuesta JSON
+        console.error("Server Action Crash:", error);
+        alert(`A critical server error occurred: ${error?.message || "Unknown error"}. Check Vercel/Hostinger logs.`);
         setIsLoading(false);
     }
   };
@@ -68,7 +78,6 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
                 
                 {/* CAJA DEL QR Y CORREO */}
                 <div className="ml-11 bg-gray-50 p-6 rounded-2xl border border-gray-200 flex flex-col items-center justify-center space-y-6 shadow-inner">
-                    
                     
                     <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                         <Image 
