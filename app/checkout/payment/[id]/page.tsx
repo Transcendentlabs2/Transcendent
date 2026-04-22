@@ -39,7 +39,7 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
         const res = await confirmZelleReference(resolvedParams.id, reference);
         
         if (res?.ok) {
-            router.push(`/orders/${resolvedParams.id}`);
+            router.push(`/checkout/success/${resolvedParams.id}`);
         } else {
             // Si el backend responde pero con error (ej. Resend falló o el ID no existe)
             alert(res?.message || "Something went wrong saving the reference. Please try again.");
