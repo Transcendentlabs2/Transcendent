@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { 
-  Search, Package, Eye, Trash2, X, MapPin, Phone, Mail, Check, XCircle, Banknote
+  Search, Package, Eye, Trash2, X, MapPin, Phone, Mail, Check, XCircle, Banknote, Calendar
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateOrderStatus, deleteOrder } from "@/app/actions/admin-orders";
@@ -37,6 +37,7 @@ type OrderType = {
 export default function OrdersClient({ initialOrders }: { initialOrders: OrderType[] }) {
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState("ALL_TIME"); // NUEVO ESTADO PARA EL FILTRO DE FECHA
   const [isLoading, setIsLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderType | null>(null);
 
@@ -53,14 +54,36 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
     customClass: { popup: 'colored-toast' }
   });
 
+  // --- LÓGICA DE FILTRADO COMPUESTO (Estado, Búsqueda y Fecha) ---
   const filteredOrders = initialOrders.filter((order) => {
+    // 1. Filtro por Estado
     const matchesStatus = filter === "ALL" || order.status === filter;
+    
+    // 2. Filtro por Búsqueda (Texto)
     const matchesSearch = 
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (order.paymentReference && order.paymentReference.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesStatus && matchesSearch;
+
+    // 3. Filtro por Rango de Fecha (Estilo Shopify)
+    let matchesDate = true;
+    const orderDate = new Date(order.createdAt);
+    const today = new Date();
+    
+    if (dateRange === "LAST_7_DAYS") {
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+        matchesDate = orderDate >= sevenDaysAgo;
+    } else if (dateRange === "THIS_MONTH") {
+        matchesDate = orderDate.getMonth() === today.getMonth() && orderDate.getFullYear() === today.getFullYear();
+    } else if (dateRange === "LAST_MONTH") {
+        const lastMonth = new Date(today);
+        lastMonth.setMonth(today.getMonth() - 1);
+        matchesDate = orderDate.getMonth() === lastMonth.getMonth() && orderDate.getFullYear() === lastMonth.getFullYear();
+    }
+
+    return matchesStatus && matchesSearch && matchesDate;
   });
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -157,24 +180,45 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
         </div>
       </div>
 
-      {/* FILTROS */}
+      {/* FILTROS MEJORADOS (Buscador + Fecha) */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-[var(--bg-page)]/50 p-1 sticky top-0 z-10 backdrop-blur-md">
-        <div className="relative w-full md:w-96 group">
-            <Search className="absolute left-3 top-3.5 w-4 h-4 text-[var(--text-muted)]" />
-            <input 
-                type="text" 
-                placeholder="Search by email, ref code or ID..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl text-sm outline-none focus:border-[var(--color-brand-primary)]"
-            />
+        
+        <div className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
+            {/* Buscador de Texto */}
+            <div className="relative w-full sm:w-80 group">
+                <Search className="absolute left-3 top-3.5 w-4 h-4 text-[var(--text-muted)]" />
+                <input 
+                    type="text" 
+                    placeholder="Search email, ref code or ID..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl text-sm outline-none focus:border-[var(--color-brand-primary)]"
+                />
+            </div>
+
+            {/* Selector de Fecha (Tipo Shopify) */}
+            <div className="relative w-full sm:w-48 group">
+                <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-[var(--text-muted)]" />
+                <select
+                    value={dateRange}
+                    onChange={(e) => setDateRange(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl text-sm outline-none focus:border-[var(--color-brand-primary)] appearance-none cursor-pointer text-[var(--text-main)]"
+                >
+                    <option value="ALL_TIME">All Time</option>
+                    <option value="LAST_7_DAYS">Last 7 Days</option>
+                    <option value="THIS_MONTH">This Month</option>
+                    <option value="LAST_MONTH">Last Month</option>
+                </select>
+            </div>
         </div>
-        <div className="flex gap-1 overflow-x-auto max-w-full no-scrollbar pb-2 md:pb-0">
+
+        {/* Pestañas de Estado */}
+        <div className="flex gap-1 overflow-x-auto max-w-full no-scrollbar pb-2 md:pb-0 w-full md:w-auto">
             {["ALL", "PENDING", "VERIFYING_PAYMENT", "PAID", "SHIPPED", "REJECTED"].map((status) => (
                 <button
                     key={status}
                     onClick={() => setFilter(status)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0 ${
                         filter === status 
                         ? "bg-[var(--text-main)] text-[var(--bg-page)] border-transparent" 
                         : "border-[var(--glass-border)] text-[var(--text-muted)] hover:border-[var(--text-main)]"
@@ -186,9 +230,15 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
         </div>
       </div>
 
-      {/* LISTA */}
+      {/* LISTA DE ÓRDENES */}
       <div className="space-y-3">
         <AnimatePresence>
+            {filteredOrders.length === 0 && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12 text-[var(--text-muted)]">
+                    No orders found for the selected filters.
+                </motion.div>
+            )}
+
             {filteredOrders.map((order) => (
                 <motion.div 
                     key={order.id}
@@ -232,7 +282,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             </div>
                         </div>
 
-                        {/* --- AQUÍ ESTÁ EL ARREGLO RESPONSIVE --- */}
                         <div className="flex flex-wrap items-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-[var(--glass-border)] w-full md:w-auto">
                             
                             <button 
@@ -283,7 +332,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                                 </button>
                             </div>
                         </div>
-                        {/* --------------------------------------- */}
                     </div>
                 </motion.div>
             ))}
