@@ -21,13 +21,17 @@ export async function updateOrderStatus(orderId: string, newStatus: 'PENDING' | 
       return { ok: false, message: "Orden no encontrada" };
     }
 
-    // 2. LA MAGIA: Si apruebas el pago (Zelle confirmado)
+    // Inicializamos Resend una sola vez para usarlo en cualquier escenario
+    const apiKey = process.env.RESEND_API_KEY;
+    const resend = apiKey ? new Resend(apiKey) : null;
+
+    // --- ESCENARIO 1: LA MAGIA (PAGO APROBADO) ---
     if (newStatus === 'PAID' && !order.isPaid) {
       let trackingUrl = null;
       let labelUrl = null;
       let actualTrackingNumber = null;
 
-      // --- A. COMPRAR ETIQUETA EN EASYPOST ---
+      // A. COMPRAR ETIQUETA EN EASYPOST
       try {
         if (process.env.EASYPOST_API_KEY) {
           const easypost = new EasyPostClient(process.env.EASYPOST_API_KEY);
@@ -69,7 +73,7 @@ export async function updateOrderStatus(orderId: string, newStatus: 'PENDING' | 
         console.error("EasyPost Error durante la creación de la etiqueta:", easyPostError);
       }
 
-      // --- B. ACTUALIZAR BASE DE DATOS ---
+      // B. ACTUALIZAR BASE DE DATOS
       await prisma.order.update({
         where: { id: orderId },
         data: { 
@@ -80,11 +84,9 @@ export async function updateOrderStatus(orderId: string, newStatus: 'PENDING' | 
         },
       });
 
-      // --- C. ENVIAR CORREO DE CONFIRMACIÓN AL CLIENTE ---
-      const apiKey = process.env.RESEND_API_KEY;
-      if (apiKey) {
+      // C. ENVIAR CORREO DE CONFIRMACIÓN DE PAGO AL CLIENTE
+      if (resend) {
         try {
-          const resend = new Resend(apiKey);
           const itemsHtml = order.items.map(item => `
             <tr>
               <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">${item.product.name} (x${item.quantity})</td>
@@ -121,8 +123,41 @@ export async function updateOrderStatus(orderId: string, newStatus: 'PENDING' | 
         } catch (emailError) { console.error("Resend Error:", emailError); }
       }
 
+    // --- ESCENARIO 2: PAGO RECHAZADO (ZELLE INVÁLIDO) ---
+    } else if (newStatus === 'REJECTED') {
+      
+      // A. Actualiza la base de datos a RECHAZADO
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { status: newStatus },
+      });
+
+      // B. Envía correo al cliente solicitando revisión
+      if (resend) {
+        try {
+          await resend.emails.send({
+            from: 'Transcendent Labs <orders@transcendent-labs.com>',
+            to: order.customerEmail,
+            subject: `Action Required: Issue with your payment for Order #${order.id.slice(0, 8)}`,
+            html: `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+                <h1 style="color: #111827; text-align: center; font-size: 24px;">Transcendent Labs</h1>
+                <div style="text-align: center; background-color: #fef2f2; color: #991b1b; padding: 8px; border-radius: 6px; font-weight: bold; margin-bottom: 20px;">Payment Verification Failed</div>
+                <p>Hi <strong>${order.customerName}</strong>,</p>
+                <p>We are reaching out regarding your recent order <strong>#${order.id.slice(0, 8)}</strong>.</p>
+                <p>Unfortunately, we were unable to verify the Zelle confirmation number you provided, and your order status has been updated to <strong>Rejected</strong>.</p>
+                <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #f3f4f6;">
+                  <p style="margin: 0; color: #374151;"><strong>Think we made a mistake?</strong></p>
+                  <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">If you have already sent the payment, please reply directly to this email with a screenshot of your Zelle transfer, and our team will review it manually.</p>
+                </div>
+                <p>Thank you for your understanding.</p>
+              </div>`
+          });
+        } catch (emailError) { console.error("Resend Error (Rejection):", emailError); }
+      }
+
+    // --- ESCENARIO 3: CAMBIOS NORMALES (PENDING, CANCELLED, SHIPPED) ---
     } else {
-      // 3. Si es un cambio de estado rutinario (ej. Rechazar pago, marcar como enviado manual, etc)
       await prisma.order.update({
         where: { id: orderId },
         data: { status: newStatus },

@@ -14,7 +14,7 @@ type OrderType = {
   total: number;
   status: string;
   createdAt: Date;
-  paymentReference?: string | null; // <--- Agregado para Zelle
+  paymentReference?: string | null;
   customer: { 
       name: string; 
       email: string; 
@@ -75,7 +75,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
     }
   };
 
-  // NUEVO: Flujo seguro para aprobar pagos de Zelle
   const handleApproveZelle = async (orderId: string) => {
     const result = await Swal.fire({
       title: "Approve Zelle Payment?",
@@ -124,7 +123,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PENDING": return "text-amber-500 bg-amber-500/10 border-amber-500/20";
-      case "VERIFYING_PAYMENT": return "text-[#741bd9] bg-[#741bd9]/10 border-[#741bd9]/30"; // Color Zelle
+      case "VERIFYING_PAYMENT": return "text-[#741bd9] bg-[#741bd9]/10 border-[#741bd9]/30";
       case "PAID": return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
       case "SHIPPED": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
       case "REJECTED": return "text-red-500 bg-red-500/10 border-red-500/20";
@@ -214,7 +213,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             <h4 className="font-bold text-[var(--text-main)] truncate">{order.customer.email}</h4>
                             <p className="text-xs text-[var(--text-muted)] truncate">{order.customer.name}</p>
                             
-                            {/* REF ZELLE VISIBLE */}
                             {order.status === 'VERIFYING_PAYMENT' && order.paymentReference && (
                                 <div className="mt-2 inline-flex items-center gap-2 bg-[#741bd9]/10 border border-[#741bd9]/20 px-3 py-1 rounded-md">
                                     <Banknote className="w-3 h-3 text-[#741bd9]" />
@@ -234,54 +232,58 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-[var(--glass-border)]">
+                        {/* --- AQUÍ ESTÁ EL ARREGLO RESPONSIVE --- */}
+                        <div className="flex flex-wrap items-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-[var(--glass-border)] w-full md:w-auto">
+                            
                             <button 
                                 onClick={() => setSelectedOrder(order)}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-lg text-xs font-bold hover:bg-[var(--text-main)] hover:text-[var(--bg-page)] transition-colors"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-lg text-xs font-bold hover:bg-[var(--text-main)] hover:text-[var(--bg-page)] transition-colors min-w-[100px]"
                             >
                                 <Eye className="w-3 h-3" /> Details
                             </button>
                             
-                            {/* LÓGICA CONDICIONAL: Botones Zelle vs Selector normal */}
-                            {order.status === 'VERIFYING_PAYMENT' ? (
-                                <div className="flex gap-2">
-                                    <button 
-                                        onClick={() => handleApproveZelle(order.id)}
-                                        className="flex items-center gap-1 bg-[#741bd9] text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-[#5e16b0] transition-colors"
+                            <div className="flex items-center gap-2 flex-1 justify-end min-w-[180px]">
+                                {order.status === 'VERIFYING_PAYMENT' ? (
+                                    <div className="flex gap-2 w-full md:w-auto">
+                                        <button 
+                                            onClick={() => handleApproveZelle(order.id)}
+                                            className="flex-1 md:flex-none flex items-center justify-center gap-1 bg-[#741bd9] text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-[#5e16b0] transition-colors"
+                                        >
+                                            <Check className="w-3 h-3" /> Approve
+                                        </button>
+                                        <button 
+                                            onClick={() => handleStatusChange(order.id, 'REJECTED')}
+                                            className="flex-1 md:flex-none flex items-center justify-center gap-1 bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500/20 transition-colors"
+                                        >
+                                            <XCircle className="w-3 h-3" /> Reject
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <select 
+                                        value={order.status}
+                                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                        className="flex-1 md:flex-none bg-[var(--bg-page)] border border-[var(--glass-border)] text-xs rounded-lg px-2 py-2 outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
                                     >
-                                        <Check className="w-3 h-3" /> Approve
-                                    </button>
-                                    <button 
-                                        onClick={() => handleStatusChange(order.id, 'REJECTED')}
-                                        className="flex items-center gap-1 bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-500/20 transition-colors"
-                                    >
-                                        <XCircle className="w-3 h-3" /> Reject
-                                    </button>
-                                </div>
-                            ) : (
-                                <select 
-                                    value={order.status}
-                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                    className="bg-[var(--bg-page)] border border-[var(--glass-border)] text-xs rounded-lg px-2 py-2 outline-none focus:border-[var(--color-brand-primary)] cursor-pointer"
-                                >
-                                    <option value="PENDING">Pending</option>
-                                    <option value="VERIFYING_PAYMENT">Verifying</option>
-                                    <option value="PAID">Paid</option>
-                                    <option value="SHIPPED">Shipped</option>
-                                    <option value="DELIVERED">Delivered</option>
-                                    <option value="REJECTED">Rejected</option>
-                                    <option value="CANCELLED">Cancelled</option>
-                                </select>
-                            )}
+                                        <option value="PENDING">Pending</option>
+                                        <option value="VERIFYING_PAYMENT">Verifying</option>
+                                        <option value="PAID">Paid</option>
+                                        <option value="SHIPPED">Shipped</option>
+                                        <option value="DELIVERED">Delivered</option>
+                                        <option value="REJECTED">Rejected</option>
+                                        <option value="CANCELLED">Cancelled</option>
+                                    </select>
+                                )}
 
-                            <button 
-                                onClick={() => handleDelete(order.id)}
-                                className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                                title="Delete Order"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
+                                <button 
+                                    onClick={() => handleDelete(order.id)}
+                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors shrink-0"
+                                    title="Delete Order"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
+                        {/* --------------------------------------- */}
                     </div>
                 </motion.div>
             ))}
@@ -318,7 +320,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
 
                     <div className="p-4 overflow-y-auto flex-1 space-y-4">
                         
-                        {/* SECCIÓN DE PAGO ZELLE (Visible si hay referencia) */}
                         {selectedOrder.paymentReference && (
                             <div className="bg-[#741bd9]/5 border border-[#741bd9]/20 p-4 rounded-xl space-y-2">
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-[#741bd9] flex items-center gap-2">
@@ -333,7 +334,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             </div>
                         )}
 
-                        {/* SECCIÓN DE ENVÍO */}
                         <div className="bg-[var(--glass-border)]/20 p-4 rounded-xl border border-[var(--glass-border)] space-y-3">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
                                 <MapPin className="w-3 h-3" /> Shipping Information
@@ -365,7 +365,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             </div>
                         </div>
 
-                        {/* PRODUCTOS */}
                         <div className="space-y-3">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
                                 <Package className="w-3 h-3" /> Products
@@ -388,7 +387,6 @@ export default function OrdersClient({ initialOrders }: { initialOrders: OrderTy
                             ))}
                         </div>
 
-                        {/* TOTAL */}
                         <div className="pt-4 border-t border-[var(--glass-border)] flex justify-between text-lg font-bold text-[var(--color-brand-primary)]">
                             <span>Total Amount</span>
                             <span>${selectedOrder.total.toLocaleString()}</span>
