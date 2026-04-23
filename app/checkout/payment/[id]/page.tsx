@@ -56,23 +56,32 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
         <div className="p-6 sm:p-8 space-y-8">
             
             {/* Paso 1: Instrucciones y QR */}
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[#741bd9]/10 text-[#741bd9] flex items-center justify-center font-bold shrink-0">1</div>
                     <h2 className="font-bold text-lg text-gray-800">Scan Payment QR</h2>
                 </div>
                 
-                {/* CAJA DEL QR (Solo QR) */}
-                <div className="ml-0 sm:ml-11 bg-gray-50 p-6 rounded-2xl border border-gray-200 flex flex-col items-center justify-center shadow-inner w-full">
-                    <div className="bg-white p-4 rounded-3xl shadow-md border border-gray-100">
-                        <Image 
-                            src="/zelle-qr.jpeg" 
-                            alt="Zelle QR Code" 
-                            width={220} 
-                            height={220} 
-                            className="rounded-2xl"
-                            priority
-                        />
+                {/* CAJA DEL QR - ENVOLTORIO RESPONSIVE (Evita desbordamiento) */}
+                <div className="pl-0 sm:pl-11">
+                    <div className="bg-gray-50 p-6 sm:p-8 rounded-2xl border border-gray-200 flex flex-col items-center justify-center shadow-inner">
+                        
+                        {/* El contenedor del QR crecerá en desktop y se ajustará en mobile */}
+                        <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-center aspect-square w-48 sm:w-64">
+                            <Image 
+                                src="/zelle-qr.jpeg" 
+                                alt="Zelle QR Code" 
+                                width={300} 
+                                height={300} 
+                                className="rounded-2xl w-full h-auto object-contain"
+                                priority
+                            />
+                        </div>
+
+                        <p className="text-sm text-gray-500 mt-5 text-center font-medium">
+                            Scan this code using your banking app
+                        </p>
+
                     </div>
                 </div>
             </div>
@@ -83,28 +92,32 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
                     <div className="w-8 h-8 rounded-full bg-[#741bd9]/10 text-[#741bd9] flex items-center justify-center font-bold shrink-0">2</div>
                     <h2 className="font-bold text-lg text-gray-800">Confirm your transfer</h2>
                 </div>
-                <p className="text-gray-500 ml-0 sm:ml-11 text-sm">
-                    Once sent, paste the Zelle confirmation/reference number here to process your order.
-                </p>
                 
-                <form onSubmit={handleSubmit} className="ml-0 sm:ml-11 space-y-4">
-                    <input 
-                        type="text" 
-                        required
-                        value={reference}
-                        onChange={(e) => setReference(e.target.value)}
-                        placeholder="e.g. 1A2B3C4D5E" 
-                        className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-4 outline-none focus:border-[#741bd9] transition-colors uppercase font-mono shadow-sm text-center sm:text-left"
-                    />
-                    <button 
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full bg-[#741bd9] text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[#5b15ab] hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:shadow-none"
-                    >
-                        {isLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> Verifying...</> : "Submit Confirmation"}
-                    </button>
-                </form>
+                <div className="pl-0 sm:pl-11 space-y-4">
+                    <p className="text-gray-500 text-sm">
+                        Once sent, paste the Zelle confirmation/reference number here to process your order.
+                    </p>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <input 
+                            type="text" 
+                            required
+                            value={reference}
+                            onChange={(e) => setReference(e.target.value)}
+                            placeholder="e.g. 1A2B3C4D5E" 
+                            className="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-4 outline-none focus:border-[#741bd9] transition-colors uppercase font-mono shadow-sm text-center sm:text-left"
+                        />
+                        <button 
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-[#741bd9] text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-[#5b15ab] hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:shadow-none"
+                        >
+                            {isLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> Verifying...</> : "Submit Confirmation"}
+                        </button>
+                    </form>
+                </div>
             </div>
+            
         </div>
       </div>
     </div>
