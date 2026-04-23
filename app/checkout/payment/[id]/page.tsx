@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from "react";
 import { confirmZelleReference } from "@/app/actions/place-order";
-import { Loader2, Copy, CheckCircle2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image"; 
 
@@ -12,19 +12,10 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
   
   const [reference, setReference] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const zelleEmail = "transcendent.labs2@gmail.com";
 
   useEffect(() => {
     clearCart();
   }, [clearCart]);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(zelleEmail);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,38 +59,20 @@ export default function ZellePaymentPage({ params }: { params: Promise<{ id: str
             <div className="space-y-6">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[#741bd9]/10 text-[#741bd9] flex items-center justify-center font-bold shrink-0">1</div>
-                    <h2 className="font-bold text-lg text-gray-800">Scan or Send Payment</h2>
+                    <h2 className="font-bold text-lg text-gray-800">Scan Payment QR</h2>
                 </div>
                 
-                {/* CAJA DEL QR Y CORREO - ARREGLO RESPONSIVE */}
-                <div className="ml-0 sm:ml-11 bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-200 flex flex-col items-center justify-center space-y-6 shadow-inner w-full">
-                    
-                    <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                {/* CAJA DEL QR (Solo QR) */}
+                <div className="ml-0 sm:ml-11 bg-gray-50 p-6 rounded-2xl border border-gray-200 flex flex-col items-center justify-center shadow-inner w-full">
+                    <div className="bg-white p-4 rounded-3xl shadow-md border border-gray-100">
                         <Image 
                             src="/zelle-qr.jpeg" 
                             alt="Zelle QR Code" 
-                            width={200} 
-                            height={200} 
-                            className="rounded-xl"
+                            width={220} 
+                            height={220} 
+                            className="rounded-2xl"
                             priority
                         />
-                    </div>
-
-                    <div className="w-full space-y-3 text-center">
-                        <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">Or send directly to:</p>
-                        
-                        <div className="flex flex-col bg-white p-3 rounded-xl border border-gray-200 w-full shadow-sm gap-3">
-                            <span className="font-mono font-bold text-gray-800 text-[15px] sm:text-base text-center break-words w-full">
-                                {zelleEmail}
-                            </span>
-                            <button 
-                                onClick={handleCopy}
-                                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-100 hover:text-[#741bd9] transition-all"
-                            >
-                                {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                {copied ? "Copied!" : "Copy Email"}
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
