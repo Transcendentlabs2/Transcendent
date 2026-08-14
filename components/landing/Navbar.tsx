@@ -119,7 +119,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Catalog", href: "/#catalog" },
     { name: "Verify Batch", href: "/#verification" },
-    { name: "Calculator", href: "/#calculator" },
+    // { name: "Calculator", href: "/#calculator" },
     { name: "Science", href: "/#science" },
     { name: "FAQ", href: "/#faq" },
   ];
