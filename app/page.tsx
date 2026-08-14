@@ -52,7 +52,7 @@ export default async function Home() {
       </section>
 
       <section id="verification" className="scroll-mt-24"><BatchVerifier /></section>
-      <section id="calculator" className="scroll-mt-24"><PeptideCalculator /></section>
+      {/* <section id="calculator" className="scroll-mt-24"><PeptideCalculator /></section> */}
       <section id="faq" className="scroll-mt-24"><FAQSection /></section>
      
       
