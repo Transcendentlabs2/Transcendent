@@ -185,12 +185,12 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] block mb-2">
                             Inventory Status
                         </span>
-                        <div className={`inline-flex items-center gap-3 border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-2 rounded-full backdrop-blur-sm ${isOutOfStock ? "border-red-500/30" : ""}`}>
+                        {/* <div className={`inline-flex items-center gap-3 border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-2 rounded-full backdrop-blur-sm ${isOutOfStock ? "border-red-500/30" : ""}`}>
                             <div className={`w-1.5 h-1.5 rounded-full ${!isOutOfStock ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
                             <span className={`text-xs font-bold ${!isOutOfStock ? "text-[var(--text-main)]" : "text-red-500"}`}>
                                 {!isOutOfStock ? `${product.stock} Vials Available` : "OUT OF STOCK"}
                             </span>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="w-full lg:w-auto pt-6 border-t border-[var(--glass-border)]">
