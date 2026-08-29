@@ -1,0 +1,1 @@
+Operational API routes are excluded from public crawling by app/robots.ts. This file is intentionally non-routable documentation for maintainers.
