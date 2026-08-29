@@ -7,7 +7,8 @@ import { useAdmin } from "../../context/AdminContext";
 import { 
   LayoutDashboard, 
   FlaskConical, 
-  ShoppingBag, 
+  ShoppingBag,
+  ClipboardCheck,
   LogOut, 
   X,
   Home 
@@ -20,6 +21,7 @@ import logo from "../../app/assets/logo.webp";
 const menuItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Products", href: "/admin/products", icon: FlaskConical },
+  { name: "Documentation", href: "/admin/product-data", icon: ClipboardCheck },
   { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
 ];
 
