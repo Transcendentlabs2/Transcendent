@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { createProduct, updateProduct } from "@/app/actions/products";
 import { Save, ImagePlus, X, FlaskConical, Info } from "lucide-react";
@@ -13,104 +13,94 @@ interface ProductFormProps {
 }
 
 export default function ProductForm({ onClose, initialData }: ProductFormProps) {
-  // ... (tu lógica de estado y handleSubmit se mantiene igual)
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (initialData?.images) {
-      setImageUrl(initialData.images);
-    }
+    setImageUrl(initialData?.images || "");
   }, [initialData]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    
+    const formData = new FormData(event.currentTarget);
+
     if (!imageUrl) {
-        Swal.fire({ 
-            icon: 'warning', 
-            title: 'Missing Image', 
-            background: 'var(--bg-page)', 
-            color: 'var(--text-main)' 
-        });
-        setLoading(false);
-        return;
+      await Swal.fire({
+        icon: "warning",
+        title: "Missing Image",
+        text: "Upload a product image before saving the record.",
+        background: "var(--bg-page)",
+        color: "var(--text-main)",
+      });
+      setLoading(false);
+      return;
     }
+
     formData.append("imageUrl", imageUrl);
 
-    let result;
-    if (initialData) {
-      result = await updateProduct(initialData.id, formData);
-    } else {
-      result = await createProduct(formData);
-    }
+    const result = initialData
+      ? await updateProduct(initialData.id, formData)
+      : await createProduct(formData);
 
     setLoading(false);
 
     if (result.success) {
-        Swal.fire({
-            icon: 'success',
-            title: initialData ? 'Database Updated' : 'Protocol Initiated',
-            background: 'var(--bg-page)', 
-            color: 'var(--text-main)', 
-            confirmButtonColor: 'var(--color-brand-primary)',
-            timer: 1500, 
-            showConfirmButton: false
-        });
-        onClose();
-    } else {
-        Swal.fire({ 
-            icon: 'error', 
-            title: 'Error', 
-            text: result.message, 
-            background: 'var(--bg-page)', 
-            color: 'var(--text-main)' 
-        });
+      await Swal.fire({
+        icon: "success",
+        title: initialData ? "Database Updated" : "Product Created",
+        background: "var(--bg-page)",
+        color: "var(--text-main)",
+        confirmButtonColor: "var(--color-brand-primary)",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      onClose();
+      return;
     }
+
+    await Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: result.message,
+      background: "var(--bg-page)",
+      color: "var(--text-main)",
+    });
   };
 
   return (
-    // 1. CAMBIO AQUÍ: max-h-[90vh] asegura que el modal no sea más alto que la pantalla
-    // flex y flex-col aseguran que el header, el scroll y el footer se distribuyan bien.
-    <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] bg-[var(--bg-page)] border-0 sm:border sm:border-[var(--glass-border)] rounded-none sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-      
-      {/* HEADER (Queda igual, es shrink-0) */}
-      <div className="flex items-center justify-between p-5 border-b border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0">
-        <h3 className="text-lg md:text-xl font-display font-bold text-[var(--text-main)] flex items-center gap-3">
+    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-none border-0 bg-[var(--bg-page)] shadow-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-2xl sm:border sm:border-[var(--glass-border)]">
+      <div className="flex shrink-0 items-center justify-between border-b border-[var(--glass-border)] bg-[var(--bg-page)] p-5">
+        <h3 className="flex items-center gap-3 font-display text-lg font-bold text-[var(--text-main)] md:text-xl">
           <FlaskConical className="text-[var(--color-brand-primary)]" />
           {initialData ? "Edit Compound" : "New Compound"}
         </h3>
-        
-        <button 
-            onClick={onClose} 
-            className="p-3 -mr-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400 rounded-full transition-colors active:scale-90"
+        <button
+          type="button"
+          onClick={onClose}
+          className="-mr-2 rounded-full p-3 text-[var(--text-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400 active:scale-90"
+          aria-label="Close product form"
         >
-          <X className="w-6 h-6" />
+          <X className="h-6 w-6" />
         </button>
       </div>
 
-      {/* 2. CAMBIO AQUÍ: flex-1 permite que tome el espacio sobrante. 
-          overflow-y-auto crea el scroll interno. Ajusté el padding inferior (pb-6 en lugar de pb-32)
-          porque el footer ya no es 'sticky', sino que vive fuera de este div scrollable. */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[var(--bg-page)]">
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
-          {/* ... Todo tu formulario (campos, grid, imagen) queda EXACTAMENTE igual ... */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="custom-scrollbar flex-1 overflow-y-auto bg-[var(--bg-page)] p-6">
+        <form id="product-form" onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Product Name</label>
-              <input name="name" defaultValue={initialData?.name} required className="input-scientific" placeholder="e.g. BPC-157" />
-              <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] mt-1 ml-1 italic">
-                 <Info className="w-3 h-3 text-amber-500" />
-                 <span>Do not add "Out of Stock" to the name. The system handles this via the stock field.</span>
+              <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Product Name</label>
+              <input name="name" defaultValue={initialData?.name || ""} required className="input-scientific" placeholder="e.g. BPC-157" />
+              <div className="ml-1 mt-1 flex items-center gap-1.5 text-[10px] italic text-[var(--text-muted)]">
+                <Info className="h-3 w-3 text-amber-500" />
+                <span>Do not add stock status to the name; inventory controls availability.</span>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Category</label>
-              <select name="category" defaultValue={initialData?.category} className="input-scientific">
+              <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Category</label>
+              <select name="category" defaultValue={initialData?.category || "peptides"} className="input-scientific">
                 <option value="peptides">Research Peptides</option>
                 <option value="sarms">SARMs</option>
                 <option value="nootropics">Nootropics</option>
@@ -119,120 +109,146 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Price (USD)</label>
-              <input name="price" type="number" step="0.01" defaultValue={Number(initialData?.price || 0)} required className="input-scientific" />
+              <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Price (USD)</label>
+              <input name="price" type="number" step="0.01" min="0" defaultValue={Number(initialData?.price || 0)} required className="input-scientific" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Current Stock</label>
-              <input name="stock" type="number" defaultValue={initialData?.stock} required className="input-scientific" />
+              <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Current Stock</label>
+              <input name="stock" type="number" min="0" defaultValue={initialData?.stock ?? 0} required className="input-scientific" />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Purity Analysis</label>
-              <input name="purity" defaultValue={initialData?.purity} className="input-scientific" placeholder=">99% HPLC" />
+              <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Catalog Purity Record</label>
+              <input name="purity" defaultValue={initialData?.purity || ""} className="input-scientific" placeholder="e.g. 99.4%" />
+              <div className="ml-1 mt-1 flex items-start gap-1.5 text-[10px] leading-relaxed text-[var(--text-muted)]">
+                <Info className="mt-0.5 h-3 w-3 shrink-0 text-amber-500" />
+                <span>Enter only a documented product-level value. Leave blank when the available evidence is lot-specific or unavailable.</span>
+              </div>
             </div>
 
-            <div className="space-y-2 md:col-span-2 flex items-center gap-3 bg-[var(--text-muted)]/5 p-4 rounded-xl border border-[var(--glass-border)] transition-colors hover:bg-[var(--text-muted)]/10">
-              <input 
-                type="checkbox" 
-                name="isFeatured" 
-                id="isFeatured"
-                defaultChecked={initialData?.isFeatured} 
-                value="true"
-                className="w-5 h-5 accent-[var(--color-brand-primary)] cursor-pointer rounded border-[var(--glass-border)]" 
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Peptide Sequence / Molecular Notation</label>
+              <textarea
+                name="sequence"
+                defaultValue={initialData?.sequence || ""}
+                rows={3}
+                className="input-scientific resize-none font-mono text-sm"
+                placeholder="Optional: enter the documented sequence exactly as supplied"
               />
-              <label htmlFor="isFeatured" className="text-sm font-bold text-[var(--text-main)] cursor-pointer select-none">
+              <div className="ml-1 mt-1 flex items-start gap-1.5 text-[10px] leading-relaxed text-[var(--text-muted)]">
+                <Info className="mt-0.5 h-3 w-3 shrink-0 text-[var(--color-brand-primary)]" />
+                <span>Preserve source notation for modified residues, terminal groups, or non-standard sequences. Do not infer a sequence from the product name.</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl border border-[var(--glass-border)] bg-[var(--text-muted)]/5 p-4 transition-colors hover:bg-[var(--text-muted)]/10 md:col-span-2">
+              <input
+                type="checkbox"
+                name="isFeatured"
+                id="isFeatured"
+                defaultChecked={Boolean(initialData?.isFeatured)}
+                value="true"
+                className="h-5 w-5 cursor-pointer rounded border-[var(--glass-border)] accent-[var(--color-brand-primary)]"
+              />
+              <label htmlFor="isFeatured" className="cursor-pointer select-none text-sm font-bold text-[var(--text-main)]">
                 Highlight Compound (Show first in Product Showcase)
               </label>
             </div>
           </div>
 
-            <div className="space-y-2">
-                <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Scientific Description</label>
-                <textarea name="description" defaultValue={initialData?.description} rows={6} required className="input-scientific resize-none" />
-            </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Scientific Description</label>
+            <textarea name="description" defaultValue={initialData?.description || ""} rows={7} required className="input-scientific resize-none" />
+            <p className="ml-1 text-[10px] leading-relaxed text-[var(--text-muted)]">
+              Use original laboratory-focused material. Avoid dosing, administration, treatment, or unsupported analytical claims.
+            </p>
+          </div>
 
-            <div className="space-y-2">
-                <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Visual Documentation</label>
-                
-                <div className="border-2 border-dashed border-[var(--glass-border)] rounded-xl p-4 flex justify-center bg-[var(--text-muted)]/5 hover:bg-[var(--text-muted)]/10 transition-colors">
-                    {imageUrl ? (
-                        <div className="relative w-full h-56 md:w-64 md:h-64">
-                            <Image src={imageUrl} alt="Product" fill className="object-contain rounded-lg" />
-                            <button type="button" onClick={() => setImageUrl("")} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 shadow-md hover:scale-110 transition-transform"><X className="w-5 h-5"/></button>
-                        </div>
-                    ) : (
-                        <CldUploadWidget 
-                            uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET} 
-                            onSuccess={(result: any) => setImageUrl(result.info.secure_url)}
-                            options={{
-                                styles: {
-                                    palette: {
-                                        window: "#ffffff",
-                                        sourceBg: "#f4f4f5",
-                                        windowBorder: "#90a0b3",
-                                        tabIcon: "#0078ff",
-                                        inactiveTabIcon: "#69778a",
-                                        menuIcons: "#0078ff",
-                                        link: "#0078ff",
-                                        action: "#339933",
-                                        inProgress: "#0078ff",
-                                        complete: "#339933",
-                                        error: "#cc0000",
-                                        textDark: "#000000",
-                                        textLight: "#ffffff"
-                                    },
-                                }
-                            }}
-                        >
-                            {({ open }) => (
-                                <button type="button" onClick={() => open()} className="flex flex-col items-center gap-2 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] py-8 transition-colors w-full">
-                                    <ImagePlus className="w-10 h-10 opacity-50" /> 
-                                    <span className="text-sm font-bold">Tap to Upload Image</span>
-                                </button>
-                            )}
-                        </CldUploadWidget>
-                    )}
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase text-[var(--text-muted)]">Visual Documentation</label>
+            <div className="flex justify-center rounded-xl border-2 border-dashed border-[var(--glass-border)] bg-[var(--text-muted)]/5 p-4 transition-colors hover:bg-[var(--text-muted)]/10">
+              {imageUrl ? (
+                <div className="relative h-56 w-full md:h-64 md:w-64">
+                  <Image src={imageUrl} alt={initialData?.name ? `${initialData.name} product image` : "Product image"} fill className="rounded-lg object-contain" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="absolute -right-2 -top-2 rounded-full bg-red-500 p-2 text-white shadow-md transition-transform hover:scale-110"
+                    aria-label="Remove product image"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
                 </div>
+              ) : (
+                <CldUploadWidget
+                  uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+                  onSuccess={(result: any) => {
+                    const secureUrl = result?.info?.secure_url;
+                    if (secureUrl) setImageUrl(secureUrl);
+                  }}
+                  options={{
+                    styles: {
+                      palette: {
+                        window: "#ffffff",
+                        sourceBg: "#f4f4f5",
+                        windowBorder: "#90a0b3",
+                        tabIcon: "#0078ff",
+                        inactiveTabIcon: "#69778a",
+                        menuIcons: "#0078ff",
+                        link: "#0078ff",
+                        action: "#339933",
+                        inProgress: "#0078ff",
+                        complete: "#339933",
+                        error: "#cc0000",
+                        textDark: "#000000",
+                        textLight: "#ffffff",
+                      },
+                    },
+                  }}
+                >
+                  {({ open }) => (
+                    <button type="button" onClick={() => open()} className="flex w-full flex-col items-center gap-2 py-8 text-[var(--text-muted)] transition-colors hover:text-[var(--color-brand-primary)]">
+                      <ImagePlus className="h-10 w-10 opacity-50" />
+                      <span className="text-sm font-bold">Tap to Upload Image</span>
+                    </button>
+                  )}
+                </CldUploadWidget>
+              )}
             </div>
+          </div>
         </form>
       </div>
 
-      {/* 3. CAMBIO AQUÍ: Quitamos 'sticky bottom-0 z-20 pb-8 sm:pb-5' 
-          Al hacer que este div sea hermano del div scrollable (y tener shrink-0), 
-          siempre estará visible al final del modal, sin importar el scroll interno. */}
-      <div className="flex justify-between sm:justify-end gap-3 p-5 border-t border-[var(--glass-border)] bg-[var(--bg-page)] shrink-0">
-            <button onClick={onClose} className="px-6 py-3 rounded-xl font-bold text-sm text-[var(--text-muted)] bg-[var(--glass-border)]/50 sm:bg-transparent hover:bg-[var(--glass-border)] transition-colors w-full sm:w-auto">
-                Cancel
-            </button>
-            <button 
-                onClick={(e) => {
-                    const form = e.currentTarget.closest('.relative')?.querySelector('form');
-                    form?.requestSubmit();
-                }}
-                disabled={loading} 
-                className="bg-[var(--text-main)] text-[var(--bg-page)] px-8 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--glass-border)] w-full sm:w-auto"
-            >
-                {loading ? "Processing..." : <><Save className="w-4 h-4" /> {initialData ? "Save" : "Create"}</>}
-            </button>
+      <div className="flex shrink-0 justify-between gap-3 border-t border-[var(--glass-border)] bg-[var(--bg-page)] p-5 sm:justify-end">
+        <button type="button" onClick={onClose} className="w-full rounded-xl bg-[var(--glass-border)]/50 px-6 py-3 text-sm font-bold text-[var(--text-muted)] transition-colors hover:bg-[var(--glass-border)] sm:w-auto sm:bg-transparent">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form="product-form"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--text-main)] px-8 py-3 text-sm font-bold text-[var(--bg-page)] shadow-lg shadow-[var(--glass-border)] transition-all hover:scale-105 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+        >
+          {loading ? "Processing..." : <><Save className="h-4 w-4" /> {initialData ? "Save" : "Create"}</>}
+        </button>
       </div>
 
       <style jsx global>{`
         .input-scientific {
-            width: 100%;
-            background-color: var(--bg-page);
-            border: 1px solid var(--glass-border);
-            border-radius: 0.75rem;
-            padding: 0.875rem 1rem;
-            color: var(--text-main);
-            outline: none;
-            font-size: 1rem;
-            transition: all 0.2s;
+          width: 100%;
+          background-color: var(--bg-page);
+          border: 1px solid var(--glass-border);
+          border-radius: 0.75rem;
+          padding: 0.875rem 1rem;
+          color: var(--text-main);
+          outline: none;
+          font-size: 1rem;
+          transition: all 0.2s;
         }
         .input-scientific:focus {
-            border-color: var(--color-brand-primary);
-            box-shadow: 0 0 0 1px var(--color-brand-primary);
+          border-color: var(--color-brand-primary);
+          box-shadow: 0 0 0 1px var(--color-brand-primary);
         }
       `}</style>
     </div>
