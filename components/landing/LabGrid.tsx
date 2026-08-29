@@ -17,16 +17,16 @@ export default function LabGrid() {
               System Architecture
           </motion.span>
           <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-main)] mb-4 leading-tight">
-            Clinical <span className="text-[var(--text-muted)]">Precision</span>
+            Analytical <span className="text-[var(--text-muted)]">Precision</span>
           </h2>
           <p className="text-[var(--text-muted)] text-sm md:text-base leading-relaxed">
-            Our synthesis protocols set the industry benchmark for bioavailability and stability. 
-            We do not compromise on molecular integrity.
+            Research documentation should connect product records with lot-specific analytical evidence when that evidence is available.
+            We separate catalog information, method context, and verified batch documentation rather than treating them as interchangeable claims.
           </p>
         </div>
         <div className="mt-6 md:mt-0">
             <span className="font-mono text-[10px] text-[var(--text-main)] border border-[var(--glass-border)] px-4 py-2 rounded-full bg-[var(--glass-bg)] backdrop-blur-md">
-                STATUS: OPTIMIZED
+                DOCUMENTATION: EVIDENCE FIRST
             </span>
         </div>
       </div>
@@ -46,16 +46,16 @@ export default function LabGrid() {
                <div className="w-12 h-12 rounded-xl bg-[var(--color-brand-primary)]/10 flex items-center justify-center mb-4">
                   <Microscope className="w-6 h-6 text-[var(--color-brand-primary)]" />
                </div>
-               <h3 className="text-2xl font-bold text-[var(--text-main)]">HPLC Verified Purity</h3>
+               <h3 className="text-2xl font-bold text-[var(--text-main)]">Analytical Documentation</h3>
                <p className="text-[var(--text-muted)] mt-2 max-w-sm text-sm">
-                 Every batch undergoes rigorous high-performance liquid chromatography.
-                 We reject anything under 99%.
+                 Product-level purity values and lot-specific analytical records are displayed only when supported by the current documentation.
+                 Use the COA library for published batch evidence and method-specific context.
                </p>
             </div>
             
             <div className="flex flex-wrap gap-2 md:gap-4 mt-6 md:mt-0">
-               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">Mass Spec</span>
-               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">UV Analysis</span>
+               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">HPLC Context</span>
+               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">Mass Spec Context</span>
             </div>
           </div>
 
@@ -136,9 +136,9 @@ export default function LabGrid() {
                     <span className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Lab Use Compliance</span>
                  </div>
                  
-                 <h3 className="text-2xl font-bold text-[var(--text-main)] mb-2">Research Grade Only</h3>
+                 <h3 className="text-2xl font-bold text-[var(--text-main)] mb-2">Laboratory Research Only</h3>
                  <p className="text-[var(--text-muted)] text-sm mb-6 max-w-sm">
-                   Formulated specifically for laboratory research and development use. Not for human consumption.
+                   Catalog materials are offered for laboratory research contexts only. Not for human consumption, diagnosis, treatment, or therapeutic use.
                  </p>
 
                  {/* WARNING TAPE - Reemplazo del botón */}
@@ -150,7 +150,7 @@ export default function LabGrid() {
                     
                     <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 relative z-10" />
                     <p className="text-xs font-mono font-bold text-red-600 dark:text-red-400 relative z-10 uppercase tracking-tight">
-                        Strictly for in-vitro analysis. Keep out of reach of children.
+                        Research use only. Keep out of reach of children.
                     </p>
                  </div>
              </div>
