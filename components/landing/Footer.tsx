@@ -73,6 +73,7 @@ export default function Footer() {
             <div className="flex flex-col gap-5">
               <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Evidence</h4>
               <Link href="/quality" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Quality & Documentation</Link>
+              <Link href="/analytical-methods" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Analytical Methods</Link>
               <Link href="/coa" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">COA Library</Link>
               <Link href="/tools/coa-checklist" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Free COA Checklist</Link>
               <Link href="/#verification" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Batch Verifier</Link>
@@ -82,9 +83,12 @@ export default function Footer() {
               <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Resources</h4>
               <Link href="/tools" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Tools</Link>
               <Link href="/tools/peptide-molecular-weight" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Peptide MW Calculator</Link>
+              <Link href="/tools/amino-acid-sequence-converter" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Sequence Converter</Link>
               <Link href="/glossary" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Glossary</Link>
-              <Link href="/#science" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Standards</Link>
-              <a href="#" className="text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">Terms & Conditions</a>
+              <Link href="/about" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">About</Link>
+              <Link href="/editorial-policy" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Editorial Policy</Link>
+              <Link href="/research-use-policy" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Use Policy</Link>
+              <Link href="/site-index" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Site Index</Link>
             </div>
           </div>
         </div>

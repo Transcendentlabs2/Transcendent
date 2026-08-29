@@ -71,6 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/editorial-policy`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.75 },
     { url: `${SITE_URL}/analytical-methods`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.86 },
     { url: `${SITE_URL}/research-use-policy`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.72 },
+    { url: `${SITE_URL}/site-index`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/tools`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/tools/coa-checklist`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.86 },
     { url: `${SITE_URL}/tools/peptide-molecular-weight`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.87 },
