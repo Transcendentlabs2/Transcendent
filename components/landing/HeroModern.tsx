@@ -136,10 +136,10 @@ export default function HeroModern() {
           </motion.div>
 
           <motion.p variants={fadeInUp} className="w-full text-base md:text-lg text-[var(--text-muted)] leading-relaxed px-2 lg:px-0">
-            Pioneering the next evolution of bio-active compounds. We engineer 
-            peptides that push the boundaries of human potential. 
+            Research compounds organized around analytical documentation, batch traceability, and laboratory-use information.
+            Explore product records alongside method guides and public lot evidence when available.
             <span className="block mt-2 font-semibold text-[var(--text-main)]">
-              Pure. Tested. Beyond Evolution.
+              Evidence. Traceability. Research Only.
             </span>
           </motion.p>
 
@@ -156,16 +156,16 @@ export default function HeroModern() {
           
           <motion.div variants={fadeInUp} className="pt-4 md:pt-8 flex gap-8 border-t border-[var(--glass-border)] w-full lg:w-auto justify-center lg:justify-start">
             <div className="text-center lg:text-left group cursor-default">
-              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)] group-hover:text-[var(--color-brand-primary)] transition-colors">99.8%</h3>
-              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Purity</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)] group-hover:text-[var(--color-brand-primary)] transition-colors">LOT</h3>
+              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Traceability</p>
             </div>
             <div className="text-center lg:text-left group cursor-default">
-              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)] group-hover:text-[var(--color-brand-primary)] transition-colors">50+</h3>
-              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Compounds</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)] group-hover:text-[var(--color-brand-primary)] transition-colors">COA</h3>
+              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Evidence</p>
             </div>
             <div className="text-center lg:text-left group cursor-default">
-              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)] group-hover:text-[var(--color-brand-primary)] transition-colors">24/7</h3>
-              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Support</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)] group-hover:text-[var(--color-brand-primary)] transition-colors">RUO</h3>
+              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Research Use</p>
             </div>
           </motion.div>
         </motion.div>
@@ -247,7 +247,7 @@ export default function HeroModern() {
                 
                 <Image 
                   src="/heroPeptide.webp" 
-                  alt="Transcendent Labs Premium Peptide Vial" 
+                  alt="Transcendent Labs laboratory research peptide vial" 
                   fill
                   sizes="(max-width: 768px) 280px, (max-width: 1024px) 384px, 500px" 
                   className="object-contain relative z-10 filter contrast-105"
@@ -258,7 +258,7 @@ export default function HeroModern() {
             </div>
           </div>
 
-          {/* Tarjeta Flotante de Bio-Availability */}
+          {/* Tarjeta Flotante de Evidencia Analítica */}
           <motion.div 
             animate={{ y: [0, -12, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
@@ -270,8 +270,8 @@ export default function HeroModern() {
                   <Activity className="w-4 h-4 md:w-6 md:h-6 text-[var(--color-brand-primary)] animate-pulse" />
                </div>
                <div>
-                 <p className="text-[10px] md:text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest mb-0.5">Bio-Availability</p>
-                 <p className="text-sm md:text-base font-extrabold text-[var(--text-main)] bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-main)] to-[var(--color-brand-primary)]">99.9% Optimized</p>
+                 <p className="text-[10px] md:text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest mb-0.5">Analytical Evidence</p>
+                 <p className="text-sm md:text-base font-extrabold text-[var(--text-main)] bg-clip-text text-transparent bg-gradient-to-r from-[var(--text-main)] to-[var(--color-brand-primary)]">Lot-Specific When Available</p>
                </div>
              </div>
           </motion.div>
