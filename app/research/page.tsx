@@ -21,11 +21,13 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title,
     description,
+    images: [{ url: "/heroPeptide.webp", alt: `${SITE_NAME} peptide research library` }],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: ["/heroPeptide.webp"],
   },
 };
 
@@ -55,6 +57,15 @@ const librarySchema = {
   },
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+    { "@type": "ListItem", position: 2, name: "Research Library", item: `${SITE_URL}/research` },
+  ],
+};
+
 const iconForCluster = (cluster: string) => {
   if (cluster === "Analytical Testing") return Microscope;
   if (cluster === "Documentation") return FileCheck2;
@@ -69,6 +80,12 @@ export default function ResearchLibraryPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(librarySchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c"),
         }}
       />
 
@@ -119,9 +136,6 @@ export default function ResearchLibraryPage() {
                   </div>
                   <h3 className="font-bold text-sm">{cluster.name}</h3>
                   <p className="mt-2 text-xs text-[var(--text-muted)] leading-relaxed">{cluster.intent}</p>
-                  <p className="mt-4 text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
-                    {cluster.targetKeywords.join(" · ")}
-                  </p>
                 </div>
               );
             })}
@@ -159,7 +173,7 @@ export default function ResearchLibraryPage() {
                 <p className="mt-3 text-sm text-[var(--text-muted)] leading-relaxed">{article.excerpt}</p>
                 <div className="mt-5 pt-5 border-t border-[var(--glass-border)] flex items-center justify-between gap-4">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
-                    Target: {article.primaryKeyword}
+                    Updated {article.updatedAt}
                   </span>
                   <Link
                     href={`/research/${article.slug}`}
