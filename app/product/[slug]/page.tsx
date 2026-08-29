@@ -1,38 +1,93 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ProductTemplate from "@/components/product/ProductTemplate";
 
-// Definimos el tipo correcto para Next.js 15
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://transcendent-gold.vercel.app";
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// 1. GENERATE METADATA (Corregido: params es Promise)
-export async function generateMetadata({ params }: Props) {
-  // AWAIT OBLIGATORIO AQUÍ
+function getProductDescription(product: {
+  name: string;
+  purity: string | null;
+  stock: number;
+}) {
+  const purity = product.purity || "high-purity";
+  return `${product.name} research compound for laboratory research use only. ${purity} analytical standard with HPLC-focused quality verification. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
   const product = await prisma.product.findFirst({
-    where: { slug: slug },
+    where: { slug, isActive: true },
+    select: {
+      name: true,
+      slug: true,
+      images: true,
+      purity: true,
+      stock: true,
+    },
   });
 
-  if (!product) return { title: "Compound Not Found" };
+  if (!product) {
+    return {
+      title: "Compound Not Found",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const canonicalPath = `/product/${product.slug}`;
+  const title = `${product.name} Research Compound | HPLC Tested | Transcendent Labs`;
+  const description = getProductDescription(product);
 
   return {
-    title: `Buy ${product.name} | Research Grade | Transcendent Labs`,
-    description: `High purity ${product.name} for laboratory research. HPLC verified. ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}.`,
+    title: { absolute: title },
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      type: "website",
+      url: canonicalPath,
+      siteName: "Transcendent Labs",
+      title,
+      description,
+      images: [
+        {
+          url: product.images,
+          alt: `${product.name} research compound`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [product.images],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
   };
 }
 
-// 2. PAGE COMPONENT (Corregido: params es Promise)
 export default async function ProductPage({ params }: Props) {
-  // AWAIT OBLIGATORIO AQUÍ TAMBIÉN
   const { slug } = await params;
 
   const product = await prisma.product.findFirst({
-    where: { 
-      slug: slug,
-      isActive: true 
+    where: {
+      slug,
+      isActive: true,
     },
   });
 
@@ -40,17 +95,103 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
-  // Serializamos los datos
+  const price = Number(product.price);
+  const description =
+    product.description ||
+    "Research grade compound validated for laboratory use.";
+  const canonicalUrl = `${SITE_URL}/product/${product.slug}`;
+
   const serializedProduct = {
     ...product,
-    price: Number(product.price),
+    price,
     purity: product.purity || "99% HPLC",
-    description: product.description || "Research grade compound validated for laboratory use."
+    description,
+  };
+
+  const additionalProperties = [
+    {
+      "@type": "PropertyValue",
+      name: "Purity",
+      value: product.purity || "High Purity",
+    },
+    {
+      "@type": "PropertyValue",
+      name: "Intended Use",
+      value: "Laboratory Research Use Only",
+    },
+    ...(product.sequence
+      ? [
+          {
+            "@type": "PropertyValue",
+            name: "Sequence",
+            value: product.sequence,
+          },
+        ]
+      : []),
+  ];
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${canonicalUrl}#product`,
+    name: product.name,
+    description,
+    image: [product.images],
+    sku: product.id,
+    category: product.category,
+    url: canonicalUrl,
+    brand: {
+      "@type": "Brand",
+      name: "Transcendent Labs",
+    },
+    additionalProperty: additionalProperties,
+    offers: {
+      "@type": "Offer",
+      url: canonicalUrl,
+      priceCurrency: "USD",
+      price: price.toFixed(2),
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_URL,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: product.name,
+        item: canonicalUrl,
+      },
+    ],
   };
 
   return (
     <main className="min-h-screen bg-[var(--bg-page)] selection:bg-[var(--color-brand-primary)] selection:text-white">
-       <ProductTemplate product={serializedProduct} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <ProductTemplate product={serializedProduct} />
     </main>
   );
 }
