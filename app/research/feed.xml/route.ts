@@ -10,10 +10,14 @@ function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
+function articleDate(value: string) {
+  return new Date(`${value}T00:00:00.000Z`);
+}
+
 export async function GET() {
   const items = RESEARCH_ARTICLES.map((article) => {
     const url = `${SITE_URL}/research/${article.slug}`;
-    const publishedAt = new Date(`${article.publishedAt}T00:00:00.000Z`).toUTCString();
+    const publishedAt = articleDate(article.publishedAt).toUTCString();
 
     return `
       <item>
@@ -26,6 +30,10 @@ export async function GET() {
       </item>`;
   }).join("");
 
+  const latestUpdatedAt = RESEARCH_ARTICLES.length > 0
+    ? new Date(Math.max(...RESEARCH_ARTICLES.map((article) => articleDate(article.updatedAt).getTime())))
+    : new Date("2026-08-29T00:00:00.000Z");
+
   const xml = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -34,7 +42,7 @@ export async function GET() {
     <description>${escapeXml(SITE_DESCRIPTION)}</description>
     <language>en-us</language>
     <atom:link href="${escapeXml(`${SITE_URL}/research/feed.xml`)}" rel="self" type="application/rss+xml" />
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <lastBuildDate>${latestUpdatedAt.toUTCString()}</lastBuildDate>
     ${items}
   </channel>
 </rss>`;
