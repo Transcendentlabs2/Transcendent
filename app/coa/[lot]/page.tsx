@@ -27,15 +27,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `${record.productName} COA | Lot ${record.lot} | ${SITE_NAME}`;
   const description = `Lot-specific Certificate of Analysis record for ${record.productName}, lot ${record.lot}. Review published analytical methods${record.purity ? ` and reported purity ${record.purity}` : ""}.`;
+  const canonicalPath = `/coa/${encodeURIComponent(record.lot)}`;
 
   return {
     title: { absolute: title },
     description,
-    alternates: { canonical: `/coa/${encodeURIComponent(record.lot)}` },
+    alternates: { canonical: canonicalPath },
     openGraph: {
       type: "website",
-      url: `/coa/${encodeURIComponent(record.lot)}`,
+      url: canonicalPath,
       siteName: SITE_NAME,
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
       title,
       description,
     },
@@ -59,9 +65,12 @@ export default async function CoaRecordPage({ params }: Props) {
     isPartOf: { "@id": `${SITE_URL}/#website` },
     mainEntity: {
       "@type": "Dataset",
+      "@id": `${canonicalUrl}#dataset`,
       name: `${record.productName} analytical record — lot ${record.lot}`,
       description: `Lot-specific analytical record published by ${SITE_NAME}.`,
       identifier: record.lot,
+      creator: { "@id": `${SITE_URL}/#organization` },
+      ...(record.analysisDate ? { dateModified: record.analysisDate } : {}),
       variableMeasured: [
         ...(record.purity ? [{ "@type": "PropertyValue", name: "Purity", value: record.purity }] : []),
         { "@type": "PropertyValue", name: "Methods", value: record.methods.join(", ") },
@@ -70,9 +79,20 @@ export default async function CoaRecordPage({ params }: Props) {
     },
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "COA Library", item: `${SITE_URL}/coa` },
+      { "@type": "ListItem", position: 3, name: `${record.productName} Lot ${record.lot}`, item: canonicalUrl },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
       <Navbar />
 
       <section className="mx-auto max-w-5xl px-6 pb-20 pt-36 md:pt-40">
