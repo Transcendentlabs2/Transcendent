@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import Navbar from "@/components/landing/Navbar";
@@ -28,6 +30,29 @@ export const metadata: Metadata = {
     description,
   },
 };
+
+const researchGuides = [
+  {
+    href: "/research/what-are-research-peptides",
+    title: "What Are Research Peptides?",
+    description: "Understand research-grade terminology, identity, purity, and laboratory-only positioning.",
+  },
+  {
+    href: "/research/hplc-peptide-testing",
+    title: "HPLC Peptide Testing",
+    description: "Learn what chromatographic purity means and how to review a peptide HPLC record.",
+  },
+  {
+    href: "/research/peptide-mass-spectrometry",
+    title: "Peptide Mass Spectrometry",
+    description: "See how molecular-mass evidence complements chromatographic purity testing.",
+  },
+  {
+    href: "/research/how-to-read-peptide-coa",
+    title: "How to Read a Peptide COA",
+    description: "Review lot numbers, HPLC results, mass spectrometry, dates, and batch traceability.",
+  },
+];
 
 export default async function ResearchPeptidesPage() {
   const products = await prisma.product.findMany({
@@ -113,6 +138,47 @@ export default async function ResearchPeptidesPage() {
           products={serializedProducts}
           emptyMessage="No active research peptides are currently listed."
         />
+      </section>
+
+      <section className="border-t border-[var(--glass-border)] px-6 py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-8 max-w-3xl">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[var(--color-brand-primary)]">
+              Research Library
+            </p>
+            <h2 className="mt-2 text-2xl font-display font-bold md:text-3xl">
+              Learn how to evaluate research peptide quality
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+              Use these laboratory-focused guides to understand the analytical evidence behind identity, purity, and batch documentation before reviewing individual product records.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {researchGuides.map((guide) => (
+              <Link
+                key={guide.href}
+                href={guide.href}
+                className="group rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-5 transition-colors hover:border-[var(--color-brand-primary)]/50"
+              >
+                <h3 className="font-bold leading-snug transition-colors group-hover:text-[var(--color-brand-primary)]">
+                  {guide.title}
+                </h3>
+                <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">{guide.description}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-xs font-bold text-[var(--text-muted)]">
+                  Read guide <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            href="/research"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[var(--color-brand-primary)]"
+          >
+            Explore the full Research Library <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </section>
 
       <Footer />
