@@ -80,6 +80,7 @@ export default function Footer() {
             <div className="flex flex-col gap-5">
               <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Resources</h4>
               <Link href="/tools" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Tools</Link>
+              <Link href="/tools/peptide-molecular-weight" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Peptide MW Calculator</Link>
               <Link href="/#science" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Standards</Link>
               <a href="#" className="text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">Terms & Conditions</a>
             </div>
