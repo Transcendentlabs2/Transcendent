@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import ProductTemplate from "@/components/product/ProductTemplate";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://transcendent-gold.vercel.app";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -40,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalPath = `/product/${product.slug}`;
-  const title = `${product.name} Research Compound | HPLC Tested | Transcendent Labs`;
+  const title = `${product.name} Research Compound | HPLC Tested | ${SITE_NAME}`;
   const description = getProductDescription(product);
 
   return {
@@ -52,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       type: "website",
       url: canonicalPath,
-      siteName: "Transcendent Labs",
+      siteName: SITE_NAME,
       title,
       description,
       images: [
@@ -142,7 +141,7 @@ export default async function ProductPage({ params }: Props) {
     url: canonicalUrl,
     brand: {
       "@type": "Brand",
-      name: "Transcendent Labs",
+      name: SITE_NAME,
     },
     additionalProperty: additionalProperties,
     offers: {
