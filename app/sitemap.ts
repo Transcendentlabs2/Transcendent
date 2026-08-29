@@ -74,6 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/tools`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/tools/coa-checklist`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.86 },
     { url: `${SITE_URL}/tools/peptide-molecular-weight`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.87 },
+    { url: `${SITE_URL}/tools/amino-acid-sequence-converter`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
     { url: `${SITE_URL}/coa`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
     ...researchEntries,
     ...referenceEntries,
