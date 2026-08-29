@@ -3,9 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Twitter,
-  Instagram,
-  Github,
   FlaskConical,
   Lock,
   LayoutDashboard,
@@ -81,6 +78,7 @@ export default function Footer() {
 
             <div className="flex flex-col gap-5">
               <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Resources</h4>
+              <Link href="/search" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Search</Link>
               <Link href="/tools" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Tools</Link>
               <Link href="/tools/peptide-molecular-weight" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Peptide MW Calculator</Link>
               <Link href="/tools/amino-acid-sequence-converter" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Sequence Converter</Link>
@@ -100,31 +98,23 @@ export default function Footer() {
             Product information is provided for qualified laboratory research contexts.
           </p>
 
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex items-center gap-5">
-              <a href="#" aria-label="Twitter" className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:scale-110 transition-all"><Twitter className="w-4.5 h-4.5" /></a>
-              <a href="#" aria-label="Instagram" className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:scale-110 transition-all"><Instagram className="w-4.5 h-4.5" /></a>
-              <a href="#" aria-label="GitHub" className="text-[var(--text-muted)] hover:text-[var(--text-main)] hover:scale-110 transition-all"><Github className="w-4.5 h-4.5" /></a>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <p className="text-xs text-[var(--text-muted)] font-bold">© {currentYear} Transcendent Labs.</p>
-              <div className="ml-4 pl-4 border-l border-[var(--glass-border)] flex items-center gap-2">
-                {!isAuthenticated ? (
-                  <Link href="/login" className="opacity-10 hover:opacity-100 transition-all duration-500 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)]" title="Access Lab System">
-                    <Lock className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-[var(--text-muted)] font-bold">© {currentYear} Transcendent Labs.</p>
+            <div className="ml-4 pl-4 border-l border-[var(--glass-border)] flex items-center gap-2">
+              {!isAuthenticated ? (
+                <Link href="/login" className="opacity-10 hover:opacity-100 transition-all duration-500 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)]" title="Access Lab System">
+                  <Lock className="w-3.5 h-3.5" />
+                </Link>
+              ) : (
+                <div className="flex items-center gap-2 animate-in fade-in duration-300">
+                  <Link href="/admin" className="text-[var(--color-brand-primary)] hover:text-[var(--text-main)] transition-colors" title="Admin Dashboard">
+                    <LayoutDashboard className="w-4 h-4" />
                   </Link>
-                ) : (
-                  <div className="flex items-center gap-2 animate-in fade-in duration-300">
-                    <Link href="/admin" className="text-[var(--color-brand-primary)] hover:text-[var(--text-main)] transition-colors" title="Admin Dashboard">
-                      <LayoutDashboard className="w-4 h-4" />
-                    </Link>
-                    <button onClick={logout} className="text-red-400/50 hover:text-red-400 transition-colors" title="Logout">
-                      <LogOut className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <button onClick={logout} className="text-red-400/50 hover:text-red-400 transition-colors" title="Logout">
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
