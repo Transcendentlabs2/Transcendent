@@ -21,12 +21,11 @@ function productTypeLabel(category: string) {
 function getProductDescription(product: {
   name: string;
   purity: string | null;
-  stock: number;
   category: string;
 }) {
   const type = productTypeLabel(product.category);
   const purity = product.purity ? ` Catalog purity record: ${product.purity}.` : "";
-  return `${product.name} ${type} for laboratory research use only.${purity} Product-level documentation and lot evidence are published when available. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
+  return `${product.name} ${type} for laboratory research use only.${purity} Product-level documentation and lot-specific analytical evidence are published when available.`;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -39,7 +38,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       slug: true,
       images: true,
       purity: true,
-      stock: true,
       category: true,
     },
   });
@@ -169,6 +167,7 @@ export default async function ProductPage({ params }: Props) {
       price: price.toFixed(2),
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
+      seller: { "@id": `${SITE_URL}/#organization` },
     },
   };
 
