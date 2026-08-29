@@ -3,13 +3,19 @@ import { prisma } from "@/lib/prisma";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import ProductTemplate from "@/components/product/ProductTemplate";
+import {
+  getProductCoas,
+  getRelatedResearchArticles,
+  isPeptideCategory,
+  isResearchProfileIndexable,
+} from "@/lib/product-research";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 function productTypeLabel(category: string) {
-  return category.toLowerCase() === "peptides" ? "research peptide" : "research compound";
+  return isPeptideCategory(category) ? "research peptide" : "research compound";
 }
 
 function getProductDescription(product: {
@@ -18,9 +24,9 @@ function getProductDescription(product: {
   stock: number;
   category: string;
 }) {
-  const purity = product.purity || "high-purity";
   const type = productTypeLabel(product.category);
-  return `${product.name} ${type} for laboratory research use only. ${purity} analytical standard with HPLC-focused quality verification. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
+  const purity = product.purity ? ` Catalog purity record: ${product.purity}.` : "";
+  return `${product.name} ${type} for laboratory research use only.${purity} Product-level documentation and lot evidence are published when available. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -46,8 +52,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalPath = `/product/${product.slug}`;
-  const isPeptide = product.category.toLowerCase() === "peptides";
-  const title = `${product.name} ${isPeptide ? "Research Peptide" : "Research Compound"} | HPLC Tested | ${SITE_NAME}`;
+  const isPeptide = isPeptideCategory(product.category);
+  const title = `${product.name} ${isPeptide ? "Research Peptide" : "Research Compound"} | ${SITE_NAME}`;
   const description = getProductDescription(product);
 
   return {
@@ -94,25 +100,36 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const price = Number(product.price);
-  const description = product.description || "Research grade compound validated for laboratory use.";
+  const description = product.description || "Research compound catalog record for laboratory use only.";
   const canonicalUrl = `${SITE_URL}/product/${product.slug}`;
-  const isPeptide = product.category.toLowerCase() === "peptides";
+  const isPeptide = isPeptideCategory(product.category);
   const categoryUrl = isPeptide ? `${SITE_URL}/research-peptides` : `${SITE_URL}/research-compounds`;
   const categoryName = isPeptide ? "Research Peptides" : "Research Compounds";
+  const relatedArticles = getRelatedResearchArticles(product.category);
+  const coas = getProductCoas(product);
+  const profileIndexable = isResearchProfileIndexable({
+    name: product.name,
+    slug: product.slug,
+    category: product.category,
+    description,
+    purity: product.purity,
+    sequence: product.sequence,
+  });
+  const profileUrl = `${SITE_URL}/research/compounds/${product.slug}`;
 
   const serializedProduct = {
     ...product,
     price,
-    purity: product.purity || "99% HPLC",
+    purity: product.purity || undefined,
     description,
   };
 
   const additionalProperties = [
-    {
+    ...(product.purity ? [{
       "@type": "PropertyValue",
-      name: "Purity",
-      value: product.purity || "High Purity",
-    },
+      name: "Catalog Purity Record",
+      value: product.purity,
+    }] : []),
     {
       "@type": "PropertyValue",
       name: "Intended Use",
@@ -137,6 +154,14 @@ export default async function ProductPage({ params }: Props) {
     url: canonicalUrl,
     brand: { "@type": "Brand", name: SITE_NAME },
     additionalProperty: additionalProperties,
+    subjectOf: [
+      ...(profileIndexable ? [{ "@type": "WebPage", "@id": `${profileUrl}#webpage`, url: profileUrl }] : []),
+      ...coas.map((record) => ({
+        "@type": "Dataset",
+        name: `${product.name} lot ${record.lot} analytical record`,
+        url: `${SITE_URL}/coa/${encodeURIComponent(record.lot)}`,
+      })),
+    ],
     offers: {
       "@type": "Offer",
       url: canonicalUrl,
@@ -157,6 +182,22 @@ export default async function ProductPage({ params }: Props) {
     ],
   };
 
+  const authority = {
+    profileUrl: `/research/compounds/${product.slug}`,
+    profileIndexable,
+    coas: coas.map((record) => ({
+      lot: record.lot,
+      purity: record.purity,
+      methods: record.methods,
+    })),
+    relatedResearch: relatedArticles.slice(0, 4).map((article) => ({
+      slug: article.slug,
+      title: article.title,
+      cluster: article.cluster,
+      excerpt: article.excerpt,
+    })),
+  };
+
   return (
     <main className="min-h-screen bg-[var(--bg-page)] selection:bg-[var(--color-brand-primary)] selection:text-white">
       <script
@@ -167,7 +208,7 @@ export default async function ProductPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }}
       />
-      <ProductTemplate product={serializedProduct} />
+      <ProductTemplate product={serializedProduct} authority={authority} />
     </main>
   );
 }

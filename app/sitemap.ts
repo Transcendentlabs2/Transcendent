@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { getPublishedCoas } from "@/lib/coa";
+import { isResearchProfileIndexable } from "@/lib/product-research";
 import { RESEARCH_ARTICLES } from "@/lib/research";
 import { SITE_URL } from "@/lib/seo";
 
@@ -8,7 +9,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await prisma.product.findMany({
     where: { isActive: true },
     select: {
+      name: true,
       slug: true,
+      category: true,
+      description: true,
+      purity: true,
+      sequence: true,
       updatedAt: true,
     },
     orderBy: { updatedAt: "desc" },
@@ -20,6 +26,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "weekly",
     priority: 0.8,
   }));
+
+  const researchProfileEntries: MetadataRoute.Sitemap = products
+    .filter(isResearchProfileIndexable)
+    .map((product) => ({
+      url: `${SITE_URL}/research/compounds/${product.slug}`,
+      lastModified: product.updatedAt,
+      changeFrequency: "monthly",
+      priority: 0.79,
+    }));
 
   const researchEntries: MetadataRoute.Sitemap = RESEARCH_ARTICLES.map((article) => ({
     url: `${SITE_URL}/research/${article.slug}`,
@@ -61,12 +76,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.92,
     },
     {
+      url: `${SITE_URL}/research/compounds`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.86,
+    },
+    {
       url: `${SITE_URL}/coa`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     ...researchEntries,
+    ...researchProfileEntries,
     ...coaEntries,
     ...productEntries,
   ];
