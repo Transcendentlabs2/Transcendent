@@ -8,11 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/cart/CartDrawer";
 import AgeVerificationModal from "../components/landing/AgeVerificationModal";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://transcendent-gold.vercel.app";
-const SITE_NAME = "Transcendent Labs";
-const SITE_DESCRIPTION =
-  "Research-grade peptides and laboratory compounds with high-purity analytical standards, HPLC verification and mass spectrometry support for research use only.";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -95,7 +91,8 @@ const organizationSchema = {
   "@id": `${SITE_URL}/#organization`,
   name: SITE_NAME,
   url: SITE_URL,
-  logo: `${SITE_URL}/heroPeptide.webp`,
+  logo: `${SITE_URL}/favicon.ico`,
+  image: `${SITE_URL}/heroPeptide.webp`,
   description: SITE_DESCRIPTION,
 };
 
@@ -137,7 +134,6 @@ export default function RootLayout({
           }}
         />
 
-        {/* Prevent English-to-Spanish translation flash (FOUC). */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -153,15 +149,11 @@ export default function RootLayout({
           body { top: 0 !important; }
           .skiptranslate iframe { display: none !important; }
           #google_translate_element { display: none !important; }
-
           .goog-text-highlight {
             background-color: transparent !important;
             box-shadow: none !important;
           }
-
-          html.translating body {
-            opacity: 0;
-          }
+          html.translating body { opacity: 0; }
           html.translated-ltr body {
             opacity: 1 !important;
             transition: opacity 0.4s ease-in-out;
@@ -199,7 +191,6 @@ export default function RootLayout({
 
         <ThemeProvider>
           <AgeVerificationModal />
-
           <AuthProvider>
             <CartProvider>
               <CartDrawer />
