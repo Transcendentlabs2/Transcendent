@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { getPublishedCoas } from "@/lib/coa";
 import { RESEARCH_ARTICLES } from "@/lib/research";
 import { SITE_URL } from "@/lib/seo";
 
@@ -27,6 +28,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: article.slug === "what-are-research-peptides" ? 0.9 : 0.82,
   }));
 
+  const coaEntries: MetadataRoute.Sitemap = getPublishedCoas().map((record) => ({
+    url: `${SITE_URL}/coa/${encodeURIComponent(record.lot)}`,
+    lastModified: record.analysisDate ? new Date(`${record.analysisDate}T00:00:00.000Z`) : new Date(),
+    changeFrequency: "yearly",
+    priority: 0.78,
+  }));
+
   return [
     {
       url: SITE_URL,
@@ -52,7 +60,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.92,
     },
+    {
+      url: `${SITE_URL}/coa`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
     ...researchEntries,
+    ...coaEntries,
     ...productEntries,
   ];
 }
