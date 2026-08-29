@@ -90,6 +90,7 @@ export default async function CompoundResearchProfilePage({ params }: Props) {
   const indexable = isResearchProfileIndexable(product);
   const relatedArticles = getRelatedResearchArticles(product.category);
   const coas = getProductCoas(product);
+  const verifiedPurityRecord = coas.find((record) => Boolean(record.purity));
   const isPeptide = isPeptideCategory(product.category);
   const canonicalUrl = `${SITE_URL}/research/compounds/${product.slug}`;
   const productUrl = `${SITE_URL}/product/${product.slug}`;
@@ -177,8 +178,21 @@ export default async function CompoundResearchProfilePage({ params }: Props) {
             </div>
             <div className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-5">
               <Microscope className="mb-4 h-5 w-5 text-[var(--color-brand-primary)]" />
-              <p className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">Purity record</p>
-              <p className="mt-2 font-bold">{product.purity || "Not published"}</p>
+              <p className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
+                {product.purity ? "Catalog purity record" : verifiedPurityRecord ? "Verified lot purity" : "Analytical documentation"}
+              </p>
+              {product.purity ? (
+                <p className="mt-2 font-bold">{product.purity}</p>
+              ) : verifiedPurityRecord?.purity ? (
+                <div className="mt-2">
+                  <p className="font-bold">{verifiedPurityRecord.purity}</p>
+                  <p className="mt-1 text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">Lot {verifiedPurityRecord.lot}</p>
+                </div>
+              ) : (
+                <Link href="/coa" className="mt-2 inline-flex items-center gap-2 font-bold text-[var(--color-brand-primary)]">
+                  See COA Library <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
             </div>
             <div className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-5">
               <FileCheck2 className="mb-4 h-5 w-5 text-[var(--color-brand-primary)]" />
