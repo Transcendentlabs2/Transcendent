@@ -55,7 +55,7 @@ export default function Footer() {
               <h2 className="font-display font-black text-3xl tracking-tighter text-[var(--text-main)] leading-none">TRANSCENDENT</h2>
               <h2 className="font-display font-black text-3xl tracking-tighter text-[var(--text-muted)] leading-none mb-4">LABS</h2>
               <p className="text-sm text-[var(--text-muted)] max-w-xs leading-relaxed">
-                Research-grade compounds engineered for analytical precision, purity, and laboratory traceability.
+                Research compounds organized around analytical documentation, laboratory traceability, and research-use-only information.
               </p>
             </div>
           </div>
@@ -70,14 +70,17 @@ export default function Footer() {
             </div>
 
             <div className="flex flex-col gap-5">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Systems</h4>
+              <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Evidence</h4>
+              <Link href="/quality" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Quality & Documentation</Link>
               <Link href="/coa" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">COA Library</Link>
+              <Link href="/tools/coa-checklist" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Free COA Checklist</Link>
               <Link href="/#verification" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Batch Verifier</Link>
-              <Link href="/#science" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Standards</Link>
             </div>
 
             <div className="flex flex-col gap-5">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Legal</h4>
+              <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Resources</h4>
+              <Link href="/tools" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Tools</Link>
+              <Link href="/#science" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Standards</Link>
               <a href="#" className="text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">Terms & Conditions</a>
             </div>
           </div>

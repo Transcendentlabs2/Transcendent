@@ -82,6 +82,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.86,
     },
     {
+      url: `${SITE_URL}/quality`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.88,
+    },
+    {
+      url: `${SITE_URL}/tools`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/tools/coa-checklist`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.86,
+    },
+    {
       url: `${SITE_URL}/coa`,
       lastModified: new Date(),
       changeFrequency: "weekly",
