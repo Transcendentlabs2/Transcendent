@@ -111,6 +111,15 @@ const organizationSchema = {
   logo: `${SITE_URL}/favicon.ico`,
   image: `${SITE_URL}/heroPeptide.webp`,
   description: SITE_DESCRIPTION,
+  publishingPrinciples: `${SITE_URL}/editorial-policy`,
+  knowsAbout: [
+    "Research peptides",
+    "Peptide analytical documentation",
+    "High-performance liquid chromatography",
+    "Peptide mass spectrometry",
+    "Certificate of Analysis review",
+    "Batch and lot traceability",
+  ],
 };
 
 const websiteSchema = {
