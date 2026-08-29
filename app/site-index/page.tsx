@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpen, FileCheck2, FlaskConical, Map, PackageSearch, ShieldCheck, Wrench } from "lucide-react";
+import { BookOpen, FileCheck2, FlaskConical, Map, Microscope, PackageSearch, ShieldCheck, Wrench } from "lucide-react";
 
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import { prisma } from "@/lib/prisma";
 import { getPublishedCoas } from "@/lib/coa";
+import { isResearchProfileIndexable } from "@/lib/product-research";
 import { RESEARCH_ARTICLES } from "@/lib/research";
 import { REFERENCE_GUIDES } from "@/lib/research-reference";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -18,8 +19,15 @@ export const metadata: Metadata = {
   title: { absolute: title },
   description,
   alternates: { canonical: "/site-index" },
-  openGraph: { type: "website", url: "/site-index", siteName: SITE_NAME, title, description },
-  twitter: { card: "summary_large_image", title, description },
+  openGraph: {
+    type: "website",
+    url: "/site-index",
+    siteName: SITE_NAME,
+    title,
+    description,
+    images: [{ url: "/heroPeptide.webp", alt: `${SITE_NAME} site index` }],
+  },
+  twitter: { card: "summary_large_image", title, description, images: ["/heroPeptide.webp"] },
 };
 
 const staticResources = [
@@ -44,10 +52,18 @@ const staticResources = [
 export default async function SiteIndexPage() {
   const products = await prisma.product.findMany({
     where: { isActive: true },
-    select: { name: true, slug: true, category: true },
+    select: {
+      name: true,
+      slug: true,
+      category: true,
+      description: true,
+      purity: true,
+      sequence: true,
+    },
     orderBy: [{ category: "asc" }, { name: "asc" }],
   });
 
+  const researchProfiles = products.filter(isResearchProfileIndexable);
   const coas = getPublishedCoas();
 
   const itemUrls = [
@@ -55,6 +71,7 @@ export default async function SiteIndexPage() {
     ...RESEARCH_ARTICLES.map((article) => `${SITE_URL}/research/${article.slug}`),
     ...REFERENCE_GUIDES.map((guide) => `${SITE_URL}/research/reference/${guide.slug}`),
     ...products.map((product) => `${SITE_URL}/product/${product.slug}`),
+    ...researchProfiles.map((product) => `${SITE_URL}/research/compounds/${product.slug}`),
     ...coas.map((record) => `${SITE_URL}/coa/${encodeURIComponent(record.lot)}`),
   ];
 
@@ -178,6 +195,26 @@ export default async function SiteIndexPage() {
               <p className="mt-5 text-sm text-[var(--text-muted)]">No active products are currently published.</p>
             )}
           </section>
+
+          {researchProfiles.length > 0 && (
+            <section className="rounded-3xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-7">
+              <div className="flex items-center gap-3">
+                <Microscope className="h-5 w-5 text-[var(--color-brand-primary)]" />
+                <h2 className="font-display text-xl font-bold">Compound Research Profiles</h2>
+              </div>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[var(--text-muted)]">
+                Only profiles with enough original catalog documentation or structured evidence to meet the public indexing threshold are listed here.
+              </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {researchProfiles.map((product) => (
+                  <Link key={product.slug} href={`/research/compounds/${product.slug}`} className="rounded-xl border border-[var(--glass-border)] bg-[var(--bg-page)] p-4 hover:border-[var(--color-brand-primary)]/50 transition-colors">
+                    <p className="text-sm font-bold">{product.name} Research Profile</p>
+                    <p className="mt-1 text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">Analytical reference</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="rounded-3xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-7">
             <div className="flex items-center gap-3">
