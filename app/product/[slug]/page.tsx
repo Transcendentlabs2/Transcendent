@@ -8,13 +8,19 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+function productTypeLabel(category: string) {
+  return category.toLowerCase() === "peptides" ? "research peptide" : "research compound";
+}
+
 function getProductDescription(product: {
   name: string;
   purity: string | null;
   stock: number;
+  category: string;
 }) {
   const purity = product.purity || "high-purity";
-  return `${product.name} research compound for laboratory research use only. ${purity} analytical standard with HPLC-focused quality verification. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
+  const type = productTypeLabel(product.category);
+  return `${product.name} ${type} for laboratory research use only. ${purity} analytical standard with HPLC-focused quality verification. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -28,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: true,
       purity: true,
       stock: true,
+      category: true,
     },
   });
 
@@ -39,7 +46,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalPath = `/product/${product.slug}`;
-  const title = `${product.name} Research Compound | HPLC Tested | ${SITE_NAME}`;
+  const isPeptide = product.category.toLowerCase() === "peptides";
+  const title = `${product.name} ${isPeptide ? "Research Peptide" : "Research Compound"} | HPLC Tested | ${SITE_NAME}`;
   const description = getProductDescription(product);
 
   return {
@@ -57,7 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [
         {
           url: product.images,
-          alt: `${product.name} research compound`,
+          alt: `${product.name} ${isPeptide ? "research peptide" : "research compound"}`,
         },
       ],
     },
@@ -99,6 +107,11 @@ export default async function ProductPage({ params }: Props) {
     product.description ||
     "Research grade compound validated for laboratory use.";
   const canonicalUrl = `${SITE_URL}/product/${product.slug}`;
+  const isPeptide = product.category.toLowerCase() === "peptides";
+  const categoryUrl = isPeptide
+    ? `${SITE_URL}/research-peptides`
+    : `${SITE_URL}/research-compounds`;
+  const categoryName = isPeptide ? "Research Peptides" : "Research Compounds";
 
   const serializedProduct = {
     ...product,
@@ -170,6 +183,12 @@ export default async function ProductPage({ params }: Props) {
       {
         "@type": "ListItem",
         position: 2,
+        name: categoryName,
+        item: categoryUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
         name: product.name,
         item: canonicalUrl,
       },
