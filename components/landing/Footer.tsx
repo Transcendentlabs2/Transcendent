@@ -66,6 +66,7 @@ export default function Footer() {
               <Link href="/research-compounds" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Full Catalog</Link>
               <Link href="/research-peptides" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Peptides</Link>
               <Link href="/research" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Library</Link>
+              <Link href="/research/compounds" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Compound Profiles</Link>
             </div>
 
             <div className="flex flex-col gap-5">
