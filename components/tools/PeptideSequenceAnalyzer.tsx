@@ -30,16 +30,29 @@ const WATER_MONOISOTOPIC_MASS = 18.010565;
 const PROTON_MASS = 1.007276466621;
 const VALID_CODES = Object.keys(MONOISOTOPIC_RESIDUE_MASS);
 
+type CalculationResult =
+  | {
+      ok: false;
+      invalid: string[];
+    }
+  | {
+      ok: true;
+      length: number;
+      neutralMass: number;
+      counts: Record<string, number>;
+      mz: Array<{ charge: number; value: number }>;
+    };
+
 function normalizeSequence(value: string) {
   return value.toUpperCase().replace(/[^A-Z]/g, "");
 }
 
-function calculate(sequence: string) {
+function calculate(sequence: string): CalculationResult | null {
   if (!sequence) return null;
 
   const invalid = [...new Set(sequence.split("").filter((code) => !MONOISOTOPIC_RESIDUE_MASS[code]))];
   if (invalid.length > 0) {
-    return { invalid } as const;
+    return { ok: false, invalid };
   }
 
   const neutralMass = sequence
@@ -61,12 +74,12 @@ function calculate(sequence: string) {
   }));
 
   return {
-    invalid: [],
+    ok: true,
     length: sequence.length,
     neutralMass,
     counts,
     mz,
-  } as const;
+  };
 }
 
 export default function PeptideSequenceAnalyzer() {
@@ -77,7 +90,7 @@ export default function PeptideSequenceAnalyzer() {
   const result = useMemo(() => calculate(sequence), [sequence]);
 
   const copySummary = async () => {
-    if (!result || result.invalid.length > 0) return;
+    if (!result || !result.ok) return;
 
     const text = [
       "Peptide Sequence Analysis",
@@ -102,7 +115,7 @@ export default function PeptideSequenceAnalyzer() {
     setCopied(false);
   };
 
-  const populatedCounts = result && result.invalid.length === 0
+  const populatedCounts = result?.ok
     ? Object.entries(result.counts).filter(([, count]) => count > 0)
     : [];
 
@@ -133,13 +146,13 @@ export default function PeptideSequenceAnalyzer() {
           <span>Supported: {VALID_CODES.join(" ")}</span>
         </div>
 
-        {result && result.invalid.length > 0 && (
+        {result && !result.ok && (
           <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/5 p-5 text-sm text-red-500">
             Unsupported amino-acid code{result.invalid.length > 1 ? "s" : ""}: {result.invalid.join(", ")}. Use the 20 standard one-letter residue codes shown above.
           </div>
         )}
 
-        {result && result.invalid.length === 0 && (
+        {result?.ok && (
           <section className="mt-8">
             <div className="mb-5">
               <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-brand-primary)]">Sequence composition</p>
@@ -164,7 +177,7 @@ export default function PeptideSequenceAnalyzer() {
             <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em]">Theoretical mass</span>
           </div>
 
-          {result && result.invalid.length === 0 ? (
+          {result?.ok ? (
             <>
               <p className="mt-5 text-xs font-mono uppercase tracking-wider text-[var(--text-muted)]">Neutral monoisotopic mass</p>
               <div className="mt-2 flex items-end gap-2">
