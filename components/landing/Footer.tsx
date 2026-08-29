@@ -63,25 +63,16 @@ export default function Footer() {
           <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-10 w-full pt-4">
             <div className="flex flex-col gap-5">
               <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Laboratory</h4>
-              <Link href="/research-compounds" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">
-                Full Catalog
-              </Link>
-              <Link href="/research-peptides" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">
-                Research Peptides
-              </Link>
-              <Link href="/research" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">
-                Research Library
-              </Link>
+              <Link href="/research-compounds" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Full Catalog</Link>
+              <Link href="/research-peptides" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Peptides</Link>
+              <Link href="/research" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Library</Link>
             </div>
 
             <div className="flex flex-col gap-5">
               <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--text-main)] border-b border-[var(--glass-border)] pb-2 w-fit">Systems</h4>
-              <Link href="/#verification" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">
-                Batch Verifier
-              </Link>
-              <Link href="/#science" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">
-                Research Standards
-              </Link>
+              <Link href="/coa" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">COA Library</Link>
+              <Link href="/#verification" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Batch Verifier</Link>
+              <Link href="/#science" className="text-sm text-[var(--text-muted)] hover:text-[var(--color-brand-primary)] transition-colors">Research Standards</Link>
             </div>
 
             <div className="flex flex-col gap-5">
@@ -107,30 +98,17 @@ export default function Footer() {
 
             <div className="flex items-center gap-4">
               <p className="text-xs text-[var(--text-muted)] font-bold">© {currentYear} Transcendent Labs.</p>
-
               <div className="ml-4 pl-4 border-l border-[var(--glass-border)] flex items-center gap-2">
                 {!isAuthenticated ? (
-                  <Link
-                    href="/login"
-                    className="opacity-10 hover:opacity-100 transition-all duration-500 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)]"
-                    title="Access Lab System"
-                  >
+                  <Link href="/login" className="opacity-10 hover:opacity-100 transition-all duration-500 text-[var(--text-muted)] hover:text-[var(--color-brand-primary)]" title="Access Lab System">
                     <Lock className="w-3.5 h-3.5" />
                   </Link>
                 ) : (
                   <div className="flex items-center gap-2 animate-in fade-in duration-300">
-                    <Link
-                      href="/admin"
-                      className="text-[var(--color-brand-primary)] hover:text-[var(--text-main)] transition-colors"
-                      title="Admin Dashboard"
-                    >
+                    <Link href="/admin" className="text-[var(--color-brand-primary)] hover:text-[var(--text-main)] transition-colors" title="Admin Dashboard">
                       <LayoutDashboard className="w-4 h-4" />
                     </Link>
-                    <button
-                      onClick={logout}
-                      className="text-red-400/50 hover:text-red-400 transition-colors"
-                      title="Logout"
-                    >
+                    <button onClick={logout} className="text-red-400/50 hover:text-red-400 transition-colors" title="Logout">
                       <LogOut className="w-3.5 h-3.5" />
                     </button>
                   </div>
