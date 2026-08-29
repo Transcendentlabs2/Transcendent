@@ -35,8 +35,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: guide.description,
       publishedTime: `${guide.publishedAt}T00:00:00.000Z`,
       modifiedTime: `${guide.updatedAt}T00:00:00.000Z`,
+      images: [{ url: "/heroPeptide.webp", alt: `${guide.title} — ${SITE_NAME}` }],
     },
-    twitter: { card: "summary_large_image", title: guide.seoTitle, description: guide.description },
+    twitter: {
+      card: "summary_large_image",
+      title: guide.seoTitle,
+      description: guide.description,
+      images: ["/heroPeptide.webp"],
+    },
     robots: { index: true, follow: true },
   };
 }
@@ -58,6 +64,8 @@ export default async function ReferenceGuidePage({ params }: Props) {
     datePublished: guide.publishedAt,
     dateModified: guide.updatedAt,
     mainEntityOfPage: canonicalUrl,
+    image: `${SITE_URL}/heroPeptide.webp`,
+    inLanguage: "en-US",
     author: { "@id": `${SITE_URL}/#organization` },
     publisher: { "@id": `${SITE_URL}/#organization` },
     isPartOf: { "@id": `${SITE_URL}/#website` },
@@ -87,14 +95,9 @@ export default async function ReferenceGuidePage({ params }: Props) {
             <Link href="/research/reference" className="inline-flex items-center gap-2 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--color-brand-primary)]">
               <ArrowLeft className="h-3.5 w-3.5" /> Research Reference
             </Link>
-            <p className="mt-8 text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-brand-primary)]">{guide.primaryKeyword}</p>
+            <p className="mt-8 text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-brand-primary)]">Laboratory research reference</p>
             <h1 className="mt-3 font-display text-4xl font-black leading-tight tracking-tight md:text-6xl">{guide.title}</h1>
             <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--text-muted)] md:text-lg">{guide.excerpt}</p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {guide.supportingKeywords.map((keyword) => (
-                <span key={keyword} className="rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-3 py-1 text-[10px] font-mono text-[var(--text-muted)]">{keyword}</span>
-              ))}
-            </div>
           </div>
         </header>
 
