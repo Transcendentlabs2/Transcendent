@@ -14,8 +14,15 @@ export const metadata: Metadata = {
   title: { absolute: title },
   description,
   alternates: { canonical: "/research/reference" },
-  openGraph: { type: "website", url: "/research/reference", siteName: SITE_NAME, title, description },
-  twitter: { card: "summary_large_image", title, description },
+  openGraph: {
+    type: "website",
+    url: "/research/reference",
+    siteName: SITE_NAME,
+    title,
+    description,
+    images: [{ url: "/heroPeptide.webp", alt: `${SITE_NAME} peptide research references` }],
+  },
+  twitter: { card: "summary_large_image", title, description, images: ["/heroPeptide.webp"] },
 };
 
 const schema = {
@@ -37,10 +44,21 @@ const schema = {
   },
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+    { "@type": "ListItem", position: 2, name: "Research", item: `${SITE_URL}/research` },
+    { "@type": "ListItem", position: 3, name: "Reference Guides", item: `${SITE_URL}/research/reference` },
+  ],
+};
+
 export default function ResearchReferencePage() {
   return (
     <main className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
       <Navbar />
 
       <section className="border-b border-[var(--glass-border)] px-6 pb-20 pt-36 md:pt-40">
@@ -61,13 +79,13 @@ export default function ResearchReferencePage() {
         <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-2">
           {REFERENCE_GUIDES.map((guide) => (
             <article key={guide.slug} className="rounded-3xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-7 transition-colors hover:border-[var(--color-brand-primary)]/50">
-              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--color-brand-primary)]">{guide.primaryKeyword}</p>
+              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--color-brand-primary)]">Laboratory reference</p>
               <h2 className="mt-3 font-display text-2xl font-bold leading-snug">
                 <Link href={`/research/reference/${guide.slug}`}>{guide.title}</Link>
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-[var(--text-muted)]">{guide.excerpt}</p>
               <div className="mt-6 flex items-center justify-between border-t border-[var(--glass-border)] pt-5">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">Laboratory reference</span>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">Analytical education</span>
                 <Link href={`/research/reference/${guide.slug}`} className="inline-flex items-center gap-2 text-xs font-bold text-[var(--color-brand-primary)]">
                   Read guide <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
