@@ -30,11 +30,14 @@ function revalidateProductSurfaces(slug?: string) {
   revalidatePath("/");
   revalidatePath("/research-compounds");
   revalidatePath("/research-peptides");
+  revalidatePath("/research");
+  revalidatePath("/research/compounds");
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/products");
 
   if (slug) {
     revalidatePath(`/product/${slug}`);
+    revalidatePath(`/research/compounds/${slug}`);
   }
 }
 
