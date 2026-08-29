@@ -1,49 +1,48 @@
-"use client";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, HelpCircle } from "lucide-react";
 
 const FAQS = [
-  { q: "Is shipping discreet?", a: "Yes. All parcels are shipped in plain packaging with no reference to contents or 'peptides'. The label indicates 'Research Reagents' for customs clearance." },
-  { q: "What is the purity guarantee?", a: "Every batch undergoes HPLC and Mass Spectrometry analysis. We guarantee >99% purity. COA (Certificate of Analysis) is available upon request for institutional buyers." },
-  { q: "Do you ship internationally?", a: "Yes. We utilize specialized logistics partners for global delivery (USA, EU, LatAm). Delivery success rate is 98.7%." },
-  { q: "How should I store the product?", a: "Upon receipt, store lyophilized vials at -20°C. Once reconstituted, keep at 4°C and use within 14-21 days for optimal integrity." },
+  {
+    q: "What analytical information is available?",
+    a: "Use the purity value and any batch-specific analytical documentation presented for the product as the primary reference. Where available, HPLC, mass spectrometry and Certificate of Analysis documentation provide additional batch context.",
+  },
+  {
+    q: "What is the intended use?",
+    a: "Transcendent Labs compounds are supplied strictly for laboratory research use only. They are not intended for human consumption, diagnosis, treatment or therapeutic use.",
+  },
+  {
+    q: "How is availability determined?",
+    a: "Inventory status is shown from the current product record. Availability can change as research batches are added, depleted or temporarily disabled in the catalog.",
+  },
+  {
+    q: "How should the product be stored?",
+    a: "Researchers should follow the compound-specific storage conditions stated in the applicable product documentation or Certificate of Analysis. Batch documentation takes precedence over general handling guidance.",
+  },
 ];
 
 export default function ProtocolFAQ() {
-  const [open, setOpen] = useState<number | null>(0);
-
   return (
     <div className="mb-16">
       <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] mb-6 flex items-center gap-2">
-         <HelpCircle className="w-3 h-3" /> Protocol Database / FAQ
+        <HelpCircle className="w-3 h-3" /> Protocol Database / FAQ
       </h3>
-      
+
       <div className="grid gap-2">
-        {FAQS.map((faq, i) => (
-          <div key={i} className="border border-[var(--glass-border)] bg-[var(--glass-bg)] rounded-xl overflow-hidden">
-            <button 
-              onClick={() => setOpen(open === i ? null : i)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--glass-border)]/30 transition-colors"
-            >
-              <span className="font-mono text-sm font-bold text-[var(--text-main)]">{faq.q}</span>
-              <ChevronDown className={`w-4 h-4 text-[var(--color-brand-primary)] transition-transform ${open === i ? "rotate-180" : ""}`} />
-            </button>
-            <AnimatePresence>
-              {open === i && (
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <p className="p-4 pt-0 text-xs text-[var(--text-muted)] leading-relaxed border-t border-[var(--glass-border)]/50">
-                    {faq.a}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+        {FAQS.map((faq, index) => (
+          <details
+            key={faq.q}
+            open={index === 0}
+            className="group border border-[var(--glass-border)] bg-[var(--glass-bg)] rounded-xl overflow-hidden"
+          >
+            <summary className="list-none cursor-pointer w-full flex items-center justify-between p-4 text-left hover:bg-[var(--glass-border)]/30 transition-colors [&::-webkit-details-marker]:hidden">
+              <span className="font-mono text-sm font-bold text-[var(--text-main)]">
+                {faq.q}
+              </span>
+              <ChevronDown className="w-4 h-4 text-[var(--color-brand-primary)] transition-transform group-open:rotate-180" />
+            </summary>
+            <p className="p-4 pt-3 text-xs text-[var(--text-muted)] leading-relaxed border-t border-[var(--glass-border)]/50">
+              {faq.a}
+            </p>
+          </details>
         ))}
       </div>
     </div>
