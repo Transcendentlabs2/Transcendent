@@ -49,11 +49,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       modifiedTime: `${article.updatedAt}T00:00:00.000Z`,
       section: article.cluster,
       tags: [article.primaryKeyword, ...article.supportingKeywords],
+      images: [{ url: "/heroPeptide.webp", alt: `${article.title} — ${SITE_NAME}` }],
     },
     twitter: {
       card: "summary_large_image",
       title: absoluteTitle,
       description: article.description,
+      images: ["/heroPeptide.webp"],
     },
     robots: {
       index: true,
@@ -84,6 +86,8 @@ export default async function ResearchArticlePage({ params }: Props) {
     headline: article.title,
     description: article.description,
     url: canonicalUrl,
+    mainEntityOfPage: canonicalUrl,
+    image: `${SITE_URL}/heroPeptide.webp`,
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
     inLanguage: "en-US",
@@ -166,17 +170,6 @@ export default async function ResearchArticlePage({ params }: Props) {
             <p className="mt-6 text-lg text-[var(--text-muted)] leading-relaxed max-w-3xl">
               {article.description}
             </p>
-
-            <div className="mt-8 flex flex-wrap gap-2">
-              {[article.primaryKeyword, ...article.supportingKeywords].map((keyword) => (
-                <span
-                  key={keyword}
-                  className="rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-3 py-1.5 text-[10px] font-mono text-[var(--text-muted)]"
-                >
-                  {keyword}
-                </span>
-              ))}
-            </div>
           </div>
         </header>
 
@@ -256,10 +249,10 @@ export default async function ResearchArticlePage({ params }: Props) {
             </div>
 
             <div className="rounded-2xl border border-[var(--glass-border)] p-5">
-              <p className="text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--text-muted)]">Primary topic</p>
-              <p className="mt-2 font-bold text-sm">{article.primaryKeyword}</p>
-              <p className="mt-4 text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--text-muted)]">Content cluster</p>
+              <p className="text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--text-muted)]">Content cluster</p>
               <p className="mt-2 font-bold text-sm">{article.cluster}</p>
+              <p className="mt-4 text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--text-muted)]">Last updated</p>
+              <p className="mt-2 font-bold text-sm">{article.updatedAt}</p>
             </div>
           </aside>
         </div>
