@@ -2,9 +2,9 @@ import { CheckCircle2, FileSearch, FlaskConical, PackageCheck } from "lucide-rea
 
 const QUALITY_SIGNALS = [
   {
-    title: "Product-Level Purity",
+    title: "Product-Level Documentation",
     description:
-      "Each active product record exposes its current analytical purity value so researchers can evaluate the catalog using documented product data.",
+      "When a documented catalog purity value exists, the product record displays it. Missing analytical data remains explicit rather than being replaced with a generic purity claim.",
     icon: FlaskConical,
   },
   {
