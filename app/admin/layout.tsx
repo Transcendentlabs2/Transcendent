@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { AdminProvider } from "../../context/AdminContext";
 import AdminLayoutWrapper from "../../components/admin/AdminLayoutWrapper";
+
+export const metadata: Metadata = {
+  title: "Admin",
+  robots: {
+    index: false,
+    follow: false,
+    noarchive: true,
+  },
+};
 
 export default function AdminLayout({
   children,
@@ -8,9 +18,7 @@ export default function AdminLayout({
 }) {
   return (
     <AdminProvider>
-      <AdminLayoutWrapper>
-        {children}
-      </AdminLayoutWrapper>
+      <AdminLayoutWrapper>{children}</AdminLayoutWrapper>
     </AdminProvider>
   );
 }
