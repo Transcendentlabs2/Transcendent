@@ -8,13 +8,19 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+function productTypeLabel(category: string) {
+  return category.toLowerCase() === "peptides" ? "research peptide" : "research compound";
+}
+
 function getProductDescription(product: {
   name: string;
   purity: string | null;
   stock: number;
+  category: string;
 }) {
   const purity = product.purity || "high-purity";
-  return `${product.name} research compound for laboratory research use only. ${purity} analytical standard with HPLC-focused quality verification. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
+  const type = productTypeLabel(product.category);
+  return `${product.name} ${type} for laboratory research use only. ${purity} analytical standard with HPLC-focused quality verification. ${product.stock > 0 ? "In stock." : "Currently out of stock."}`;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -28,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: true,
       purity: true,
       stock: true,
+      category: true,
     },
   });
 
@@ -39,27 +46,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalPath = `/product/${product.slug}`;
-  const title = `${product.name} Research Compound | HPLC Tested | ${SITE_NAME}`;
+  const isPeptide = product.category.toLowerCase() === "peptides";
+  const title = `${product.name} ${isPeptide ? "Research Peptide" : "Research Compound"} | HPLC Tested | ${SITE_NAME}`;
   const description = getProductDescription(product);
 
   return {
     title: { absolute: title },
     description,
-    alternates: {
-      canonical: canonicalPath,
-    },
+    alternates: { canonical: canonicalPath },
     openGraph: {
       type: "website",
       url: canonicalPath,
       siteName: SITE_NAME,
       title,
       description,
-      images: [
-        {
-          url: product.images,
-          alt: `${product.name} research compound`,
-        },
-      ],
+      images: [{
+        url: product.images,
+        alt: `${product.name} ${isPeptide ? "research peptide" : "research compound"}`,
+      }],
     },
     twitter: {
       card: "summary_large_image",
@@ -84,21 +88,17 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
 
   const product = await prisma.product.findFirst({
-    where: {
-      slug,
-      isActive: true,
-    },
+    where: { slug, isActive: true },
   });
 
-  if (!product) {
-    notFound();
-  }
+  if (!product) notFound();
 
   const price = Number(product.price);
-  const description =
-    product.description ||
-    "Research grade compound validated for laboratory use.";
+  const description = product.description || "Research grade compound validated for laboratory use.";
   const canonicalUrl = `${SITE_URL}/product/${product.slug}`;
+  const isPeptide = product.category.toLowerCase() === "peptides";
+  const categoryUrl = isPeptide ? `${SITE_URL}/research-peptides` : `${SITE_URL}/research-compounds`;
+  const categoryName = isPeptide ? "Research Peptides" : "Research Compounds";
 
   const serializedProduct = {
     ...product,
@@ -118,15 +118,11 @@ export default async function ProductPage({ params }: Props) {
       name: "Intended Use",
       value: "Laboratory Research Use Only",
     },
-    ...(product.sequence
-      ? [
-          {
-            "@type": "PropertyValue",
-            name: "Sequence",
-            value: product.sequence,
-          },
-        ]
-      : []),
+    ...(product.sequence ? [{
+      "@type": "PropertyValue",
+      name: "Sequence",
+      value: product.sequence,
+    }] : []),
   ];
 
   const productSchema = {
@@ -139,20 +135,14 @@ export default async function ProductPage({ params }: Props) {
     sku: product.id,
     category: product.category,
     url: canonicalUrl,
-    brand: {
-      "@type": "Brand",
-      name: SITE_NAME,
-    },
+    brand: { "@type": "Brand", name: SITE_NAME },
     additionalProperty: additionalProperties,
     offers: {
       "@type": "Offer",
       url: canonicalUrl,
       priceCurrency: "USD",
       price: price.toFixed(2),
-      availability:
-        product.stock > 0
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
     },
   };
@@ -161,18 +151,9 @@ export default async function ProductPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: SITE_URL,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: product.name,
-        item: canonicalUrl,
-      },
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: categoryName, item: categoryUrl },
+      { "@type": "ListItem", position: 3, name: product.name, item: canonicalUrl },
     ],
   };
 
@@ -180,15 +161,11 @@ export default async function ProductPage({ params }: Props) {
     <main className="min-h-screen bg-[var(--bg-page)] selection:bg-[var(--color-brand-primary)] selection:text-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productSchema).replace(/</g, "\\u003c"),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema).replace(/</g, "\\u003c") }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c"),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }}
       />
       <ProductTemplate product={serializedProduct} />
     </main>
