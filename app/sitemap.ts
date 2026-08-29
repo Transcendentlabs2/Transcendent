@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getPublishedCoas } from "@/lib/coa";
 import { isResearchProfileIndexable } from "@/lib/product-research";
 import { RESEARCH_ARTICLES } from "@/lib/research";
+import { REFERENCE_GUIDES } from "@/lib/research-reference";
 import { SITE_URL } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -43,6 +44,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: article.slug === "what-are-research-peptides" ? 0.9 : 0.82,
   }));
 
+  const referenceEntries: MetadataRoute.Sitemap = REFERENCE_GUIDES.map((guide) => ({
+    url: `${SITE_URL}/research/reference/${guide.slug}`,
+    lastModified: new Date(`${guide.updatedAt}T00:00:00.000Z`),
+    changeFrequency: "monthly",
+    priority: 0.81,
+  }));
+
   const coaEntries: MetadataRoute.Sitemap = getPublishedCoas().map((record) => ({
     url: `${SITE_URL}/coa/${encodeURIComponent(record.lot)}`,
     lastModified: record.analysisDate ? new Date(`${record.analysisDate}T00:00:00.000Z`) : new Date(),
@@ -51,73 +59,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   return [
-    {
-      url: SITE_URL,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${SITE_URL}/research-peptides`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.95,
-    },
-    {
-      url: `${SITE_URL}/research-compounds`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/research`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.92,
-    },
-    {
-      url: `${SITE_URL}/research/compounds`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.86,
-    },
-    {
-      url: `${SITE_URL}/glossary`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.84,
-    },
-    {
-      url: `${SITE_URL}/quality`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.88,
-    },
-    {
-      url: `${SITE_URL}/tools`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/tools/coa-checklist`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.86,
-    },
-    {
-      url: `${SITE_URL}/tools/peptide-molecular-weight`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.87,
-    },
-    {
-      url: `${SITE_URL}/coa`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
+    { url: SITE_URL, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
+    { url: `${SITE_URL}/research-peptides`, lastModified: new Date(), changeFrequency: "daily", priority: 0.95 },
+    { url: `${SITE_URL}/research-compounds`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/research`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.92 },
+    { url: `${SITE_URL}/research/compounds`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.86 },
+    { url: `${SITE_URL}/research/reference`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.87 },
+    { url: `${SITE_URL}/glossary`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.84 },
+    { url: `${SITE_URL}/quality`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.88 },
+    { url: `${SITE_URL}/tools`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/tools/coa-checklist`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.86 },
+    { url: `${SITE_URL}/tools/peptide-molecular-weight`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.87 },
+    { url: `${SITE_URL}/coa`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
     ...researchEntries,
+    ...referenceEntries,
     ...researchProfileEntries,
     ...coaEntries,
     ...productEntries,
