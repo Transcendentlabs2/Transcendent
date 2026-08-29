@@ -8,7 +8,14 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/cart/CartDrawer";
 import AgeVerificationModal from "../components/landing/AgeVerificationModal";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
+import {
+  BING_SITE_VERIFICATION,
+  GOOGLE_SITE_VERIFICATION,
+  RESEARCH_FEED_URL,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -40,15 +47,25 @@ export const metadata: Metadata = {
   keywords: [
     "research peptides",
     "research grade peptides",
-    "laboratory peptides",
-    "HPLC tested peptides",
-    "high purity research peptides",
-    "peptide research compounds",
+    "laboratory research compounds",
+    "peptide analytical documentation",
+    "peptide certificate of analysis",
+    "peptide batch verification",
   ],
   creator: SITE_NAME,
   publisher: SITE_NAME,
+  manifest: "/manifest.webmanifest",
   alternates: {
     canonical: "/",
+    types: {
+      "application/rss+xml": RESEARCH_FEED_URL,
+    },
+  },
+  verification: {
+    ...(GOOGLE_SITE_VERIFICATION ? { google: GOOGLE_SITE_VERIFICATION } : {}),
+    ...(BING_SITE_VERIFICATION
+      ? { other: { "msvalidate.01": BING_SITE_VERIFICATION } }
+      : {}),
   },
   openGraph: {
     type: "website",
@@ -62,7 +79,7 @@ export const metadata: Metadata = {
         url: "/heroPeptide.webp",
         width: 1200,
         height: 630,
-        alt: "Transcendent Labs research-grade peptides",
+        alt: "Transcendent Labs laboratory research compounds",
       },
     ],
   },
