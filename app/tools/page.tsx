@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Atom, ClipboardCheck, Wrench } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, Atom, ClipboardCheck, Wrench } from "lucide-react";
 
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -8,7 +8,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const title = `Free Laboratory Research Tools | ${SITE_NAME}`;
 const description =
-  "Use free Transcendent Labs research tools for peptide molecular-weight calculations, sequence analysis, and Certificate of Analysis documentation review.";
+  "Use free Transcendent Labs research tools for peptide sequence conversion, molecular-weight calculations, sequence analysis, and Certificate of Analysis documentation review.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -28,7 +28,7 @@ const schema = {
   isPartOf: { "@id": `${SITE_URL}/#website` },
   mainEntity: {
     "@type": "ItemList",
-    numberOfItems: 2,
+    numberOfItems: 3,
     itemListElement: [
       {
         "@type": "ListItem",
@@ -39,6 +39,12 @@ const schema = {
       {
         "@type": "ListItem",
         position: 2,
+        name: "Amino Acid Sequence Converter",
+        url: `${SITE_URL}/tools/amino-acid-sequence-converter`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
         name: "Peptide COA Review Checklist",
         url: `${SITE_URL}/tools/coa-checklist`,
       },
@@ -55,6 +61,15 @@ const tools = [
     description:
       "Calculate theoretical neutral monoisotopic mass, common protonated m/z values, sequence length and amino-acid composition from a one-letter peptide sequence.",
     cta: "Open Calculator",
+  },
+  {
+    href: "/tools/amino-acid-sequence-converter",
+    icon: ArrowLeftRight,
+    eyebrow: "Sequence notation",
+    title: "Amino Acid Sequence Converter",
+    description:
+      "Convert peptide sequences between standard one-letter and three-letter amino-acid notation, review residue names, and copy formatted output for laboratory documentation.",
+    cta: "Open Converter",
   },
   {
     href: "/tools/coa-checklist",
@@ -81,13 +96,13 @@ export default function ToolsPage() {
             Laboratory tools designed to make analytical research work easier to review.
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--text-muted)] md:text-lg">
-            Practical, shareable utilities for peptide sequence calculations and analytical-documentation review, with clear assumptions and research-use-only boundaries.
+            Practical, shareable utilities for peptide sequence notation, molecular calculations, and analytical-documentation review, with clear assumptions and research-use-only boundaries.
           </p>
         </div>
       </section>
 
       <section className="px-6 py-20">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
+        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 xl:grid-cols-3">
           {tools.map(({ href, icon: Icon, eyebrow, title: toolTitle, description: toolDescription, cta }) => (
             <article key={href} className="rounded-3xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-7 md:p-8">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--glass-border)] text-[var(--color-brand-primary)]">

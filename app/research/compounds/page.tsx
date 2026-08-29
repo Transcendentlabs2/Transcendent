@@ -24,11 +24,13 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title,
     description,
+    images: [{ url: "/heroPeptide.webp", alt: `${SITE_NAME} compound research profiles` }],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: ["/heroPeptide.webp"],
   },
 };
 
@@ -68,11 +70,25 @@ export default async function CompoundResearchDirectoryPage() {
     },
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Research", item: `${SITE_URL}/research` },
+      { "@type": "ListItem", position: 3, name: "Compound Research Profiles", item: `${SITE_URL}/research/compounds` },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }}
       />
       <Navbar />
 
@@ -85,7 +101,7 @@ export default async function CompoundResearchDirectoryPage() {
             Compound research profiles connected to the evidence chain.
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--text-muted)] md:text-lg">
-            These informational profiles connect each sufficiently documented catalog record with its analytical context, published lot evidence and related laboratory research guides. Profiles are intentionally not published when the underlying record is too thin to support a useful page.
+            These informational profiles connect sufficiently documented catalog records with analytical context, published lot evidence and related laboratory research guides. A profile is published here only when its source record contains enough original documentation to support a useful reference.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/research" className="rounded-xl border border-[var(--glass-border)] px-5 py-3 text-sm font-bold hover:border-[var(--color-brand-primary)] transition-colors">
@@ -102,7 +118,7 @@ export default async function CompoundResearchDirectoryPage() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-10 flex items-end justify-between gap-4">
             <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-brand-primary)]">Indexable profiles</p>
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-brand-primary)]">Published profiles</p>
               <h2 className="mt-2 text-2xl font-display font-bold md:text-3xl">Research reference directory</h2>
             </div>
             <span className="text-xs font-mono text-[var(--text-muted)]">{profiles.length} profiles</span>
@@ -136,7 +152,7 @@ export default async function CompoundResearchDirectoryPage() {
             </div>
           ) : (
             <div className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-8 text-sm leading-relaxed text-[var(--text-muted)]">
-              No compound research profiles currently meet the publication threshold. Profiles appear here only when their source catalog records contain enough original documentation to avoid thin programmatic pages.
+              No compound research profiles are currently published. Profiles appear here only when their source catalog records contain enough original documentation to support a useful standalone reference.
             </div>
           )}
         </div>

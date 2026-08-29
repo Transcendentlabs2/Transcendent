@@ -54,7 +54,6 @@ const LabContainer = ({ image, name, isOOS }: { image: string, name: string, isO
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
           className={`object-contain drop-shadow-2xl filter contrast-110 saturate-100 transition-all duration-500 ${isOOS ? "grayscale opacity-40" : ""}`}
-          priority={true}
         />
         <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-t from-black/10 to-transparent blur-md opacity-30 rounded-full scale-x-75" />
       </motion.div>
@@ -146,7 +145,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
             Active <span className="text-[var(--text-muted)]">Compounds</span>
           </h2>
           <p className="text-[var(--text-muted)] max-w-md text-lg font-sans">
-            Research-grade peptides synthesized for maximum bioavailability.
+            Active laboratory research compounds with product records, documentation status, and lot evidence when available.
           </p>
           <motion.div 
             initial={{ opacity: 0, x: -10 }}
@@ -198,7 +197,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                 <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-5 w-full h-full">
                     {!isOOS && product.stock < 50 && (
                       <span className="absolute top-5 right-5 z-30 bg-[var(--text-main)] text-[var(--bg-page)] text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
-                          HIGH DEMAND
+                          LOW STOCK
                       </span>
                     )}
 
@@ -220,7 +219,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                           {product.name}
                         </h3>
                         <p className="text-xs text-[var(--text-muted)] font-mono mb-6 flex items-center justify-center gap-2">
-                            <FlaskConical className="w-3 h-3" /> {product.purity || "Premium Grade"} 
+                            <FlaskConical className="w-3 h-3" /> {product.purity || "See Documentation"} 
                         </p>
                         
                         <div className="border-t border-[var(--glass-border)] pt-5 w-full">

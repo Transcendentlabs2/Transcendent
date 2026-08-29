@@ -9,7 +9,7 @@ export const revalidate = 3600;
 
 const title = `Research Compounds Catalog | ${SITE_NAME}`;
 const description =
-  "Browse the active Transcendent Labs research compound catalog, including research peptides and other laboratory compounds with analytical purity information and research-use-only positioning.";
+  "Browse the active Transcendent Labs research compound catalog, including research peptides and other laboratory compounds with purity information when documented and research-use-only positioning.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -72,12 +72,27 @@ export default async function ResearchCompoundsPage() {
     },
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Research Compounds", item: pageUrl },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c"),
         }}
       />
       <Navbar />
@@ -91,7 +106,7 @@ export default async function ResearchCompoundsPage() {
             Research Compounds
           </h1>
           <p className="text-base leading-relaxed text-[var(--text-muted)] md:text-lg">
-            Explore active laboratory research compounds from Transcendent Labs. Product pages include current analytical purity information, availability and research-use-only documentation.
+            Explore active laboratory research compounds from Transcendent Labs. Product pages include current availability, research-use-only documentation and analytical information when it is documented for the material.
           </p>
         </div>
 

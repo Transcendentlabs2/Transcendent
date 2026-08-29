@@ -32,8 +32,10 @@ function revalidateProductSurfaces(slug?: string) {
   revalidatePath("/research-peptides");
   revalidatePath("/research");
   revalidatePath("/research/compounds");
+  revalidatePath("/site-index");
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/products");
+  revalidatePath("/admin/product-data");
 
   if (slug) {
     revalidatePath(`/product/${slug}`);
@@ -50,6 +52,7 @@ export async function createProduct(formData: FormData) {
     const stock = String(formData.get("stock") || "0");
     const imageUrl = String(formData.get("imageUrl") || "").trim();
     const purity = String(formData.get("purity") || "").trim();
+    const sequence = String(formData.get("sequence") || "").trim();
     const isFeatured = formData.get("isFeatured") === "true";
     const slug = await createUniqueSlug(name);
 
@@ -62,7 +65,8 @@ export async function createProduct(formData: FormData) {
         stock: parseInt(stock, 10),
         category,
         images: imageUrl,
-        purity,
+        purity: purity || null,
+        sequence: sequence || null,
         isActive: true,
         isFeatured,
       },
@@ -112,6 +116,8 @@ export async function toggleProductStatus(id: string, currentStatus: boolean) {
 export async function updateProduct(id: string, formData: FormData) {
   try {
     const isFeatured = formData.get("isFeatured") === "true";
+    const purity = String(formData.get("purity") || "").trim();
+    const sequenceValue = formData.get("sequence");
 
     const product = await prisma.product.update({
       where: { id },
@@ -121,7 +127,10 @@ export async function updateProduct(id: string, formData: FormData) {
         category: String(formData.get("category") || "").trim(),
         price: parseFloat(String(formData.get("price") || "0")),
         stock: parseInt(String(formData.get("stock") || "0"), 10),
-        purity: String(formData.get("purity") || "").trim(),
+        purity: purity || null,
+        ...(sequenceValue !== null
+          ? { sequence: String(sequenceValue).trim() || null }
+          : {}),
         images: String(formData.get("imageUrl") || "").trim(),
         isFeatured,
       },

@@ -1,5 +1,7 @@
-export const SITE_URL =
+const RAW_SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://transcendent-gold.vercel.app";
+
+export const SITE_URL = RAW_SITE_URL.replace(/\/+$/, "");
 
 export const SITE_NAME = "Transcendent Labs";
 

@@ -196,9 +196,13 @@ export default function Navbar() {
               )}
             </div>
 
-            <button aria-label="Search" className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
+            <Link
+              href="/search"
+              aria-label="Search"
+              className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer"
+            >
               <Search className="w-5 h-5" />
-            </button>
+            </Link>
 
             <button
               aria-label="Open cart"
@@ -280,9 +284,13 @@ export default function Navbar() {
               ))}
 
               <div className="flex items-center gap-4 mt-4 pt-6 border-t border-[var(--glass-border)]">
-                <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 rounded-lg text-[var(--text-main)] font-bold text-sm active:bg-[var(--text-muted)]/20">
+                <Link
+                  href="/search"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 rounded-lg text-[var(--text-main)] font-bold text-sm active:bg-[var(--text-muted)]/20"
+                >
                   <Search className="w-5 h-5" /> Search
-                </button>
+                </Link>
 
                 <button
                   onClick={() => {

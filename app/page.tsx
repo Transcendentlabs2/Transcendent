@@ -24,7 +24,9 @@ export default async function Home() {
   const serializedProducts = products.map((product) => ({
     ...product,
     price: Number(product.price),
-    purity: product.purity || "High Purity",
+    // Preserve missing analytical data as missing. UI surfaces decide how to
+    // explain documentation status instead of inventing a purity descriptor.
+    purity: product.purity || undefined,
     description: product.description || "",
     isFeatured: Boolean(product.isFeatured),
   }));

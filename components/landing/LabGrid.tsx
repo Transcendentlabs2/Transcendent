@@ -5,8 +5,6 @@ import { Microscope, Truck, Lock, FlaskConical, AlertTriangle } from "lucide-rea
 export default function LabGrid() {
   return (
     <section className="relative py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto z-10">
-      
-      {/* Encabezado de Sección */}
       <div className="mb-12 md:flex justify-between items-end border-b border-[var(--glass-border)] pb-6">
         <div className="max-w-xl">
           <motion.span 
@@ -17,24 +15,21 @@ export default function LabGrid() {
               System Architecture
           </motion.span>
           <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-main)] mb-4 leading-tight">
-            Clinical <span className="text-[var(--text-muted)]">Precision</span>
+            Analytical <span className="text-[var(--text-muted)]">Precision</span>
           </h2>
           <p className="text-[var(--text-muted)] text-sm md:text-base leading-relaxed">
-            Our synthesis protocols set the industry benchmark for bioavailability and stability. 
-            We do not compromise on molecular integrity.
+            Research documentation should connect product records with lot-specific analytical evidence when that evidence is available.
+            We separate catalog information, method context, and verified batch documentation rather than treating them as interchangeable claims.
           </p>
         </div>
         <div className="mt-6 md:mt-0">
             <span className="font-mono text-[10px] text-[var(--text-main)] border border-[var(--glass-border)] px-4 py-2 rounded-full bg-[var(--glass-bg)] backdrop-blur-md">
-                STATUS: OPTIMIZED
+                DOCUMENTATION: EVIDENCE FIRST
             </span>
         </div>
       </div>
 
-      {/* Grid Layout (Bento Box) - Optimizado para evitar overflow en móviles */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto md:auto-rows-[300px]">
-        
-        {/* Card 1: Purity Analysis (Grande) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -46,20 +41,18 @@ export default function LabGrid() {
                <div className="w-12 h-12 rounded-xl bg-[var(--color-brand-primary)]/10 flex items-center justify-center mb-4">
                   <Microscope className="w-6 h-6 text-[var(--color-brand-primary)]" />
                </div>
-               <h3 className="text-2xl font-bold text-[var(--text-main)]">HPLC Verified Purity</h3>
+               <h3 className="text-2xl font-bold text-[var(--text-main)]">Analytical Documentation</h3>
                <p className="text-[var(--text-muted)] mt-2 max-w-sm text-sm">
-                 Every batch undergoes rigorous high-performance liquid chromatography.
-                 We reject anything under 99%.
+                 Product-level purity values and lot-specific analytical records are displayed only when supported by the current documentation.
+                 Use the COA library for published batch evidence and method-specific context.
                </p>
             </div>
-            
             <div className="flex flex-wrap gap-2 md:gap-4 mt-6 md:mt-0">
-               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">Mass Spec</span>
-               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">UV Analysis</span>
+               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">HPLC Context</span>
+               <span className="text-xs font-mono text-[var(--text-main)] bg-[var(--glass-border)] px-3 py-1 rounded">Mass Spec Context</span>
             </div>
           </div>
 
-          {/* Gráfico SVG Animado de fondo (Optimizado GPU) */}
           <div className="absolute bottom-0 right-0 w-2/3 h-1/2 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none translate-z-0">
              <svg className="w-full h-full stroke-[var(--color-brand-primary)] fill-none" viewBox="0 0 300 100" preserveAspectRatio="none">
                <motion.path
@@ -74,7 +67,6 @@ export default function LabGrid() {
           </div>
         </motion.div>
 
-        {/* Card 2: Fast Shipping (SOLUCIÓN LIME/LEGIBILIDAD) */}
         <motion.div 
            initial={{ opacity: 0, y: 20 }}
            whileInView={{ opacity: 1, y: 0 }}
@@ -83,23 +75,19 @@ export default function LabGrid() {
            className="relative rounded-3xl border border-[var(--glass-border)] bg-[var(--bg-page)]/50 backdrop-blur-sm p-8 flex flex-col justify-between hover:border-[var(--color-brand-secondary)]/50 transition-colors duration-500 min-h-[250px]"
         >
            <div>
-             {/* Fondo oscuro en light mode para resaltar el icono lime */}
              <div className="w-12 h-12 rounded-xl bg-slate-900 dark:bg-[var(--color-brand-secondary)]/10 flex items-center justify-center mb-4 shadow-sm">
                <Truck className="w-6 h-6 text-[var(--color-brand-secondary)]" />
              </div>
-             <h3 className="text-xl font-bold text-[var(--text-main)]">Same-Day Dispatch</h3>
+             <h3 className="text-xl font-bold text-[var(--text-main)]">Checkout Shipping</h3>
              <p className="text-sm text-[var(--text-muted)] mt-2">
-               Orders before 2PM EST ship same day.
+               Shipping is calculated during checkout, with free shipping applied when the eligible order subtotal reaches $300 USD.
              </p>
            </div>
-           
-           {/* Barra de progreso con fondo oscuro en light mode */}
            <div className="w-full h-2 bg-slate-100 dark:bg-[var(--glass-border)] rounded-full overflow-hidden mt-4 border border-slate-200 dark:border-transparent">
               <div className="h-full w-2/3 bg-[var(--color-brand-secondary)] animate-pulse" />
            </div>
         </motion.div>
 
-        {/* Card 3: Secure Data */}
         <motion.div 
            initial={{ opacity: 0, y: 20 }}
            whileInView={{ opacity: 1, y: 0 }}
@@ -111,18 +99,17 @@ export default function LabGrid() {
              <div className="w-12 h-12 rounded-xl bg-[var(--text-main)]/5 flex items-center justify-center mb-4">
                <Lock className="w-6 h-6 text-[var(--text-main)]" />
              </div>
-             <h3 className="text-xl font-bold text-[var(--text-main)]">Encrypted Data</h3>
+             <h3 className="text-xl font-bold text-[var(--text-main)]">Zelle Verification</h3>
              <p className="text-sm text-[var(--text-muted)] mt-2">
-               256-bit SSL encryption. We never store payment details.
+               This checkout does not collect card numbers. Zelle payments are matched to orders using the confirmation reference submitted after transfer.
              </p>
            </div>
            <div className="flex items-center gap-2 text-[var(--color-brand-secondary)] text-xs font-mono bg-slate-900 dark:bg-transparent px-2 py-1 rounded w-fit">
               <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
-              SECURE_CONNECTION
+              ORDER_VERIFICATION
            </div>
         </motion.div>
 
-        {/* Card 4: Research Grade Only (OPTIMIZADA SIN BOTÓN) */}
         <motion.div 
            initial={{ opacity: 0, y: 20 }}
            whileInView={{ opacity: 1, y: 0 }}
@@ -135,32 +122,25 @@ export default function LabGrid() {
                     <FlaskConical className="w-5 h-5 text-[var(--text-muted)]" />
                     <span className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">Lab Use Compliance</span>
                  </div>
-                 
-                 <h3 className="text-2xl font-bold text-[var(--text-main)] mb-2">Research Grade Only</h3>
+                 <h3 className="text-2xl font-bold text-[var(--text-main)] mb-2">Laboratory Research Only</h3>
                  <p className="text-[var(--text-muted)] text-sm mb-6 max-w-sm">
-                   Formulated specifically for laboratory research and development use. Not for human consumption.
+                   Catalog materials are offered for laboratory research contexts only. Not for human consumption, diagnosis, treatment, or therapeutic use.
                  </p>
 
-                 {/* WARNING TAPE - Reemplazo del botón */}
                  <div className="relative w-full overflow-hidden rounded-lg bg-red-500/5 border border-red-500/20 p-3 flex items-center gap-3">
-                    {/* Patrón rayado de fondo */}
                     <div className="absolute inset-0 opacity-10" 
                          style={{ backgroundImage: 'repeating-linear-gradient(45deg, #ef4444 0, #ef4444 10px, transparent 0, transparent 20px)' }}>
                     </div>
-                    
                     <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 relative z-10" />
                     <p className="text-xs font-mono font-bold text-red-600 dark:text-red-400 relative z-10 uppercase tracking-tight">
-                        Strictly for in-vitro analysis. Keep out of reach of children.
+                        Research use only. Keep out of reach of children.
                     </p>
                  </div>
              </div>
-             
-             {/* Decoración Molecular Abstracta (Más sutil para no distraer) */}
              <div className="absolute right-[-40px] top-[-40px] opacity-5 rotate-12 pointer-events-none">
                 <div className="w-64 h-64 border-[30px] border-[var(--text-main)] rounded-full border-dashed" />
              </div>
         </motion.div>
-
       </div>
     </section>
   );

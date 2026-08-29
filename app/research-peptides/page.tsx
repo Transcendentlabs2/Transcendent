@@ -11,7 +11,7 @@ export const revalidate = 3600;
 
 const title = `Research Peptides | HPLC-Focused Laboratory Compounds | ${SITE_NAME}`;
 const description =
-  "Browse Transcendent Labs research peptides for laboratory research use only, with analytical purity information, product-specific documentation and HPLC-focused quality verification.";
+  "Browse Transcendent Labs research peptides for laboratory research use only, with product-specific documentation, purity information when documented, and HPLC-focused analytical guidance.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -100,12 +100,27 @@ export default async function ResearchPeptidesPage() {
     },
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Research Peptides", item: pageUrl },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c"),
         }}
       />
       <Navbar />
@@ -119,12 +134,12 @@ export default async function ResearchPeptidesPage() {
             Research Peptides
           </h1>
           <p className="text-base leading-relaxed text-[var(--text-muted)] md:text-lg">
-            Transcendent Labs provides research peptides intended strictly for laboratory research. Each active product page presents its available analytical purity information, current inventory status and research-focused documentation.
+            Transcendent Labs provides research peptides intended strictly for laboratory research. Each active product page presents its available analytical documentation, current inventory status and research-focused material information.
           </p>
         </div>
 
         <div className="mb-10 grid gap-4 md:grid-cols-3">
-          {["Research-use only", "Analytical purity data", "Product-level documentation"].map((item) => (
+          {["Research-use only", "Purity data when documented", "Product-level documentation"].map((item) => (
             <div
               key={item}
               className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-5 text-sm font-bold text-[var(--text-main)]"

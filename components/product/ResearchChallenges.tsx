@@ -1,58 +1,54 @@
 "use client";
-import { XCircle, CheckCircle2, AlertOctagon } from "lucide-react";
+import { AlertOctagon, CheckCircle2, SearchCheck } from "lucide-react";
 
 export default function ResearchChallenges() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-12">
-      
-      {/* EL DOLOR (The Glitch) */}
-      <div className="bg-red-500/5 border border-red-500/20 p-6 rounded-2xl relative overflow-hidden group">
+      <div className="bg-amber-500/5 border border-amber-500/20 p-6 rounded-2xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 opacity-20">
-            <AlertOctagon className="w-12 h-12 text-red-500" />
+          <AlertOctagon className="w-12 h-12 text-amber-500" />
         </div>
-        <h3 className="text-sm font-bold text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <XCircle className="w-4 h-4" /> Market Failures
+        <h3 className="text-sm font-bold text-amber-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <SearchCheck className="w-4 h-4" /> What to Verify
         </h3>
         <ul className="space-y-3">
-            <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
-                <span className="text-red-500 font-mono">01.</span>
-                <span>Inconsistent purity leads to skewed research data and wasted resources.</span>
-            </li>
-            <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
-                <span className="text-red-500 font-mono">02.</span>
-                <span>Heavy metal contamination common in low-tier suppliers.</span>
-            </li>
-            <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
-                <span className="text-red-500 font-mono">03.</span>
-                <span>Degraded peptides due to improper thermal logistics.</span>
-            </li>
+          <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
+            <span className="text-amber-500 font-mono">01.</span>
+            <span>A purity number should be interpreted with its analytical method and the specific material or lot it describes.</span>
+          </li>
+          <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
+            <span className="text-amber-500 font-mono">02.</span>
+            <span>Chromatographic composition and molecular identity are related analytical questions, but they are not interchangeable.</span>
+          </li>
+          <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
+            <span className="text-amber-500 font-mono">03.</span>
+            <span>Storage and handling requirements can vary by compound and batch, so applicable documentation should take precedence over general guidance.</span>
+          </li>
         </ul>
       </div>
 
-      {/* LA SOLUCIÓN (The Patch) */}
       <div className="bg-emerald-500/5 border border-emerald-500/20 p-6 rounded-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-20">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+          <CheckCircle2 className="w-12 h-12 text-emerald-500" />
         </div>
         <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" /> The Transcendent Standard
+          <CheckCircle2 className="w-4 h-4" /> Evidence Path
         </h3>
         <ul className="space-y-3">
-            <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
-                <span className="text-emerald-500 font-mono">01.</span>
-                <span className="text-[var(--text-main)]">HPLC Verified &gt;99% purity guaranteed for every batch.</span>
-            </li>
-            <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
-                <span className="text-emerald-500 font-mono">02.</span>
-                <span className="text-[var(--text-main)]">Solid-phase synthesis eliminates toxic byproducts.</span>
-            </li>
-            <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
-                <span className="text-emerald-500 font-mono">03.</span>
-                <span className="text-[var(--text-main)]">Lyophilized & vacuum-sealed for maximum stability.</span>
-            </li>
+          <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
+            <span className="text-emerald-500 font-mono">01.</span>
+            <span className="text-[var(--text-main)]">Product-level purity is displayed only when a documented catalog value exists.</span>
+          </li>
+          <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
+            <span className="text-emerald-500 font-mono">02.</span>
+            <span className="text-[var(--text-main)]">Lot pages are published as verified only when backed by approved lot-specific analytical documentation.</span>
+          </li>
+          <li className="flex items-start gap-3 text-xs text-[var(--text-muted)]">
+            <span className="text-emerald-500 font-mono">03.</span>
+            <span className="text-[var(--text-main)]">Research guides explain HPLC, mass spectrometry, COA interpretation, stability, and traceability without substituting for batch evidence.</span>
+          </li>
         </ul>
       </div>
-
     </div>
   );
 }

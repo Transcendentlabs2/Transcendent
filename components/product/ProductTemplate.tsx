@@ -85,6 +85,8 @@ export default function ProductTemplate({
 
   const accentColor = getAccentColor(product.category);
   const isOutOfStock = product.stock <= 0;
+  const verifiedPurityRecord = authority.coas.find((record) => Boolean(record.purity));
+  const displayedPurity = product.purity || verifiedPurityRecord?.purity;
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -96,7 +98,11 @@ export default function ProductTemplate({
 
   const specificationItems = [
     "Laboratory Research Use",
-    product.purity ? "Purity Record Published" : "Purity Not Published",
+    product.purity
+      ? "Catalog Purity Record Available"
+      : verifiedPurityRecord
+        ? "Verified Lot Purity Available"
+        : "Analytical Documentation Pending",
     authority.coas.length > 0
       ? `${authority.coas.length} Verified Lot Record${authority.coas.length > 1 ? "s" : ""}`
       : "COA Lookup Available",
@@ -212,14 +218,34 @@ export default function ProductTemplate({
             <div className="lg:col-span-4 order-3 lg:order-3 flex flex-col gap-8 text-center lg:text-right items-center lg:items-end">
               <div>
                 <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] block mb-1">
-                  Purity Record
+                  {product.purity
+                    ? "Catalog Purity Record"
+                    : verifiedPurityRecord
+                      ? "Verified Lot Purity"
+                      : "Analytical Documentation"}
                 </span>
                 <div className="flex items-center gap-2 justify-center lg:justify-end">
-                  <span className="text-3xl font-display font-bold text-[var(--text-main)]">
-                    {product.purity || "Not Published"}
-                  </span>
-                  {product.purity && <CheckCircle2 size={18} color={accentColor} />}
+                  {displayedPurity ? (
+                    <>
+                      <span className="text-3xl font-display font-bold text-[var(--text-main)]">
+                        {displayedPurity}
+                      </span>
+                      <CheckCircle2 size={18} color={accentColor} />
+                    </>
+                  ) : (
+                    <Link
+                      href="/coa"
+                      className="text-xl font-display font-bold text-[var(--text-main)] hover:text-[var(--color-brand-primary)] transition-colors"
+                    >
+                      See COA Library
+                    </Link>
+                  )}
                 </div>
+                {!product.purity && verifiedPurityRecord && (
+                  <span className="mt-1 block text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
+                    Lot {verifiedPurityRecord.lot}
+                  </span>
+                )}
               </div>
 
               <div className="w-full lg:w-auto pt-6 border-t border-[var(--glass-border)]">
