@@ -13,9 +13,9 @@ import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
-const title = `Research Peptide Quality & Analytical Documentation | ${SITE_NAME}`;
+const title = `Peptide Quality & Analytical Documentation | ${SITE_NAME}`;
 const description =
-  "Learn how Transcendent Labs structures research-compound quality around product records, lot traceability, analytical context, public COA evidence and research-use-only documentation.";
+  "How Transcendent Labs connects product records, lot traceability, analytical context, COA evidence, and research-use-only documentation.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -110,6 +110,9 @@ export default function QualityPage() {
             </Link>
             <Link href="/tools/coa-checklist" className="inline-flex items-center gap-2 rounded-xl border border-[var(--glass-border)] px-5 py-3 text-sm font-bold hover:border-[var(--color-brand-primary)] transition-colors">
               Use COA Review Checklist
+            </Link>
+            <Link href="/research/reference/batch-traceability" className="inline-flex items-center gap-2 rounded-xl border border-[var(--glass-border)] px-5 py-3 text-sm font-bold hover:border-[var(--color-brand-primary)] transition-colors">
+              Batch Traceability Guide
             </Link>
           </div>
         </div>
