@@ -9,9 +9,9 @@ import SeoCatalogGrid from "@/components/catalog/SeoCatalogGrid";
 
 export const revalidate = 3600;
 
-const title = `Research Peptides | HPLC-Focused Laboratory Compounds | ${SITE_NAME}`;
+const title = `Research Peptides for Laboratory Use | ${SITE_NAME}`;
 const description =
-  "Browse Transcendent Labs research peptides for laboratory research use only, with product-specific documentation, purity information when documented, and HPLC-focused analytical guidance.";
+  "Browse research peptides for laboratory use with product documentation, published purity information when available, and analytical research guides.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -51,6 +51,11 @@ const researchGuides = [
     href: "/research/how-to-read-peptide-coa",
     title: "How to Read a Peptide COA",
     description: "Review lot numbers, HPLC results, mass spectrometry, dates, and batch traceability.",
+  },
+  {
+    href: "/research/peptide-purity-testing",
+    title: "Peptide Purity Testing",
+    description: "Understand what a chromatographic purity value can support and where complementary evidence is needed.",
   },
 ];
 
@@ -169,7 +174,7 @@ export default async function ResearchPeptidesPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             {researchGuides.map((guide) => (
               <Link
                 key={guide.href}

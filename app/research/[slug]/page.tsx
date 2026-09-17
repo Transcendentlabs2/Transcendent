@@ -95,11 +95,7 @@ export default async function ResearchArticlePage({ params }: Props) {
     keywords: [article.primaryKeyword, ...article.supportingKeywords].join(", "),
     isPartOf: { "@id": `${SITE_URL}/research#collection` },
     publisher: { "@id": `${SITE_URL}/#organization` },
-    author: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      url: SITE_URL,
-    },
+    author: { "@id": `${SITE_URL}/#organization` },
     about: [article.primaryKeyword, ...article.supportingKeywords],
   };
 

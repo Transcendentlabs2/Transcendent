@@ -8,7 +8,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const title = `Free Laboratory Research Tools | ${SITE_NAME}`;
 const description =
-  "Use free Transcendent Labs research tools for peptide sequence conversion, molecular-weight calculations, sequence analysis, and Certificate of Analysis documentation review.";
+  "Free peptide research tools for molecular-weight calculations, sequence conversion, sequence analysis, and Certificate of Analysis documentation review.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -116,6 +116,36 @@ export default function ToolsPage() {
               </Link>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-[var(--glass-border)] px-6 pb-20 pt-16">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-brand-primary)]">
+            Analytical context
+          </p>
+          <h2 className="mt-2 max-w-3xl font-display text-2xl font-bold md:text-3xl">
+            Calculations and checklists are most useful when connected to the underlying analytical method.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--text-muted)] md:text-base">
+            Molecular-weight calculations describe a theoretical sequence-derived value. HPLC, mass spectrometry and COA review answer different questions about a physical sample or lot. Use the supporting guides below to interpret each result within the correct laboratory context.
+          </p>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { href: "/research/hplc-peptide-testing", label: "HPLC peptide testing" },
+              { href: "/research/peptide-mass-spectrometry", label: "Peptide mass spectrometry" },
+              { href: "/research/how-to-read-peptide-coa", label: "How to read a peptide COA" },
+              { href: "/research/reference/batch-traceability", label: "Peptide batch traceability" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-4 text-sm font-bold hover:border-[var(--color-brand-primary)] transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
       <Footer />
