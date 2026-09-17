@@ -7,7 +7,7 @@ import Footer from "@/components/landing/Footer";
 import { RESEARCH_ARTICLES, RESEARCH_CLUSTERS } from "@/lib/research";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
-const title = "Peptide Research Library | Analytical Testing & Laboratory Guides";
+const title = "Peptide Research & Analytical Testing Library";
 const description =
   "Explore laboratory-focused guides on research peptides, HPLC testing, mass spectrometry, peptide purity, certificates of analysis, and sample stability.";
 
@@ -139,6 +139,24 @@ export default function ResearchLibraryPage() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            {[
+              { href: "/research/hplc-peptide-testing", label: "HPLC peptide testing" },
+              { href: "/research/peptide-mass-spectrometry", label: "Mass spectrometry" },
+              { href: "/research/how-to-read-peptide-coa", label: "Peptide COA guide" },
+              { href: "/research/reference/batch-traceability", label: "Batch traceability" },
+              { href: "/tools/peptide-molecular-weight", label: "Molecular weight tool" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3 text-sm font-bold text-[var(--text-main)] hover:border-[var(--color-brand-primary)] transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
