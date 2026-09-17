@@ -6,9 +6,9 @@ import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
-const title = `Peptide Research & Analytical Testing Glossary | ${SITE_NAME}`;
+const title = `Peptide Analysis & Research Glossary | ${SITE_NAME}`;
 const description =
-  "A laboratory-focused glossary of peptide research, HPLC, mass spectrometry, COA, lot traceability, lyophilization, molecular mass, and analytical-documentation terms.";
+  "Laboratory definitions for peptide analysis, HPLC, mass spectrometry, purity, COA review, lot traceability, molecular mass, and research documentation.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -44,7 +44,10 @@ const TERMS: Term[] = [
     id: "batch-lot",
     definition:
       "A traceability identifier assigned to a defined production or packaged quantity of material. A useful analytical record should connect the same lot identifier across the vial, Certificate of Analysis, chromatogram, spectrum, and related documentation.",
-    related: [{ label: "COA Library", href: "/coa" }],
+    related: [
+      { label: "Peptide batch traceability guide", href: "/research/reference/batch-traceability" },
+      { label: "COA Library", href: "/coa" },
+    ],
   },
   {
     term: "Certificate of Analysis (COA)",
@@ -116,6 +119,28 @@ const TERMS: Term[] = [
     related: [{ label: "Lyophilized peptide stability guide", href: "/research/lyophilized-peptide-stability" }],
   },
   {
+    term: "Peptide analysis",
+    id: "peptide-analysis",
+    definition:
+      "The combined laboratory evaluation of a peptide sample using methods selected for specific analytical questions. HPLC can characterize chromatographic composition, while mass spectrometry can provide complementary molecular-mass evidence; neither result should be treated as a complete substitute for the other.",
+    related: [
+      { label: "HPLC peptide testing guide", href: "/research/hplc-peptide-testing" },
+      { label: "Peptide mass spectrometry guide", href: "/research/peptide-mass-spectrometry" },
+      { label: "HPLC vs mass spectrometry", href: "/research/reference/hplc-vs-mass-spectrometry" },
+    ],
+  },
+  {
+    term: "Peptide lot traceability",
+    id: "peptide-lot-traceability",
+    definition:
+      "The documented connection between a peptide vial or material record and the lot-specific certificate, analytical sample identifiers, analysis dates, chromatograms, spectra, and handling records used to describe that batch.",
+    related: [
+      { label: "Peptide batch traceability guide", href: "/research/reference/batch-traceability" },
+      { label: "How to read a peptide COA", href: "/research/how-to-read-peptide-coa" },
+      { label: "COA Library", href: "/coa" },
+    ],
+  },
+  {
     term: "Peptide sequence",
     id: "peptide-sequence",
     definition:
@@ -131,6 +156,7 @@ const TERMS: Term[] = [
     definition:
       "The ability to connect a physical research material to its product record, lot identifier, analytical documentation, dates, and supporting evidence without unexplained gaps or mismatched identifiers.",
     related: [
+      { label: "Peptide batch traceability guide", href: "/research/reference/batch-traceability" },
       { label: "Quality & analytical documentation", href: "/quality" },
       { label: "COA Library", href: "/coa" },
     ],
